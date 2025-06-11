@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const editalRoutes = require('./routes/editalRoutes');
+const routes = require('./routes/routes');
 
 const app = express();
 const PORT = 3000;
@@ -8,7 +8,7 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-app.use('/editais', editalRoutes);
+app.use('/editais', routes);
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);

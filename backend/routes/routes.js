@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { listarEditais, criarEdital } = require('../controllers/editalController');
+const { listarEditais, criarEdital } = require('../controllers/controller');
 
 // GET /editais
 router.get('/', listarEditais);
