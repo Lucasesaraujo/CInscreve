@@ -13,4 +13,4 @@ const EditalSchema = new mongoose.Schema({
   validado: Boolean,
 })
 
-module.exports = mongoose.model('Edital', EditalSchema)
+module.exports = mongoose.model('Edital', EditalSchema, 'editais')
