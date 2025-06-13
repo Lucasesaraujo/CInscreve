@@ -20,7 +20,25 @@ const criarEdital = async (req, res) => {
   }
 };
 
+const removerEdital = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const editalRemovido = await Edital.findByIdAndDelete(id);
+
+    if (!editalRemovido) {
+      return res.status(404).json({ erro: 'Edital não encontrado!' });
+    }
+
+    res.json({ mensagem: 'Edital removido com sucesso!' });
+    
+  } catch (error) {
+    res.status(500).json({ erro: 'ERRO ao remover edital!' });
+  }
+};
+
 module.exports = {
   listarEditais,
-  criarEdital
+  criarEdital,
+  removerEdital
 };
