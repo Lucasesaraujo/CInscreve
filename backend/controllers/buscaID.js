@@ -1,5 +1,6 @@
 const Edital = require('../models/edital');
 
+// GETID Controller para abrir um edital específico
 const buscarEdital = async (req, res) => {
     try{
 
