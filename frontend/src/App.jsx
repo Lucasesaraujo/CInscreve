@@ -6,6 +6,8 @@ import viteLogo from '/vite.svg';
 import './App.css';
 import Tipografia from './components/Tipografia';
 import Button from './components/Botao';
+import Footer from './components/Footer';
+import Header from './components/Header';
 
 
 function App() {
@@ -54,7 +56,7 @@ function App() {
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
-          strokeWidth={2} // usar camelCase no react
+          strokeWidth={2}
           aria-hidden="true"
         >
           <path
@@ -91,7 +93,7 @@ function App() {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="size-6" // usar className no react
+            className="size-6" 
           >
             <path
               strokeLinecap="round"
@@ -122,7 +124,14 @@ function App() {
             />
           </svg>
         </Button>
+
+        <Footer></Footer>
+
+        <Header></Header>
+
       </div>
+    </div>
+    );
 
 }
 
