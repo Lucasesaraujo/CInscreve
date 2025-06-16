@@ -7,6 +7,7 @@ import './App.css';
 import Tipografia from './components/Tipografia';
 import Button from './components/Botao';
 
+
 function App() {
   return (
 
@@ -36,6 +37,7 @@ function App() {
         <Button variant="azul-escuro" tipo="corpo" tamanho={16} peso="medium">
           Ver editais
         </Button>
+
       </div>
 
       {/* botao maior com icone e texto */}
@@ -122,8 +124,6 @@ function App() {
         </Button>
       </div>
 
-    </div>
-  );
 }
 
 export default App;
