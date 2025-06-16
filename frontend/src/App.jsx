@@ -1,3 +1,4 @@
+
 /* eslint-disable no-unused-vars */
 import { useState } from 'react';
 import reactLogo from './assets/react.svg';
@@ -8,6 +9,7 @@ import Button from './components/Botao';
 
 function App() {
   return (
+
     <div className="p-8">
       <Tipografia tipo="titulo" tamanho={48} peso="bold">
         CInscreva
