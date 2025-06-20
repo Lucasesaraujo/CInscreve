@@ -1,4 +1,3 @@
-
 /* eslint-disable no-unused-vars */
 import { useState } from 'react';
 import reactLogo from './assets/react.svg';
@@ -8,6 +7,7 @@ import Tipografia from './components/Tipografia';
 import Button from './components/Botao';
 import Footer from './components/Footer';
 import Header from './components/Header';
+import CardLupa from './components/CardLupa';
 
 
 function App() {
@@ -43,31 +43,34 @@ function App() {
       </div>
 
       {/* botao maior com icone e texto */}
-      <Button
-        variant="botao-maior"
-        tipo="corpo"
-        tamanho={18}
-        peso="medium"
-        className="w-40 h-40 flex flex-col items-center justify-center text-center p-6 rounded-full"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-12 w-12 mb-2"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-          aria-hidden="true"
+      <div className="flex flex-row items-center gap-8 mt-8">
+        <Button
+          variant="botao-maior"
+          tipo="corpo"
+          tamanho={18}
+          peso="medium"
+          className="w-40 h-40 flex flex-col items-center justify-center text-center p-6 rounded-full"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
-        Busque
-        <span className="text-xs">encontre editais para transformar sua organizacao.</span>
-      </Button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-12 w-12 mb-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          Busque
+          <span className="text-xs">encontre editais para transformar sua organizacao.</span>
+        </Button>
+        <CardLupa />
+      </div>
 
       {/* botoes sim, nao, favoritar e usuario */}
       <div className="flex flex-wrap gap-2 mt-8">
