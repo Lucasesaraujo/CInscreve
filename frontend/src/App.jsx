@@ -4,12 +4,10 @@ import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 import './App.css';
 import Tipografia from './components/Tipografia';
-
 import Botao from './components/Botao';
 import Footer from './components/Footer';
 import Header from './components/Header';
 import CardLupa from './components/CardLupa';
-
 
 
 function App() {
@@ -57,6 +55,7 @@ function App() {
       </div>
 
     </div>
+    </>
   );
 
 export default App;
