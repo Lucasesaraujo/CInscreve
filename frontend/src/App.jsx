@@ -6,9 +6,12 @@ import viteLogo from '/vite.svg';
 import './App.css';
 import Tipografia from './components/Tipografia';
 import Button from './components/Botao';
+import Header from './components/Header';
 
 function App() {
   return (
+    <>
+    <Header />
 
     <div className="p-8">
       <Tipografia tipo="titulo" tamanho={48} peso="bold">
@@ -123,6 +126,7 @@ function App() {
       </div>
 
     </div>
+    </>
   );
 }
 
