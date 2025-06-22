@@ -4,14 +4,21 @@ import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 import './App.css';
 import Tipografia from './components/Tipografia';
+
 import Botao from './components/Botao';
 import Footer from './components/Footer';
 import Header from './components/Header';
 import CardLupa from './components/CardLupa';
 
 
+
 function App() {
   return (
+    <>
+      <div className="p-8">
+        <Tipografia tipo="titulo" tamanho={48} peso="bold">
+          CInscreva
+        </Tipografia>
 
     <div className="p-8">
       <Tipografia tipo="titulo">
@@ -51,7 +58,5 @@ function App() {
 
     </div>
   );
-
-}
 
 export default App;
