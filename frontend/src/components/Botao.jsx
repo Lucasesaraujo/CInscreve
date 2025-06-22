@@ -1,119 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
+import {
+  Heart,
+  HeartOff,
+  Check,
+  X,
+  User
+} from 'lucide-react'
 
-const Button = ({
+export default function Botao({
   children,
-  variant = 'primary',
-  className = '',
-  tipo = 'corpo',
-  tamanho = 16,
-  peso = 'medium',
-  favoritar = false, // prop para ativar o botao favoritar
+  variante = 'azul-medio', // tipo do botao 
+  className = '',           // classes extras
+  favoritar = false,        // se for o botao de favoritar
+  onClick,
   ...props
-}) => {
-  const [isFavorited, setIsFavorited] = useState(false);
+}) {
+  const [ativo, setAtivo] = useState(false)
 
-  // define a fonte com base no tipo
-  const fonte = tipo === 'titulo' ? 'font-montserrat' : 'font-lato';
+  // estilos base 
+  const base = 'rounded-md px-6 py-3 transition flex items-center justify-center gap-2 text-sm font-medium'
 
-  // mapa de pesos para as classes de fonte
-  const pesos = {
-    bold: 'font-bold',
-    medium: 'font-medium',
-    regular: 'font-normal',
-    light: 'font-light',
-  };
+  // estilos especificos de cada tipo de botao
+  const estilos = {
+    'azul-claro': 'bg-[#56b5fd] text-white hover:brightness-90 w-40',
+    'azul-medio': 'bg-[#108cf0] text-white hover:brightness-90 w-40',
+    'azul-escuro': 'bg-[#0b3e76] text-white hover:brightness-90 w-40',
+    outline: 'border border-[#108cf0] text-[#108cf0] hover:bg-zinc-100 w-40',
+    texto: 'text-black hover:text-zinc-700 w-40',
 
-  // base dos estilos do botao, concatenando as classes
-  const baseStyles = [
-    'rounded-md px-4 md:px-6 py-2 md:py-3 sm:w-auto w-auto transition flex items-center gap-2',
-    fonte,
-    pesos[peso] || '',
-  ].join(' ');
+    // botoes de sim e nao 
+    sim: 'bg-green-600 text-white hover:bg-green-700 flex-col text-center w-16 h-16 !p-2 !gap-0',
+    nao: 'bg-red-600 text-white hover:bg-red-700 flex-col text-center w-16 h-16 !p-2 !gap-0',
 
-  // estilos variantes de acordo com a prop variant
-  const variantStyles = {
-    'azul-claro': 'bg-[#56b5fd] text-white hover:brightness-90',
-    'azul-medio': 'bg-[#108cf0] text-white hover:brightness-90',
-    'azul-escuro': 'bg-[#0b3e76] text-white hover:brightness-90',
-    outline: 'border border-black text-black hover:bg-zinc-100',
-    text: 'text-black hover:text-zinc-700 flex items-center gap-2',
-    sim: 'bg-green-600 text-white hover:bg-green-700 flex flex-col items-center justify-center text-center',
-    nao: 'bg-red-600 text-white hover:bg-red-700 flex flex-col items-center justify-center text-center',
-    'botao-maior': 'bg-transparent text-black flex flex-col items-center justify-center text-center p-6 rounded-full w-40 h-40 hover:bg-gray-200',
-    usuario: 'bg-gray-200 hover:bg-gray-300 rounded-full w-12 h-12 flex items-center justify-center',
-  };
-
-  // caso o botao seja o favoritar, retornamos o botao com estado e icones proprios
-  if (favoritar) {
-    const toggleFavorite = () => setIsFavorited(!isFavorited);
-
-    // concatenando as classes para o botao favoritar
-    const favoritarClasses = [
-      baseStyles,
-      'bg-white text-black hover:bg-zinc-100 flex items-center gap-2 flex-col',
-      className,
-    ].join(' ');
-
-    return (
-      <button
-        className={favoritarClasses}
-        onClick={toggleFavorite}
-        style={{ fontSize: `${tamanho}px` }}
-        {...props}
-      >
-        {isFavorited ? (
-          <>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-red-500"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                fillRule="evenodd"
-                d="m3.172 5.172a4 4 0 0 1 5.656 0l1.172 1.171 1.172-1.171a4 4 0 0 1 5.656 0c1.563 1.563 1.563 4.095 0 5.657l-6.828 6.829a1 1 0 0 1-1.414 0l-6.828-6.829a4 4 0 0 1 0-5.657z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Favorito
-          </>
-        ) : (
-          <>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m4.318 6.318a4.5 4.5 0 0 0 0 6.364l7.682 7.682 7.682-7.682a4.5 4.5 0 0 0-6.364-6.364l-1.318 1.318-1.318-1.318a4.5 4.5 0 0 0-6.364 0z"
-              />
-            </svg>
-            Favoritar
-          </>
-        )}
-      </button>
-    );
+    // botao de perfil e login
+    perfil: 'bg-gray-200 hover:bg-gray-300 rounded-full w-16 h-14 !flex !justify-center !items-center !p-0 !gap-0',
+    login: 'bg-[#108cf0] text-white hover:brightness-90 w-24 h-12'
   }
 
-  // caso normal do botao, juntamos as classes base + variante + classes extras
-  const buttonClasses = [baseStyles, variantStyles[variant] || '', className].join(' ');
+  // botao de favoritar que alterna entre dois estados
+  if (favoritar) {
+    return (
+      <button
+        onClick={() => setAtivo(!ativo)}
+        className={`${base} bg-white hover:bg-zinc-100 flex-col w-32 h-24`}
+        {...props}
+      >
+        {ativo
+          ? <Heart className="h-6 w-6 text-red-500" fill="currentColor" />
+          : <HeartOff className="h-6 w-6" />
+        }
+        <span className="text-sm mt-1">{ativo ? 'Favorito' : 'Favoritar'}</span>
+      </button>
+    )
+  }
+
+  // icones padrao para botoes especificos
+  const iconesPadrao = {
+    sim: <Check className="h-10 w-10 mb-px" />,
+    nao: <X className="h-10 w-10 mb-px" />,
+    perfil: <User className="h-8 w-8" />
+  }
+
+  // estilo final juntando o base com a variante
+  const estiloFinal = `${base} ${estilos[variante] || ''} ${className}`
 
   return (
-    <button
-      className={buttonClasses}
-      style={{ fontSize: `${tamanho}px` }}
-      {...props}
-    >
-      {children}
+    <button className={estiloFinal} onClick={onClick} {...props}>
+      {iconesPadrao[variante] || null}
+      {children && <span className="block text-center">{children}</span>}
     </button>
-  );
-};
-
-export default Button;
+  )
+}
