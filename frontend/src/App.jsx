@@ -12,13 +12,11 @@ import CardLupa from './components/CardLupa';
 
 function App() {
   return (
-    <>
-      <div className="p-8">
-        <Tipografia tipo="titulo" tamanho={48} peso="bold">
-          CInscreva
-        </Tipografia>
-
     <div className="p-8">
+      <Tipografia tipo="titulo" tamanho={48} peso="bold">
+        CInscreva
+      </Tipografia>
+
       <Tipografia tipo="titulo">
         CInscreva
       </Tipografia>
@@ -31,17 +29,15 @@ function App() {
         O CInscreve oferece a você um ambiente unificado onde você pode buscar e acompanhar editais de seu interesse.
       </Tipografia>
 
-      <CardLupa></CardLupa>
-      
-      <Footer></Footer>
+      <CardLupa />
 
-      <Header></Header>
+      <Footer />
+      <Header />
 
-      <div className='flex gap-4 items-start'>
+      <div className="flex gap-4 items-start">
         <Botao variante="azul-claro">Carregar mais</Botao>
         <Botao variante="outline">Sugerir editais</Botao>
-        <Botao variante='login'>Login</Botao>
-
+        <Botao variante="login">Login</Botao>
         <Botao variante="sim">sim</Botao>
         <Botao variante="nao">nao</Botao>
       </div>
@@ -53,9 +49,9 @@ function App() {
       <div>
         <Botao variante="perfil" />
       </div>
-
     </div>
-    </>
   );
+}
 
 export default App;
+
