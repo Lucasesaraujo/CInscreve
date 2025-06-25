@@ -1,4 +1,5 @@
 import React from 'react';
+import Botao from './Botao';
 
 export default function Card({
   variante = 'simples',
@@ -8,7 +9,9 @@ export default function Card({
   imagem,
   areaInteresse = 'label'
 }) {
+  
   if (variante === 'detalhado') {
+
     return (
       <div className="max-w-sm mx-auto bg-white rounded-xl shadow p-6 border">
         <h2 className="text-xl font-bold text-gray-900 mb-2">{titulo}</h2>
