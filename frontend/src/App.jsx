@@ -7,14 +7,13 @@ import Tipografia from './components/Tipografia';
 import Botao from './components/Botao';
 import Footer from './components/Footer';
 import Header from './components/Header';
-import CardLupa from './components/CardLupa';
+import BlocoFuncionalidade from './components/BlocoFuncionalidade';
 import Card from './components/Cards2';
 import Input from './components/Input';
 
 function App() {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
-
 
   return (
     <div className="p-8">
@@ -50,8 +49,6 @@ function App() {
         O CInscreve oferece a você um ambiente unificado onde você pode buscar e acompanhar editais de seu interesse.
       </Tipografia>
 
-      <CardLupa />
-
       <Footer />
       <Header />
 
@@ -85,6 +82,19 @@ function App() {
         descricao="Este edital é para projetos inovadores em inteligência artificial."
         areaInteresse="Inovação"
       />
+
+      <BlocoFuncionalidade
+        icone="lupa"
+        titulo="Busque"
+        descricao="Encontre editais para transformar sua organização."
+      />
+
+      <BlocoFuncionalidade
+        icone="coracao"
+        titulo="favoritos"
+        descricao="marque editais que voce gostou"
+      />
+
     </div>
   )
 }
