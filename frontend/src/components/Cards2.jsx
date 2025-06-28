@@ -1,4 +1,6 @@
 import React from 'react';
+import Botao from './Botao';
+import Tipografia from './Tipografia';
 
 export default function Card({
   variante = 'simples',
@@ -6,42 +8,66 @@ export default function Card({
   instituicao = 'Nome instituição',
   descricao = 'Descrição padrão do edital.',
   imagem,
-  areaInteresse = 'label'
+  area = 'label'
 }) {
+  
+  const base = 'w-[280px] h-[320px] bg-white rounded-xl shadow border flex flex-col justify-between';
+  
+  const estilos = {
+    simples: 'p-4 items-center text-center',       // centraliza o conteúdo no card simples
+    detalhado: 'p-6'                                // conteúdo alinhado à esquerda no detalhado
+  };
+
   if (variante === 'detalhado') {
     return (
-      <div className="max-w-sm mx-auto bg-white rounded-xl shadow p-6 border">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">{titulo}</h2>
-        <hr className="mb-4" />
-        <p className="text-gray-700 text-sm mb-6">
-          {descricao}
-        </p>
-        <div className="flex justify-start">
-          <button className="bg-blue-900 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow-md hover:bg-blue-800">
-            label
-          </button>
+      <div className={`${base} ${estilos.detalhado}`}>
+        <div>
+          <Tipografia tipo="subtitulo" className="mb-2">
+            {titulo}
+          </Tipografia>
+
+          <hr className="mb-4" />
+
+          <Tipografia tipo="texto" className="text-zinc-700 text-sm line-clamp-[5]">
+            {descricao}
+          </Tipografia>
+        </div>
+
+        <div className="flex justify-start mt-4">
+          <Botao variante="azul-escuro">{area}</Botao>
         </div>
       </div>
     );
   }
 
-  // Variante simples
+  // Card simples
   return (
-    <div className="max-w-sm mx-auto bg-white rounded-xl shadow p-4 border">
-      <div className="mb-4">
-        <img
-          src={imagem || 'https://via.placeholder.com/300x200'}
-          alt={titulo}
-          className="w-full h-40 object-cover rounded-md"
-        />
+    <div className={`${base} ${estilos.simples}`}>
+      <div>
+        <div className="mb-3">
+          <img
+            src={imagem || 'https://via.placeholder.com/300x200'}
+            alt={titulo}
+            className="w-full h-36 object-cover rounded-md"
+          />
+        </div>
+
+        <Tipografia tipo="texto" className="font-bold text-gray-900 mb-1">
+          {titulo}
+        </Tipografia>
+
+        <Tipografia tipo="legenda" className="mb-4 text-gray-700">
+          {instituicao}
+        </Tipografia>
       </div>
-      <h2 className="text-lg font-bold text-gray-900 mb-1">{titulo}</h2>
-      <p className="text-sm text-gray-700 mb-4">{instituicao}</p>
-      <div className="flex items-center text-sm text-gray-700">
-        <span className="mr-2">Áreas de Interesse:</span>
-        <button className="bg-blue-900 text-white px-3 py-1 text-xs rounded-full shadow hover:bg-blue-800">
-          {areaInteresse}
-        </button>
+
+      <div className="flex flex-row items-center justify-center gap-2">
+        <Tipografia tipo="legenda" className="text-gray-700">
+          Áreas de Interesse:
+        </Tipografia>
+        <Botao variante="azul-escuro" className="text-xs px-3 py-1">
+          {area}
+        </Botao>
       </div>
     </div>
   );
