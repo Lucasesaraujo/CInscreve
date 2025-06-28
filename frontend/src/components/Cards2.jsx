@@ -19,6 +19,7 @@ export default function Card({
   };
 
   if (variante === 'detalhado') {
+
     return (
       <div className={`${base} ${estilos.detalhado}`}>
         <div>
