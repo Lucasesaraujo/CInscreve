@@ -8,7 +8,7 @@ import Botao from './components/Botao';
 import Footer from './components/Footer';
 import Header from './components/Header';
 import BlocoFuncionalidade from './components/BlocoFuncionalidade';
-import Card from './components/Cards2';
+import Card from './components/Cards';
 import Input from './components/Input';
 
 function App() {
@@ -73,14 +73,15 @@ function App() {
         titulo="Segurança"
         instituicao="Grande Recife"
         imagem={'./assets/react.svg'}
-        areaInteresse="Animal"
+        area="Animal"
       />
 
       <Card
         variante="detalhado"
         titulo="Edital Especial"
+        instituicao='Grande Recife'
         descricao="Este edital é para projetos inovadores em inteligência artificial."
-        areaInteresse="Inovação"
+        area="Inovação"
       />
 
       <BlocoFuncionalidade
