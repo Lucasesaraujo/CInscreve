@@ -27,6 +27,7 @@ export default function Botao({
     'azul-escuro': 'bg-[#0b3e76] text-white hover:brightness-90 w-40',
     outline: 'border border-[#108cf0] text-[#108cf0] hover:bg-zinc-100 w-40',
     texto: 'text-black hover:text-zinc-700 w-40',
+    
 
     // botoes de sim e nao 
     sim: 'bg-green-600 text-white hover:bg-green-700 flex-col text-center w-16 h-16 !p-2 !gap-0',
