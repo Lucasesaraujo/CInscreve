@@ -1,7 +1,12 @@
-import Editais_Validados from './pages/Editais-validados'
+import React from 'react'
+import Usuario from './pages/Pagina-Usuario' // ou onde estiver o componente
 
 function App() {
-  return <Editais_Validados />
+  return (
+    <div>
+      <Usuario />
+    </div>
+  )
 }
 
 export default App
