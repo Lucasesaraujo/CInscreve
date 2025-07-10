@@ -1,19 +1,67 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Header from '../components/Header'
-import Footer from '../components/footer'
+import Footer from '../components/Footer'
 import { Search, Users } from 'lucide-react'
 
+const mockFetchEditais = (offset = 0, limit = 6) => {
+  // Simula chamada API paginada
+  const totalEditais = 20
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      if (offset >= totalEditais) {
+        resolve([]) // Sem mais dados
+        return
+      }
+      const editais = Array.from({ length: limit }, (_, i) => {
+        const index = offset + i
+        if (index >= totalEditais) return null
+        return {
+          id: index + 1,
+          titulo:
+            index % 4 === 0
+              ? 'Prêmio Mejores ONGs 2025 - Colômbia'
+              : `Descrição do edital #${index + 1}`,
+          certificadora: index % 4 === 0 ? 'CertificadoraSocial' : null,
+          areaInteresse: index % 4 === 0 ? 'Cidadania e Justiça' : null,
+          descricao: 'Descrição detalhada do edital aqui.',
+        }
+      }).filter(Boolean)
+      resolve(editais)
+    }, 1000)
+  })
+}
+
 const Editais_Validados = () => {
+  const [editais, setEditais] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [offset, setOffset] = useState(0)
+  const limit = 6
+
+  const carregarEditais = () => {
+    setLoading(true)
+    setError(null)
+    mockFetchEditais(offset, limit)
+      .then((novosEditais) => {
+        if (novosEditais.length === 0) return // Sem mais para carregar
+        setEditais((prev) => [...prev, ...novosEditais])
+        setOffset((prev) => prev + limit)
+      })
+      .catch(() => setError('Erro ao carregar editais.'))
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    carregarEditais()
+  }, [])
+
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Header */}
       <Header />
 
-      {/* Conteúdo principal */}
       <main className="flex-1 flex flex-col items-center px-4 md:px-12 py-8">
-        {/* Título + ícone */}
         <div className="w-full max-w-6xl mb-6">
           <h1 className="text-3xl font-bold flex items-center gap-2">
             Editais validados pela comunidade
@@ -21,9 +69,7 @@ const Editais_Validados = () => {
           </h1>
         </div>
 
-        {/* Busca e filtro */}
         <div className="w-full max-w-6xl flex gap-4 mb-10 items-center">
-          {/* Input + botão lupa + select tudo junto */}
           <div className="flex items-center gap-2">
             <div className="flex">
               <input
@@ -36,13 +82,9 @@ const Editais_Validados = () => {
               </button>
             </div>
 
-            {/* Select com seta customizada e fundo cinza só na setinha */}
             <div className="relative">
-              <select
-                className="appearance-none px-4 py-2 pr-10 rounded border border-gray-300 bg-white text-sm text-gray-700 cursor-pointer"
-              >
+              <select className="appearance-none px-4 py-2 pr-10 rounded border border-gray-300 bg-white text-sm text-gray-700 cursor-pointer">
                 <option>Filtrar</option>
-                {/* opções futuras */}
               </select>
               <div
                 className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 bg-gray-200 rounded px-1 flex items-center justify-center"
@@ -62,43 +104,41 @@ const Editais_Validados = () => {
           </div>
         </div>
 
-        {/* Grade de editais */}
         <div className="w-full max-w-6xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10">
-          {[...Array(8)].map((_, index) => (
-            <div key={index} className="border rounded shadow-sm">
+          {editais.map((edital) => (
+            <div key={edital.id} className="border rounded shadow-sm">
               <div className="w-full h-36 bg-gray-200" />
               <div className="p-3">
-                <h2 className="text-sm font-semibold mb-1">
-                  {index % 4 === 0
-                    ? 'Prêmio Mejores ONGs 2025 - Colômbia'
-                    : 'Descrição do edital'}
-                </h2>
-
-                {index % 4 === 0 && (
+                <h2 className="text-sm font-semibold mb-1">{edital.titulo}</h2>
+                {edital.certificadora ? (
                   <>
-                    <p className="text-xs text-gray-600 mb-2">
-                      CertificadoraSocial
-                    </p>
+                    <p className="text-xs text-gray-600 mb-2">{edital.certificadora}</p>
                     <p className="text-xs">
                       Área de Interesse:{' '}
                       <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
-                        Cidadania e Justiça
+                        {edital.areaInteresse}
                       </span>
                     </p>
                   </>
+                ) : (
+                  <p className="text-xs text-gray-600">{edital.descricao}</p>
                 )}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Botão Carregar mais */}
-        <button className="mb-16 px-6 py-2 rounded bg-gray-800 text-white hover:bg-gray-700 transition cursor-pointer">
-          Carregar mais
+        {error && <p className="text-red-600 mb-4">{error}</p>}
+
+        <button
+          className="mb-16 px-6 py-2 rounded bg-gray-800 text-white hover:bg-gray-700 transition cursor-pointer"
+          onClick={carregarEditais}
+          disabled={loading}
+        >
+          {loading ? 'Carregando...' : 'Carregar mais'}
         </button>
       </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   )
