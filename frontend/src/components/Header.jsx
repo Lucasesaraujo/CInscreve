@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { User } from "lucide-react";
 import Logo from '../assets/logo.png';
 
 const Header = () => {
@@ -19,20 +20,19 @@ const Header = () => {
         </span>
       </div>
 
-      {/* Login na extrema direita */}
-      <div className="absolute right-6 top-1/2 -translate-y-1/2 bg-blue-950 rounded-md text-white">
+      {/* Ícone de usuário no canto direito */}
+      <div className="absolute right-6 top-1/2 -translate-y-1/2">
         <button
           type="button"
           onClick={() => handleClick("login")}
-          className="focus:outline-none cursor-pointer px-4 sm:px-6 pt-1 pb-2 text-sm sm:text-base"
+          className="focus:outline-none cursor-pointer p-2 rounded-full hover:bg-gray-100"
+          aria-label="Login"
         >
-          <span
-            className={`block mx-auto border-b-2 ${
-              active === "login" ? "border-white" : "border-transparent"
+          <User
+            className={`w-8 h-8 ${
+              active === "login" ? "text-blue-800" : "text-gray-700"
             }`}
-          >
-            Login
-          </span>
+          />
         </button>
       </div>
 

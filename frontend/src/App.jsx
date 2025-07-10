@@ -1,3 +1,4 @@
+
 /* eslint-disable no-unused-vars */
 import { useState } from 'react';
 import reactLogo from './assets/react.svg';
@@ -149,5 +150,4 @@ function App() {
   )
 }
 
-
-export default App;
+export default App
