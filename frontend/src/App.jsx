@@ -1,4 +1,3 @@
-
 /* eslint-disable no-unused-vars */
 import { useState } from 'react';
 import reactLogo from './assets/react.svg';
@@ -145,7 +144,6 @@ function App() {
       />
 
       <Carrossel titulo='Editais em destaque' cards={Cards}/>
-
     </div>
   )
 }
