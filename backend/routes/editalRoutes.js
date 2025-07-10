@@ -3,23 +3,24 @@ const { listarEditais, criarEdital, removerEdital, atualizarEdital, buscarEdital
 const autenticarToken = require('../middlewares/authMiddleware');
 const router = express.Router();
 
+// ROTAS NÃO LOGADAS
+
 // GET /editais
 router.get('/', listarEditais);
 
 // GET /editais/id
 router.get('/:id', buscarEdital);
 
-// POST /editais
-router.post('/', criarEdital);
+// ROTAS LOGADAS
+
+// POST /editais *apenas logado
+router.post('/', autenticarToken, criarEdital);
 
 // PUT /editais/id
-router.put('/:id', atualizarEdital)
+router.put('/:id', autenticarToken, atualizarEdital)
 
 // DELETE /editais
-router.delete('/:id', removerEdital);
-
-// GET Token
-router.get('/', autenticarToken, listarEditais);
+router.delete('/:id', autenticarToken, removerEdital);
 
 // Exportando as rotas
 module.exports = router;

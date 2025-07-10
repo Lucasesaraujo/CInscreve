@@ -14,10 +14,12 @@ const loginUsuario = async (req, res) => {
 
     const dadosUsuario = resposta.data;
 
+    console.log('Dados da API externa:', resposta.data);
+
     const token = jwt.sign(
-      {id: dadosUsuario.id, email: dadosUsuario.email },
+      {id: dadosUsuario.ngo.id, email: dadosUsuario.user.email },
       process.env.JWT_SECRET,
-      { expiresIn: '2h'} // o token expira em 2h
+      { expiresIn: '1h'} // o token expira em 1 hora, ou seja, sessão de 1 hora
     );
 
     res.json({ usuario: dadosUsuario, token });
@@ -30,4 +32,8 @@ const loginUsuario = async (req, res) => {
   }
 };
 
-module.exports = { loginUsuario };
+const getUsuarioLogado = (req, res) => {
+  res.json({ usuario: req.usuario });
+};
+
+module.exports = { loginUsuario, getUsuarioLogado };
