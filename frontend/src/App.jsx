@@ -11,6 +11,8 @@ import Funcionalidade from './components/Funcionalidade';
 import Card from './components/Card';
 import Input from './components/Input';
 import Carrossel from './components/Carrossel';
+import Login from './pages/Login';
+import Home from './pages/Home';
 
 function App() {
   const [email, setEmail] = useState('')
@@ -61,7 +63,7 @@ function App() {
   ]
 
   return (
-    <div className="p-8">
+    <div classNaame="p-8">
 
       <div className="max-w-sm mx-auto mt-10">
         <Input

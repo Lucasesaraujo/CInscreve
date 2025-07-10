@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import {
   Heart,
-  HeartOff,
   Check,
   X,
   User
@@ -27,6 +26,8 @@ export default function Botao({
     'azul-escuro': 'bg-[#0b3e76] text-white hover:brightness-90 w-40',
     outline: 'border border-[#108cf0] text-[#108cf0] hover:bg-zinc-100 w-40',
     texto: 'text-black hover:text-zinc-700 w-40',
+    'card-simples': 'bg-[#56b5fd] text-white w-32 h-2 !rounded-xl',
+    'card-detalhado': 'bg-[#56b5fd] text-white w-32 h-10',
     
 
     // botoes de sim e nao 
@@ -48,7 +49,7 @@ export default function Botao({
       >
         {ativo
           ? <Heart className="h-6 w-6 text-red-500" fill="currentColor" />
-          : <HeartOff className="h-6 w-6" />
+          : <Heart className="h-6 w-6" />
         }
         <span className="text-sm mt-1">{ativo ? 'Favorito' : 'Favoritar'}</span>
       </button>
