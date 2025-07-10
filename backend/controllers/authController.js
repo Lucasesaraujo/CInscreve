@@ -1,6 +1,6 @@
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
-
+const { gerarTokens } = require('../utils/gerarToken');
 
 const loginUsuario = async (req, res) => {
   const { email, password } = req.body;
@@ -16,13 +16,9 @@ const loginUsuario = async (req, res) => {
 
     console.log('Dados da API externa:', resposta.data);
 
-    const token = jwt.sign(
-      {id: dadosUsuario.ngo.id, email: dadosUsuario.user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h'} // o token expira em 1 hora, ou seja, sessão de 1 hora
-    );
+    const { accessToken, refreshToken } = gerarTokens(dadosUsuario);
 
-    res.json({ usuario: dadosUsuario, token });
+    res.json({ usuario: dadosUsuario, accessToken, refreshToken });
 
   } catch (error) {
     console.error("❌ Erro na autenticação:", error.response?.data || error.message);
