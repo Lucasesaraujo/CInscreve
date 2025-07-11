@@ -1,6 +1,7 @@
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { gerarTokens } = require('../utils/gerarToken');
+const Usuario = require('../models/user');
 
 const loginUsuario = async (req, res) => {
   const { email, password } = req.body;
@@ -14,7 +15,11 @@ const loginUsuario = async (req, res) => {
 
     const dadosUsuario = resposta.data;
 
-    console.log('Dados da API externa:', resposta.data);
+    await Usuario.findOneAndUpdate(
+      { email: dadosUsuario.email },
+      {},
+      { upsert: true, new: true }
+    );
 
     const { accessToken, refreshToken } = gerarTokens(dadosUsuario);
 
