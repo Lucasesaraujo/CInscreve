@@ -54,4 +54,23 @@ const getUsuarioLogado = (req, res) => {
   res.json({ usuario: req.usuario });
 };
 
-module.exports = { loginUsuario, getUsuarioLogado };
+//POST - Controller para deslogar usuário
+const logoutUsuario = async (req, res) => {
+  const accessToken = req.headers.authorization?.split(' ')[1];
+
+  if(!accessToken) return res.status(400).json({ erro: 'Token não fornecido' });
+
+  try{
+    const resultado = await Token.deleteOne({ accessToken: accessToken});
+
+    if(resultado.deletedCount === 0) return res.status(404).json({ erro: 'Token não encontrado ou já removido' });
+
+    res.json({ mensagem: 'Logout realizado com sucesso'})
+
+  } catch(error) {
+    console.error('Erro ao fazer logout:', error);
+    res.status(500).json({ erro: 'Erro interno ao realizar logout' });
+  }
+}
+
+module.exports = { loginUsuario, getUsuarioLogado, logoutUsuario };
