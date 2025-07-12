@@ -1,22 +1,5 @@
 const Usuario = require('../models/user');
 
-const favoritarEdital = async (req, res) => {
-  const userEmail = req.usuario.email;
-  const { id } = req.params;
-
-  try {
-    const usuario = await Usuario.findOneAndUpdate(
-      { email: userEmail },
-      { $addToSet: { favoritos: id } },
-      { new: true }
-    );
-
-    res.json({ mensagem: 'Edital favoritado!', favoritos: usuario.favoritos });
-  } catch (error) {
-    res.status(500).json({ erro: 'Erro ao favoritar edital.' });
-  }
-};
-
 const listarFavoritos = async (req, res) => {
   const userEmail = req.usuario.email;
 
@@ -28,26 +11,6 @@ const listarFavoritos = async (req, res) => {
     res.json({ favoritos: usuario.favoritos });
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao buscar favoritos.' });
-  }
-};
-
-const removerFavorito = async (req, res) => {
-  const userEmail = req.usuario.email;
-  const { id } = req.params;
-
-  try {
-    const usuario = await Usuario.findOneAndUpdate(
-      { email: userEmail },
-      { $pull: { favoritos: id } },
-      { new: true }
-    ).populate('favoritos');
-
-    if (!usuario) return res.status(404).json({ erro: 'Usuário não encontrado' });
-
-    res.json({ mensagem: 'Edital removido dos favoritos', favoritos: usuario.favoritos });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: 'Erro ao remover favorito' });
   }
 };
 
@@ -84,8 +47,6 @@ const toggleFavorito = async (req, res) => {
 };
 
 module.exports = {
-  favoritarEdital,
   listarFavoritos,
-  removerFavorito,
-  toggleFavorito,
+  toggleFavorito
 };

@@ -1,5 +1,4 @@
 const axios = require('axios');
-const jwt = require('jsonwebtoken');
 const { gerarTokens } = require('../utils/gerarToken');
 const Usuario = require('../models/user');
 
@@ -16,14 +15,14 @@ const loginUsuario = async (req, res) => {
     const dadosUsuario = resposta.data;
 
     await Usuario.findOneAndUpdate(
-      { email: dadosUsuario.email },
+      { email: dadosUsuario.user.email },
       {},
       { upsert: true, new: true }
     );
 
     const { accessToken, refreshToken } = gerarTokens(dadosUsuario);
 
-    res.json({ usuario: dadosUsuario, accessToken, refreshToken });
+    res.json({ usuario: dadosUsuario, accessToken: accessToken, refreshToken: refreshToken });
 
   } catch (error) {
     console.error("❌ Erro na autenticação:", error.response?.data || error.message);
