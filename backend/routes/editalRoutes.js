@@ -7,11 +7,12 @@ const router = express.Router();
 // GET /editais
 router.get('/', listarEditais);
 
+// GET /editais/nao-validados
+router.get('/nao-validados', listarNaoValidados);
+
 // GET /editais/id
 router.get('/:id', buscarEdital);
 
-// GET /editais/nao-validados
-router.get('/nao-validados', listarNaoValidados);
 
 // ###########################################################
 
