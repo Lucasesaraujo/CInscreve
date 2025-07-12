@@ -1,6 +1,8 @@
 const axios = require('axios');
 const { gerarTokens } = require('../utils/gerarToken');
 const Usuario = require('../models/user');
+const Token = require('../models/token');
+const jwt = require('jsonwebtoken');
 
 // POST - Controller para logar usuário e retorna seus dados, token de acesso e de refresh
 const loginUsuario = async (req, res) => {
@@ -15,13 +17,27 @@ const loginUsuario = async (req, res) => {
 
     const dadosUsuario = resposta.data;
 
-    await Usuario.findOneAndUpdate(
+    const usuarioLocal = await Usuario.findOneAndUpdate(
       { email: dadosUsuario.user.email },
       {},
       { upsert: true, new: true }
     );
 
     const { accessToken, refreshToken } = gerarTokens(dadosUsuario);
+
+    const expiracao = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
+
+    await Token.deleteMany({ userId: usuarioLocal._id });
+    
+    // CRIANDO TOKEN NO BANCO DE DADOS
+    await Token.create({
+      userId: usuarioLocal._id,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      dispositivo: req.headers['user-agent'],
+      ip: req.ip,
+      expiraEm: expiracao
+    });
 
     res.json({ usuario: dadosUsuario, accessToken: accessToken, refreshToken: refreshToken });
 

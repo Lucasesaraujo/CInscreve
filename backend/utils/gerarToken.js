@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const gerarTokens = (dadosUsuario) => {
   const payload = {
     id: dadosUsuario.ngo.id,
-    email: dadosUsuario.user.email,
+    email: dadosUsuario.user.email
   };
 
   const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });

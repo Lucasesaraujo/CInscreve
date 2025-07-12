@@ -1,19 +1,31 @@
-const jwt = require('jsonwebtoken');
+const Token = require('../models/token');
 
 // Controller para verificar o token do usuário (Segurança)
-const autenticarToken = (req, res, next) => {
+const autenticarToken = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if(!authHeader) return res.status(401).json({ erro: 'Token não fornecido' });
 
-    const token = authHeader.split(' ')[1];
+    const accessToken = authHeader.split(' ')[1];
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.usuario = decoded;
+        const token = await Token.findOne({ accessToken }).populate('userId');
+
+        if(!token) return res.status(403).json({ erro: 'Token inválido, expirado ou revogado' });
+
+        if(token.expiraEm < new Date()) return res.status(403).json({ erro: 'Token expirado' });
+
+        req.usuario = {
+            id: token.userId._id,
+            email: token.userId.email,
+            nome: token.userId.nome
+        };
+
         next();
-    } catch (error) {
-        res.status(403).json({ erro: 'Token inválido ou expirado' });
+
+    } catch(error) {
+        console.error('Erro ao autenticar token: ', error);
+        res.status(500).json({ erro: 'Erro interno ao validar o token' });
     }
 };
 
