@@ -2,6 +2,7 @@ const axios = require('axios');
 const { gerarTokens } = require('../utils/gerarToken');
 const Usuario = require('../models/user');
 
+// POST - Controller para logar usuário e retorna seus dados, token de acesso e de refresh
 const loginUsuario = async (req, res) => {
   const { email, password } = req.body;
 
@@ -32,6 +33,7 @@ const loginUsuario = async (req, res) => {
   }
 };
 
+// GET - Controller para confirmar que o usuário está logado
 const getUsuarioLogado = (req, res) => {
   res.json({ usuario: req.usuario });
 };

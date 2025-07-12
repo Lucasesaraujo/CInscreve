@@ -1,5 +1,6 @@
 const Usuario = require('../models/user');
 
+// GET - Controller para listar os editais favoritos do usuário logado
 const listarFavoritos = async (req, res) => {
   const userEmail = req.usuario.email;
 
@@ -14,6 +15,7 @@ const listarFavoritos = async (req, res) => {
   }
 };
 
+// PATCH - Controller para favoritar ou desfavoritar o edital do usuário
 const toggleFavorito = async (req, res) => {
   const userEmail = req.usuario.email;
   const editalId = req.params.id;

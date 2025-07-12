@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 
+// Controller para verificar o token do usuário (Segurança)
 const autenticarToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
