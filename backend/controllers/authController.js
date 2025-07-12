@@ -1,0 +1,35 @@
+const axios = require('axios');
+const jwt = require('jsonwebtoken');
+const { gerarTokens } = require('../utils/gerarToken');
+
+const loginUsuario = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const resposta = await axios.post(
+      'https://bora-impactar-dev.setd.rdmapps.com.br/api/login',
+      { email, password },
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+    const dadosUsuario = resposta.data;
+
+    console.log('Dados da API externa:', resposta.data);
+
+    const { accessToken, refreshToken } = gerarTokens(dadosUsuario);
+
+    res.json({ usuario: dadosUsuario, accessToken, refreshToken });
+
+  } catch (error) {
+    console.error("❌ Erro na autenticação:", error.response?.data || error.message);
+    res.status(401).json({
+      erro: 'Credenciais inválidas ou erro na API externa', detalhes: error.response?.data || null
+    });
+  }
+};
+
+const getUsuarioLogado = (req, res) => {
+  res.json({ usuario: req.usuario });
+};
+
+module.exports = { loginUsuario, getUsuarioLogado };
