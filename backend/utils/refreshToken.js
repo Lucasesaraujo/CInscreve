@@ -1,4 +1,3 @@
-
 function expirandoEmBreve(token) {
   if (!token) return true;
   try {

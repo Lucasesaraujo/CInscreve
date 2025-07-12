@@ -1,7 +1,8 @@
 const axios = require('axios');
-const jwt = require('jsonwebtoken');
 const { gerarTokens } = require('../utils/gerarToken');
+const Usuario = require('../models/user');
 
+// POST - Controller para logar usuário e retorna seus dados, token de acesso e de refresh
 const loginUsuario = async (req, res) => {
   const { email, password } = req.body;
 
@@ -14,11 +15,15 @@ const loginUsuario = async (req, res) => {
 
     const dadosUsuario = resposta.data;
 
-    console.log('Dados da API externa:', resposta.data);
+    await Usuario.findOneAndUpdate(
+      { email: dadosUsuario.user.email },
+      {},
+      { upsert: true, new: true }
+    );
 
     const { accessToken, refreshToken } = gerarTokens(dadosUsuario);
 
-    res.json({ usuario: dadosUsuario, accessToken, refreshToken });
+    res.json({ usuario: dadosUsuario, accessToken: accessToken, refreshToken: refreshToken });
 
   } catch (error) {
     console.error("❌ Erro na autenticação:", error.response?.data || error.message);
@@ -28,6 +33,7 @@ const loginUsuario = async (req, res) => {
   }
 };
 
+// GET - Controller para confirmar que o usuário está logado
 const getUsuarioLogado = (req, res) => {
   res.json({ usuario: req.usuario });
 };
