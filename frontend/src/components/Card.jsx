@@ -15,12 +15,13 @@ export default function Card({
   const [favorito, setFavorito] = useState(false)
   const [notificar, setNotificar] = useState(false)
 
-  const base = 'w-[300px] h-[300px] bg-white rounded-xl shadow border flex flex-col justify-between';
+  const base = 'bg-white rounded-xl shadow border flex flex-col justify-between';
 
   const estilos = {
-    simples: 'p-4 items-center text-center',       // centraliza o conteúdo no card simples
-    detalhado: 'p-6'                                // conteúdo alinhado à esquerda no detalhado
+    simples: 'w-[300px] h-[300px] p-4 items-center text-center',
+    detalhado: 'w-[360px] h-[320px] border-zinc-200 p-6'
   };
+
 
   if (variante === 'detalhado') {
 
@@ -39,7 +40,7 @@ export default function Card({
         </div>
 
         <div className="flex items-center gap-14 mt-4">
-          <Botao variante="card-detalhado">{area}</Botao>
+          <Botao variante="card-detalhado">Conhecer</Botao>
 
           <div className="flex items-center gap-6 mt-2">
             {/* botao de favoritar */}

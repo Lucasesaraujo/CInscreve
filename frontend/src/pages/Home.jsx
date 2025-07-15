@@ -6,77 +6,154 @@ import Botao from '../components/Botao';
 import Card from '../components/Card';
 import Carrossel from '../components/Carrossel';
 import Funcionalidade from '../components/Funcionalidade';
+import Logo from '../assets/recife.png';
+import Fundo from '../assets/base.png';
 
 export default function Home() {
+    const Cards = [
+        {
+            variante: "detalhado",
+            titulo: "Edital Especial",
+            instituicao: 'Grande Recife',
+            descricao: "Este edital é para projetos inovadores em inteligência artificial."
+        },
+        {
+            variante: "detalhado",
+            titulo: "Edital Especial",
+            instituicao: 'Grande Recife',
+            descricao: "Este edital é para projetos inovadores em inteligência artificial."
+        },
+        {
+            variante: "detalhado",
+            titulo: "Edital Especial",
+            instituicao: 'Grande Recife',
+            descricao: "Este edital é para projetos inovadores em inteligência artificial."
+        },
+        {
+            variante: "detalhado",
+            titulo: "Edital Especial",
+            instituicao: 'Grande Recife',
+            descricao: "Este edital é para projetos inovadores em inteligência artificial."
+        },
+        {
+            variante: "detalhado",
+            titulo: "Edital Especial",
+            instituicao: 'Grande Recife',
+            descricao: "Este edital é para projetos inovadores em inteligência artificial."
+        },
+        {
+            variante: "detalhado",
+            titulo: "Edital Especial",
+            instituicao: 'Grande Recife',
+            descricao: "Este edital é para projetos inovadores em inteligência artificial."
+        }
+    ]
     return (
-        <section className="bg-[#f0f7fd] text-zinc-800">
+        <section className="text-zinc-800"
+            style={{ backgroundImage: `url(${Fundo})` }}
+        >
             {/* header */}
             <Header />
 
-            {/* bloco 1 */}
-            <section className="flex flex-col md:flex-row items-center justify-between px-8 py-16 bg-[#f0f7fd] relative overflow-hidden max-w-7xl mx-auto">
-                <div className="md:w-1/2 z-10">
-                    <Tipografia tipo="titulo" className="mb-4 text-black">sua ponte com oportunidades</Tipografia>
-                    <Tipografia tipo="texto" className="mb-6 max-w-md text-black">
-                        encontre, acompanhe e envie editais para transformar sua organização
+            <section className="flex flex-col md:flex-row items-center justify-between py-0 bg-[#f0f7fd] relative overflow-hidden w-full h-[540px]">
+
+                {/* lado esquerdo - textos e botões */}
+                <div className="md:w-1/2 z-10 px-32">
+                    <Tipografia tipo="titulo" className="mb-8 text-black text-5xl">
+                        Sua ponte entre oportunidades e impacto social.
                     </Tipografia>
-                    <div className="flex gap-4">
-                        <Botao variante="azul-medio">Ver editais</Botao>
-                        <Botao variante="outline">Sugerir editais</Botao>
+
+                    <Tipografia tipo="subtitulo" className="mb-16 max-w-md text-gray-500">
+                        O CInscreve oferece a você um ambiente unificado onde você pode buscar e acompanhar editais de seu interesse.
+                    </Tipografia>
+
+                    <div className="flex gap-8">
+                        <Botao variante="azul-escuro">Ver editais</Botao>
+                        <Botao variante="azul-escuro">Sugerir editais</Botao>
                     </div>
                 </div>
-                <div className="md:w-1/2 z-10">
-                    <img src="/imgs/hero.png" alt="imagem principal" className="w-full max-w-md mx-auto" />
+
+                {/* lado direito - imagem colada à borda */}
+                <div className="md:w-1/2 h-full z-10">
+                    <img
+                        src={Logo}
+                        alt="imagem de login"
+                        className="h-full w-full object-cover"
+                    />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-r from-[#f0f7fd] to-transparent" />
+
+                {/* degradê entre texto e imagem */}
+                <div className="absolute top-0 bottom-0 left-1/2 w-24 bg-gradient-to-r from-[#f0f7fd] to-transparent z-20 pointer-events-none" />
             </section>
 
             {/* bloco 2 */}
-            <section className="bg-[url('/imgs/bg-pattern.png')] bg-cover bg-center px-8 py-20">
-                <div className="max-w-5xl mx-auto text-black">
-                    <Tipografia tipo="titulo" className="mb-2">editais em destaque</Tipografia>
-                    <Tipografia tipo="texto" className="mb-6">veja alguns editais sugeridos para você</Tipografia>
-                    <Carrossel />
-                    <hr className="border-white my-12" />
-                    <Tipografia tipo="subtitulo" className="text-center text-black">
-                        conectando pessoas a oportunidades de verdade
+            <section
+                className="relative bg-cover bg-center bg-no-repeat py-16"
+            >
+                <div className="w-full px-6 md:px-20 lg:px-32">
+                    <Tipografia tipo="titulo" className="mb-2 text-5xl text-black">
+                        Juntos, construímos uma base confiável.
+                    </Tipografia>
+
+                    <Tipografia tipo="subtitulo" className="text-gray-500">
+                        Conheça os editais abaixo.
                     </Tipografia>
                 </div>
+
+                <div className="px-28 mt-8">
+                    <Carrossel cards={Cards} />
+                </div>
+
+                <hr className="border-white my-4" />
+
+                <Tipografia tipo="subtitulo" className="text-center text-gray-500">
+                    Você conhece a realidade. Sua validação faz a diferença.
+                </Tipografia>
             </section>
 
             {/* bloco 3 */}
             <section className="bg-[#f0f7fd] py-20 text-center">
                 <div className="max-w-6xl mx-auto px-8">
-                    <Tipografia tipo="titulo" className="mb-2 text-black">como podemos te ajudar</Tipografia>
-                    <Tipografia tipo="texto" className="mb-12 text-black">principais funcionalidades do cinscreve</Tipografia>
-                    <div className="flex flex-col items-center gap-8">
+                    <Tipografia tipo="titulo" className="mb-2 text-5xl text-black">
+                        Recursos que simplificam seu dia a dia
+                    </Tipografia>
+                    <Tipografia tipo="subtitulo" className="text-gray-500 text-4xl mb-2">
+                        Conheça nossas ferramentas:
+                    </Tipografia>
+                    <div className="flex flex-col items-center gap-8 mt-16">
                         <div className="flex justify-center gap-8">
-                            <Funcionalidade icone="lupa" titulo="buscar" descricao="encontre editais relevantes" />
-                            <Funcionalidade icone="coracao" titulo="favoritar" descricao="salve seus favoritos" />
-                            <Funcionalidade icone="notificacao" titulo="notificar" descricao="receba alertas de editais" />
+                            <Funcionalidade icone="lupa" titulo="Busque" descricao="Encontre editais para transformar sua organização." />
+                            <Funcionalidade icone="inscrever" titulo="Inscreva-se" descricao="Acesse o edital completo e materiais complementares." />
+                            <Funcionalidade icone="pessoas" titulo="Valide" descricao="Contribua para uma base mais confiável com sua ONG." />
                         </div>
                         <div className="flex justify-center gap-8">
-                            <Funcionalidade icone="pessoas" titulo="rede" descricao="conecte com outras pessoas" />
-                            <Funcionalidade icone="inscrever" titulo="inscreva-se" descricao="envie sua proposta" />
+                            <Funcionalidade icone="coracao" titulo="Favorite" descricao="Salve os editais mais relevantes pra acessar depois." />
+                            <Funcionalidade icone="notificacao" titulo="Notifique-se" descricao="Ative alertas para não perder prazos importantes." />
                         </div>
                     </div>
                 </div>
             </section>
 
             {/* bloco 4 */}
-            <section className="bg-[url('/imgs/bg-pattern.png')] bg-cover bg-center text-center px-8 py-20">
+            <section className="bg-cover bg-center text-center px-8 py-20"
+            >
                 <div className="max-w-5xl mx-auto text-black">
-                    <Tipografia tipo="titulo" className="mb-2">comece agora</Tipografia>
-                    <Tipografia tipo="texto" className="mb-6">junte-se à rede cinscreve e crie impacto</Tipografia>
-                    <div className="flex justify-center gap-4">
-                        <Botao variante="azul-medio">Ver editais</Botao>
-                        <Botao variante="outline">Sugerir editais</Botao>
+                    <Tipografia tipo="titulo" className="mb-2 text-5xl text-black">
+                        Conecte-se às oportunidades certas
+                    </Tipografia>
+                    <Tipografia tipo="subtitulo" className="text-gray-500 text-3xl mb-2">
+                        Descubra editais alinhados com sua ONG, salve favoritos <br />
+                        e receba alertas no momento certo.
+                    </Tipografia>
+                    <div className="flex justify-center gap-8 mt-12">
+                        <Botao variante="azul-escuro">Ver editais</Botao>
+                        <Botao variante="azul-escuro">Sugerir editais</Botao>
                     </div>
                 </div>
             </section>
 
             {/* footer */}
-            <Footer />
+            <Footer/>
         </section>
     );
 }

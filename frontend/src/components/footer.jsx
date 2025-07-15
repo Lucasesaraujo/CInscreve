@@ -1,5 +1,7 @@
 import React from "react";
 import Logo from '../assets/logo.png';
+import Fundo from '../assets/base.png';
+
 
 const Footer = () => {
   return (
@@ -36,7 +38,8 @@ const Footer = () => {
       </div>
 
       {/* Texto final */}
-      <div className="bg-gray-100 text-center py-4 text-sm text-white">
+      <div className=" text-center py-4 text-sm text-white"
+      style={{ backgroundColor: Fundo }}>
         Construído por pessoas que acreditam no impacto do seu projeto.
       </div>
     </footer>
