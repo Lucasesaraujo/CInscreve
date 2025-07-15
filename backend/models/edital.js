@@ -34,7 +34,21 @@ const EditalSchema = new mongoose.Schema({
   validado: {
     type: Boolean,
     default: false
+  },
+  sugeridoPor: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User',
+  required: false
+  },
+  validacoes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  link: {
+    type: String,
+    required: false // só será usado quando validado
   }
+
 });
 
 module.exports = mongoose.model('Edital', EditalSchema, 'editais')

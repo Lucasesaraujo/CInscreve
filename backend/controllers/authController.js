@@ -1,7 +1,10 @@
 const axios = require('axios');
-const jwt = require('jsonwebtoken');
 const { gerarTokens } = require('../utils/gerarToken');
+const Usuario = require('../models/user');
+const Token = require('../models/token');
+const jwt = require('jsonwebtoken');
 
+// POST - Controller para logar usuário e retorna seus dados, token de acesso e de refresh
 const loginUsuario = async (req, res) => {
   const { email, password } = req.body;
 
@@ -14,11 +17,29 @@ const loginUsuario = async (req, res) => {
 
     const dadosUsuario = resposta.data;
 
-    console.log('Dados da API externa:', resposta.data);
+    const usuarioLocal = await Usuario.findOneAndUpdate(
+      { email: dadosUsuario.user.email },
+      {},
+      { upsert: true, new: true }
+    );
 
     const { accessToken, refreshToken } = gerarTokens(dadosUsuario);
 
-    res.json({ usuario: dadosUsuario, accessToken, refreshToken });
+    const expiracao = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
+
+    await Token.deleteMany({ userId: usuarioLocal._id });
+    
+    // CRIANDO TOKEN NO BANCO DE DADOS
+    await Token.create({
+      userId: usuarioLocal._id,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      dispositivo: req.headers['user-agent'],
+      ip: req.ip,
+      expiraEm: expiracao
+    });
+
+    res.json({ usuario: dadosUsuario, accessToken: accessToken, refreshToken: refreshToken });
 
   } catch (error) {
     console.error("❌ Erro na autenticação:", error.response?.data || error.message);
@@ -28,8 +49,28 @@ const loginUsuario = async (req, res) => {
   }
 };
 
+// GET - Controller para confirmar que o usuário está logado
 const getUsuarioLogado = (req, res) => {
   res.json({ usuario: req.usuario });
 };
 
-module.exports = { loginUsuario, getUsuarioLogado };
+//POST - Controller para deslogar usuário
+const logoutUsuario = async (req, res) => {
+  const accessToken = req.headers.authorization?.split(' ')[1];
+
+  if(!accessToken) return res.status(400).json({ erro: 'Token não fornecido' });
+
+  try{
+    const resultado = await Token.deleteOne({ accessToken: accessToken});
+
+    if(resultado.deletedCount === 0) return res.status(404).json({ erro: 'Token não encontrado ou já removido' });
+
+    res.json({ mensagem: 'Logout realizado com sucesso'})
+
+  } catch(error) {
+    console.error('Erro ao fazer logout:', error);
+    res.status(500).json({ erro: 'Erro interno ao realizar logout' });
+  }
+}
+
+module.exports = { loginUsuario, getUsuarioLogado, logoutUsuario };

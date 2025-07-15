@@ -13,6 +13,9 @@ import Input from './components/Input';
 import Carrossel from './components/Carrossel';
 import Login from './pages/Login';
 import Home from './pages/Home';
+import PaginaUsuario from './pages/PaginaUsuario';
+import Editais_Validados from './pages/EditaisValidados';
+import EditalEspecifico from './pages/EditalEspecifico';
 
 function App() {
   const [email, setEmail] = useState('')
@@ -144,10 +147,8 @@ function App() {
       />
 
       <Carrossel titulo='Editais em destaque' cards={Cards}/>
-
     </div>
   )
 }
 
-
-export default App;
+export default App
