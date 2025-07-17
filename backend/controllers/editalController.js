@@ -3,7 +3,11 @@ const Edital = require('../models/edital');
 // GET Controller para listar os editais
 const listarEditais = async (req, res) => {
   try {
-    const { nome, organizacao, ODS, validado, dataInicio, dataFim, sortBy, order } = req.query;
+    const {
+      nome, organizacao, ODS, validado,
+      dataInicio, dataFim, sortBy, order,
+      page = 1, limit = 6 // 👈 paginação
+    } = req.query;
 
     const filtro = {};
 
@@ -18,14 +22,25 @@ const listarEditais = async (req, res) => {
       if (dataFim) filtro['periodoInscricao.inicio'].$lte = new Date(dataFim);
     }
 
-    // 🔽 Ordenação
     const ordenacao = {};
     if (sortBy) {
       ordenacao[sortBy] = order === 'desc' ? -1 : 1;
     }
 
-    const editais = await Edital.find(filtro).sort(ordenacao);
-    res.json(editais);
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const editais = await Edital.find(filtro)
+      .sort(ordenacao)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Edital.countDocuments(filtro);
+
+    res.json({
+      editais,
+      total,
+      page: parseInt(page),
+      totalPages: Math.ceil(total / limit)
+    });
 
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao filtrar e ordenar editais' });
