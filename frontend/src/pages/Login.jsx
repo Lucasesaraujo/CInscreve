@@ -7,10 +7,50 @@ import imagemLogin from '../assets/login.png'
 
 export default function Login() {
 
-    // estados para armazenar email senha e lembrar checkbox
+    // estados para armazenar email senha lembrar e estado de carregamento
     const [email, setEmail] = useState('')
     const [senha, setSenha] = useState('')
     const [lembrar, setLembrar] = useState(false)
+    const [carregando, setCarregando] = useState(false)
+
+    // funcao para lidar com clique no botao de login
+    const handleLogin = async () => {
+        setCarregando(true)
+
+        try {
+            // envia requisicao post para a api com o corpo json esperado
+            const resposta = await fetch('http://localhost:3000/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: senha
+                })
+            })
+
+            // verifica se o status da resposta foi bem sucedido
+            if (!resposta.ok) {
+                throw new Error('Erro ao fazer login')
+            }
+
+            // extrai dados da resposta
+            const dados = await resposta.json()
+
+            // aqui voce pode salvar o token ou redirecionar para outra rota
+            console.log('Login realizado com sucesso', dados)
+
+        } catch (erro) {
+            // exibe erro no console ou mostra mensagem de erro
+            console.error('Erro no login', erro)
+            alert('Erro ao fazer login, verifique email e senha!')
+
+        } finally {
+            // desativa o estado de carregamento
+            setCarregando(false)
+        }
+    }
 
     return (
 
@@ -30,10 +70,10 @@ export default function Login() {
                         <img src={logo} alt="logo" className="w-32 mb-0" />
                     </div>
                     <Tipografia tipo="subtitulo" className="mb-2 text-center w-full">
-                        Reunindo oportunidades para <br /> um futuro melhor!
+                        Reunindo oportunidades para <br /> um futuro melhor
                     </Tipografia>
                     <Tipografia tipo="descricao" className="mb-6 text-gray-500 text-center w-full">
-                        Bem vindo! Por favor, faça login para prosseguir.
+                        Seja bem vindo! Faça login para prosseguir.
                     </Tipografia>
 
                     {/* input email e senha */}
@@ -65,18 +105,19 @@ export default function Login() {
                                 onChange={() => setLembrar(!lembrar)}
                                 className="accent-[#108cf0]"
                             />
-                            Lembrar-se de mim
+                            Lembrar se de mim
                         </label>
-                        <a href="#" className="hover:underline">Esqueceu a senha?</a>
+                        <a href="#" className="hover:underline">Esqueceu a senha</a>
                     </div>
 
-                    {/* botao para enviar formulario */}
+                    {/* botao para enviar formulario de login */}
                     <Botao
                         variante="azul-medio"
-                        onClick={() => alert(`email: ${email} | senha: ${senha}`)}
+                        onClick={handleLogin}
                         className="w-full"
+                        desabilitado={carregando}
                     >
-                        Entrar
+                        {carregando ? 'Entrando...' : 'Entrar'}
                     </Botao>
                 </div>
 
