@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import Botao from './Botao';
-import Tipografia from './Tipografia';
-import { Heart, Bell } from 'lucide-react';
+import React from 'react'
+import Botao from './Botao'
+import Tipografia from './Tipografia'
+import { Heart, Bell } from 'lucide-react'
 
 export default function Card({
   variante = 'simples',
@@ -9,22 +9,24 @@ export default function Card({
   instituicao = 'Nome instituição',
   descricao = 'Descrição padrão do edital.',
   imagem,
-  area = 'label'
+  area = 'label',
+  favoritoInicial = false,
+  notificacaoInicial = false,
+  onToggleFavorito,
+  onToggleNotificacao,
 }) {
-
-  const [favorito, setFavorito] = useState(false)
-  const [notificar, setNotificar] = useState(false)
-
-  const base = 'bg-white rounded-xl shadow border flex flex-col justify-between';
+  const base = 'bg-white rounded-xl shadow border flex flex-col justify-between'
 
   const estilos = {
     simples: 'w-[300px] h-[300px] p-4 items-center text-center',
-    detalhado: 'w-[360px] h-[320px] border-zinc-200 p-6'
-  };
+    detalhado: 'w-[360px] h-[320px] border-zinc-200 p-6',
+  }
 
+  // Usa os valores vindos do pai para o estado
+  const favorito = favoritoInicial
+  const notificar = notificacaoInicial
 
   if (variante === 'detalhado') {
-
     return (
       <div className={`${base} ${estilos.detalhado}`}>
         <div>
@@ -43,28 +45,25 @@ export default function Card({
           <Botao variante="card-detalhado">Conhecer</Botao>
 
           <div className="flex items-center gap-6 mt-2">
-            {/* botao de favoritar */}
-            <button onClick={() => setFavorito(!favorito)}>
+            {/* botão de favoritar */}
+            <button onClick={onToggleFavorito} aria-label="Favoritar">
               <Heart
                 className={`w-5 h-5 ${favorito ? 'text-red-500' : 'text-zinc-700 hover:text-red-500'}`}
                 fill={favorito ? 'currentColor' : 'none'}
               />
             </button>
 
-            {/* botao de notificar */}
-            <button onClick={() => setNotificar(!notificar)}>
+            {/* botão de notificar */}
+            <button onClick={onToggleNotificacao} aria-label="Notificar">
               <Bell
                 className={`w-5 h-5 ${notificar ? 'text-yellow-500' : 'text-zinc-700 hover:text-yellow-500'}`}
                 fill={notificar ? 'currentColor' : 'none'}
               />
             </button>
           </div>
-
         </div>
-
-
       </div>
-    );
+    )
   }
 
   // Card simples
@@ -97,5 +96,5 @@ export default function Card({
         </Botao>
       </div>
     </div>
-  );
+  )
 }

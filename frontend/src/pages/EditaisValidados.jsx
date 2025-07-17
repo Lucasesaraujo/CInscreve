@@ -3,15 +3,16 @@
 import React, { useState, useEffect } from 'react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import Card from '../components/Card' // ✅ importa o card certo
 import { Search, Users } from 'lucide-react'
 
+// Simula uma chamada de API
 const mockFetchEditais = (offset = 0, limit = 6) => {
-  // Simula chamada API paginada
   const totalEditais = 20
   return new Promise((resolve) => {
     setTimeout(() => {
       if (offset >= totalEditais) {
-        resolve([]) // Sem mais dados
+        resolve([])
         return
       }
       const editais = Array.from({ length: limit }, (_, i) => {
@@ -45,7 +46,7 @@ const Editais_Validados = () => {
     setError(null)
     mockFetchEditais(offset, limit)
       .then((novosEditais) => {
-        if (novosEditais.length === 0) return // Sem mais para carregar
+        if (novosEditais.length === 0) return
         setEditais((prev) => [...prev, ...novosEditais])
         setOffset((prev) => prev + limit)
       })
@@ -104,27 +105,18 @@ const Editais_Validados = () => {
           </div>
         </div>
 
+        {/* GRID COM OS CARDS */}
         <div className="w-full max-w-6xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10">
           {editais.map((edital) => (
-            <div key={edital.id} className="border rounded shadow-sm">
-              <div className="w-full h-36 bg-gray-200" />
-              <div className="p-3">
-                <h2 className="text-sm font-semibold mb-1">{edital.titulo}</h2>
-                {edital.certificadora ? (
-                  <>
-                    <p className="text-xs text-gray-600 mb-2">{edital.certificadora}</p>
-                    <p className="text-xs">
-                      Área de Interesse:{' '}
-                      <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
-                        {edital.areaInteresse}
-                      </span>
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-xs text-gray-600">{edital.descricao}</p>
-                )}
-              </div>
-            </div>
+            <Card
+              key={edital.id}
+              variante={edital.certificadora ? 'detalhado' : 'simples'}
+              titulo={edital.titulo}
+              instituicao={edital.certificadora || 'Instituição não informada'}
+              descricao={edital.descricao}
+              imagem={null} // ou coloque uma URL de imagem se quiser
+              area={edital.areaInteresse || 'Sem área'}
+            />
           ))}
         </div>
 

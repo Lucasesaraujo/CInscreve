@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
-import { ChevronLeft, ChevronRight, Heart, Bell } from 'lucide-react'
+import Card from '../components/Card' // Importa o Card
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 const mockFetchEditais = () => {
   return new Promise((resolve) => {
@@ -56,6 +57,7 @@ const Usuario = () => {
       .finally(() => setLoading(false))
   }, [])
 
+  // Funções para atualizar os estados e repassar para Card
   const toggleFavorito = (id) => {
     setFavoritos((prev) =>
       prev.map((edital) =>
@@ -71,40 +73,6 @@ const Usuario = () => {
       )
     )
   }
-
-  const renderCard = (edital) => (
-    <div
-      key={edital.id}
-      className="border rounded-lg shadow-sm p-6 w-96 flex flex-col justify-between min-h-[280px]"
-    >
-      <div>
-        <h3 className="font-semibold mb-2 text-lg">{edital.titulo}</h3>
-        <hr className="border-gray-300 mb-4" />
-        <p className="text-sm text-gray-600 mb-6">{edital.descricao}</p>
-      </div>
-      <div className="flex justify-between items-center mt-auto">
-        <button className="bg-black text-white px-4 py-2 rounded-md text-sm cursor-pointer">
-          Conhecer
-        </button>
-        <div className="flex gap-3 text-gray-600">
-          <button onClick={() => toggleFavorito(edital.id)} aria-label="Favoritar">
-            <Heart
-              className={`w-5 h-5 cursor-pointer ${
-                edital.favorito ? 'text-red-600' : ''
-              }`}
-            />
-          </button>
-          <button onClick={() => toggleNotificacao(edital.id)} aria-label="Notificação">
-            <Bell
-              className={`w-5 h-5 cursor-pointer ${
-                edital.notificacao ? 'text-blue-600' : 'opacity-60'
-              }`}
-            />
-          </button>
-        </div>
-      </div>
-    </div>
-  )
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -123,7 +91,18 @@ const Usuario = () => {
           <div className="flex items-center justify-center gap-4">
             <ChevronLeft className="w-6 h-6 cursor-pointer" />
             <div className="flex gap-4 overflow-x-auto">
-              {favoritos.map(renderCard)}
+              {favoritos.map((edital) => (
+                <Card
+                  key={edital.id}
+                  variante="detalhado"
+                  titulo={edital.titulo}
+                  descricao={edital.descricao}
+                  favoritoInicial={edital.favorito}
+                  notificacaoInicial={edital.notificacao}
+                  onToggleFavorito={() => toggleFavorito(edital.id)}
+                  onToggleNotificacao={() => toggleNotificacao(edital.id)}
+                />
+              ))}
             </div>
             <ChevronRight className="w-6 h-6 cursor-pointer" />
           </div>
@@ -148,7 +127,17 @@ const Usuario = () => {
         ) : (
           <div className="flex items-center justify-center gap-4">
             <ChevronLeft className="w-6 h-6 cursor-pointer" />
-            <div className="flex gap-4 overflow-x-auto">{sugeridos.map(renderCard)}</div>
+            <div className="flex gap-4 overflow-x-auto">
+              {sugeridos.map((edital) => (
+                <Card
+                  key={edital.id}
+                  variante="detalhado"
+                  titulo={edital.titulo}
+                  descricao={edital.descricao}
+                  // Aqui você pode ajustar se quiser favoritar/notificar sugeridos também
+                />
+              ))}
+            </div>
             <ChevronRight className="w-6 h-6 cursor-pointer" />
           </div>
         )}
