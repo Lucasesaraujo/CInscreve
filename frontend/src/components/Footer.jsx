@@ -5,7 +5,7 @@ import Fundo from '../assets/base.png';
 
 const Footer = () => {
   return (
-    <footer className="bg-white">
+    <footer className="">
       <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between gap-8">
         {/* Logo e descrição */}
         <div className="flex flex-col items-start gap-y-0">
@@ -38,7 +38,7 @@ const Footer = () => {
       </div>
 
       {/* Texto final */}
-      <div className=" text-center py-4 text-sm text-white"
+      <div className=" text-center py-4 text-sm text-black"
       style={{ backgroundColor: Fundo }}>
         Construído por pessoas que acreditam no impacto do seu projeto.
       </div>

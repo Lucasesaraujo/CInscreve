@@ -1,36 +1,24 @@
 const express = require('express');
-const { listarEditais, criarEdital, removerEdital, atualizarEdital, buscarEdital, validarEdital, listarNaoValidados } = require('../controllers/editalController');
+const {
+  listarEditais, criarEdital, removerEdital, atualizarEdital,
+  buscarEdital, validarEdital, listarNaoValidados
+} = require('../controllers/editalController');
+
 const autenticarToken = require('../middlewares/authMiddleware');
+const rateLimit = require('../middlewares/rateLimit'); // 👈 aqui
+
 const router = express.Router();
 
 // ########## ROTAS COM USUÁRIO DESLOGADO OU LOGADO ##########
-// GET /editais
-router.get('/', listarEditais);
-
-// GET /editais/nao-validados
-router.get('/nao-validados', listarNaoValidados);
-
-// GET /editais/id
-router.get('/:id', buscarEdital);
-
-
-// ###########################################################
-
+// Aplica rate limit APENAS nas rotas públicas
+router.get('/', rateLimit, listarEditais);
+router.get('/nao-validados', rateLimit, listarNaoValidados);
+router.get('/:id', rateLimit, buscarEdital);
 
 // ########### ROTAS COM USUÁRIO LOGADO ##########
-// POST /editais
 router.post('/', autenticarToken, criarEdital);
-
-// PUT /editais/id
-router.put('/:id', autenticarToken, atualizarEdital)
-
-// DELETE /editais
+router.put('/:id', autenticarToken, atualizarEdital);
 router.delete('/:id', autenticarToken, removerEdital);
-
-// POST /editais/id/validar
 router.post('/:id/validar', autenticarToken, validarEdital);
 
-// ###############################################
-
-// Exportando as rotas
 module.exports = router;

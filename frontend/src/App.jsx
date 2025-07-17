@@ -66,7 +66,8 @@ function App() {
   ]
 
   return (
-    <div classNaame="p-8">
+    <Home/>
+    /*<div classNaame="p-8">
 
       <div className="max-w-sm mx-auto mt-10">
         <Input
@@ -147,7 +148,7 @@ function App() {
       />
 
       <Carrossel titulo='Editais em destaque' cards={Cards}/>
-    </div>
+    </div>*/
   )
 }
 
