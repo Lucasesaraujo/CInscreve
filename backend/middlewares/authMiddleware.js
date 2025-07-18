@@ -1,12 +1,11 @@
 const Token = require('../models/token');
+const jwt = require('jsonwebtoken');
 
 // Controller para verificar o token do usuário (Segurança)
 const autenticarToken = async (req, res, next) => {
-    const authHeader = req.headers.authorization;
+    const accessToken = req.cookies.accessToken;
 
-    if(!authHeader) return res.status(401).json({ erro: 'Token não fornecido' });
-
-    const accessToken = authHeader.split(' ')[1];
+    if(!accessToken) return res.status(401).json({ erro: 'Token não fornecido' });
 
     try {
         const token = await Token.findOne({ accessToken }).populate('userId');

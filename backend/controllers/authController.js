@@ -39,7 +39,23 @@ const loginUsuario = async (req, res) => {
       expiraEm: expiracao
     });
 
-    res.json({ usuario: dadosUsuario, accessToken: accessToken, refreshToken: refreshToken });
+    const isProduction = process.env.NODE_ENV === 'production'; // TEMPORARIO ENQUANTO DESENVOLVE
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: isProduction, //DEPOIS QUE FOR PRO AR, TIRA E COLOCA TRUE
+      sameSite: 'Strict',
+      maxAge: 1000 * 60 * 60  //1 Hora
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: isProduction, //DEPOIS QUE FOR PRO AR, TIRA E COLOCA TRUE
+      sameSite: 'Strict',
+      maxAge: 1000 * 60 * 60 * 24 * 30  //30 Dias
+    });
+
+    res.json({ usuario: dadosUsuario});
 
   } catch (error) {
     console.error("❌ Erro na autenticação:", error.response?.data || error.message);
@@ -56,12 +72,24 @@ const getUsuarioLogado = (req, res) => {
 
 //POST - Controller para deslogar usuário
 const logoutUsuario = async (req, res) => {
-  const accessToken = req.headers.authorization?.split(' ')[1];
+  const accessToken = req.cookies.accessToken;
 
   if(!accessToken) return res.status(400).json({ erro: 'Token não fornecido' });
 
   try{
     const resultado = await Token.deleteOne({ accessToken: accessToken});
+
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Strict'
+    });
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Strict'
+    });
 
     if(resultado.deletedCount === 0) return res.status(404).json({ erro: 'Token não encontrado ou já removido' });
 

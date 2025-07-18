@@ -5,9 +5,11 @@ const {
 } = require('../controllers/editalController');
 
 const autenticarToken = require('../middlewares/authMiddleware');
-const rateLimit = require('../middlewares/rateLimit'); // 👈 aqui
+const rateLimit = require('../middlewares/reqMiddleware'); // 👈 aqui
 
 const router = express.Router();
+
+// Rota: /editar/...
 
 // ########## ROTAS COM USUÁRIO DESLOGADO OU LOGADO ##########
 // Aplica rate limit APENAS nas rotas públicas
