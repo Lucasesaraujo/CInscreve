@@ -1,4 +1,5 @@
 const Usuario = require('../models/user');
+const Edital = require('../models/edital');
 
 // GET - Controller para listar os editais favoritos do usuário logado
 const listarFavoritos = async (req, res) => {
@@ -22,22 +23,34 @@ const toggleFavorito = async (req, res) => {
 
   try {
     const usuario = await Usuario.findOne({ email: userEmail });
+    const edital = await Edital.findById(editalId);
 
     if (!usuario) return res.status(404).json({ erro: 'Usuário não encontrado' });
+    if (!edital) return res.status(404).json({ erro: 'Edital não encontrado' });
 
     const jaFavoritado = usuario.favoritos.includes(editalId);
-
     let mensagem = '';
 
     if (jaFavoritado) {
+      // Remover dos favoritos do usuário
       usuario.favoritos.pull(editalId);
+      // Remover o usuário da lista de favoritos do edital
+      edital.favoritos.pull(usuario._id);
       mensagem = 'Edital removido dos favoritos';
     } else {
-      usuario.favoritos.push(editalId);
+      if (!usuario.favoritos.includes(editalId)) {
+        usuario.favoritos.push(editalId);
+      }
+
+      if (!edital.favoritos.includes(usuario._id)) {
+        edital.favoritos.push(usuario._id);
+      }
+      
       mensagem = 'Edital adicionado aos favoritos';
     }
 
     await usuario.save();
+    await edital.save();
 
     const favoritosPopulados = await Usuario.findById(usuario._id).populate('favoritos');
 
