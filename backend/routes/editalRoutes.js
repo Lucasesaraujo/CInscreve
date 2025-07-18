@@ -6,6 +6,7 @@ const {
 
 const autenticarToken = require('../middlewares/authMiddleware');
 const rateLimit = require('../middlewares/reqMiddleware'); // 👈 aqui
+const validarObjectId = require('../middlewares/validarObjectID');
 
 const router = express.Router();
 
