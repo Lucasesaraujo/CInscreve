@@ -5,24 +5,18 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 export default function Carrossel({ titulo = '', cards = [] }) {
   const ref = useRef(null);
 
-  // largura de cada card em px 
-  const larguraCard = 250;
-
-  // gap entre cards em px 
-  const gap = 24;
-
-  // distancia que queremos scrollar: 3 cards + gaps entre eles
-  const scrollStep = (larguraCard + gap) * 3 - gap;
-
+  
   const scrollEsquerda = () => {
     if (ref.current) {
-      ref.current.scrollBy({ left: -scrollStep, behavior: 'smooth' });
+      // Ajuste para rolar pela largura visível do contêiner
+      ref.current.scrollBy({ left: -ref.current.clientWidth, behavior: 'smooth' });
     }
   };
 
   const scrollDireita = () => {
     if (ref.current) {
-      ref.current.scrollBy({ left: scrollStep, behavior: 'smooth' });
+      // Ajuste para rolar pela largura visível do contêiner
+      ref.current.scrollBy({ left: ref.current.clientWidth, behavior: 'smooth' });
     }
   };
 
@@ -37,6 +31,7 @@ export default function Carrossel({ titulo = '', cards = [] }) {
         <button
           onClick={scrollEsquerda}
           className="absolute -left-10 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md p-4 rounded-full"
+          aria-label="Anterior"
         >
           <ChevronLeft className="w-8 h-8" />
         </button>
@@ -44,6 +39,7 @@ export default function Carrossel({ titulo = '', cards = [] }) {
         <button
           onClick={scrollDireita}
           className="absolute -right-10 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md p-4 rounded-full"
+          aria-label="Próximo"
         >
           <ChevronRight className="w-8 h-8" />
         </button>
