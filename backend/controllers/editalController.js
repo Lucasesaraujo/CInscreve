@@ -1,32 +1,14 @@
 const Edital = require('../models/edital');
-const { construirFiltroEditais } = require('../utils/filtroEditais');
-const { configurarPaginacaoOrdenacao } = require('../utils/paginacao');
+const { listarEditaisComFiltro } = require('../services/editalService');
 
 // GET Controller para listar os editais
 const listarEditais = async (req, res) => {
   try {
-    const filtro = construirFiltroEditais(req.query);
-    const { parsedPage, parsedLimit, skip, ordenacao } = configurarPaginacaoOrdenacao(req.query);
-
-    const [editais, total] = await Promise.all([
-      Edital.find(filtro)
-        .sort(ordenacao)
-        .skip(skip)
-        .limit(parsedLimit)
-        .select('-__v'),
-      Edital.countDocuments(filtro)
-    ]);
-
-    res.json({
-      editais,
-      total,
-      page: parsedPage,
-      totalPages: Math.ceil(total / parsedLimit)
-    });
-
+    const resultado = await listarEditaisComFiltro(req.query);
+    res.json(resultado);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ erro: 'Erro ao filtrar e ordenar editais' });
+    res.status(500).json({ erro: 'Erro ao listar editais' });
   }
 };
 
