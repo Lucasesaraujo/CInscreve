@@ -1,52 +1,21 @@
 const Edital = require('../models/edital');
+const { construirFiltroEditais } = require('../utils/filtroEditais');
+const { configurarPaginacaoOrdenacao } = require('../utils/paginacao');
 
 // GET Controller para listar os editais
 const listarEditais = async (req, res) => {
   try {
-    const {
-      nome, organizacao, ODS, validado,
-      dataInicio, dataFim, sortBy, order,
-      page = 1, limit = 6
-    } = req.query;
+    const filtro = construirFiltroEditais(req.query);
+    const { parsedPage, parsedLimit, skip, ordenacao } = configurarPaginacaoOrdenacao(req.query);
 
-    const filtro = {};
-
-    // Filtros textuais com busca aproximada
-    if (nome) filtro.nome = new RegExp(nome, 'i');
-    if (organizacao) filtro.organizacao = new RegExp(organizacao, 'i');
-    if (ODS) filtro.ODS = ODS;
-
-    // Filtro booleano para validado
-    if (validado !== undefined) {
-      filtro.validado = validado === 'true';
-    }
-
-    // Filtro de datas
-    if (dataInicio || dataFim) {
-      filtro['periodoInscricao.inicio'] = {};
-      if (dataInicio) filtro['periodoInscricao.inicio'].$gte = new Date(dataInicio);
-      if (dataFim) filtro['periodoInscricao.inicio'].$lte = new Date(dataFim);
-    }
-
-    // ✅ SEGURANÇA: garantir que page e limit sejam números válidos
-    const parsedPage = Math.max(1, parseInt(page)) || 1;
-    const parsedLimit = Math.max(1, parseInt(limit)) || 6;
-    const skip = (parsedPage - 1) * parsedLimit;
-
-    // ✅ SEGURANÇA: limitar os campos de ordenação permitidos
-    const camposPermitidos = ['nome', 'organizacao', 'ODS', 'validado', 'periodoInscricao.inicio'];
-    const ordenacao = {};
-    if (sortBy && camposPermitidos.includes(sortBy)) {
-      ordenacao[sortBy] = order === 'desc' ? -1 : 1;
-    }
-
-    const editais = await Edital.find(filtro)
-      .sort(ordenacao)
-      .skip(skip)
-      .limit(parsedLimit)
-      .select('-__v'); // ✅ LIMPEZA: remove campo técnico do MongoDB
-
-    const total = await Edital.countDocuments(filtro);
+    const [editais, total] = await Promise.all([
+      Edital.find(filtro)
+        .sort(ordenacao)
+        .skip(skip)
+        .limit(parsedLimit)
+        .select('-__v'),
+      Edital.countDocuments(filtro)
+    ]);
 
     res.json({
       editais,
@@ -56,10 +25,10 @@ const listarEditais = async (req, res) => {
     });
 
   } catch (error) {
+    console.error(error);
     res.status(500).json({ erro: 'Erro ao filtrar e ordenar editais' });
   }
 };
-
 
 //GET Controller para buscar edital por ID
 const buscarEdital = async (req, res) => {
