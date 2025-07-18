@@ -47,7 +47,11 @@ const EditalSchema = new mongoose.Schema({
   link: {
     type: String,
     required: false // só será usado quando validado
-  }
+  },
+  favoritos: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }]
 
 });
 

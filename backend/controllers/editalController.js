@@ -6,46 +6,60 @@ const listarEditais = async (req, res) => {
     const {
       nome, organizacao, ODS, validado,
       dataInicio, dataFim, sortBy, order,
-      page = 1, limit = 6 // 👈 paginação
+      page = 1, limit = 6
     } = req.query;
 
     const filtro = {};
 
+    // Filtros textuais com busca aproximada
     if (nome) filtro.nome = new RegExp(nome, 'i');
     if (organizacao) filtro.organizacao = new RegExp(organizacao, 'i');
     if (ODS) filtro.ODS = ODS;
-    if (validado !== undefined) filtro.validado = validado === 'true';
 
+    // Filtro booleano para validado
+    if (validado !== undefined) {
+      filtro.validado = validado === 'true';
+    }
+
+    // Filtro de datas
     if (dataInicio || dataFim) {
       filtro['periodoInscricao.inicio'] = {};
       if (dataInicio) filtro['periodoInscricao.inicio'].$gte = new Date(dataInicio);
       if (dataFim) filtro['periodoInscricao.inicio'].$lte = new Date(dataFim);
     }
 
+    // ✅ SEGURANÇA: garantir que page e limit sejam números válidos
+    const parsedPage = Math.max(1, parseInt(page)) || 1;
+    const parsedLimit = Math.max(1, parseInt(limit)) || 6;
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    // ✅ SEGURANÇA: limitar os campos de ordenação permitidos
+    const camposPermitidos = ['nome', 'organizacao', 'ODS', 'validado', 'periodoInscricao.inicio'];
     const ordenacao = {};
-    if (sortBy) {
+    if (sortBy && camposPermitidos.includes(sortBy)) {
       ordenacao[sortBy] = order === 'desc' ? -1 : 1;
     }
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
     const editais = await Edital.find(filtro)
       .sort(ordenacao)
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(parsedLimit)
+      .select('-__v'); // ✅ LIMPEZA: remove campo técnico do MongoDB
 
     const total = await Edital.countDocuments(filtro);
 
     res.json({
       editais,
       total,
-      page: parseInt(page),
-      totalPages: Math.ceil(total / limit)
+      page: parsedPage,
+      totalPages: Math.ceil(total / parsedLimit)
     });
 
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao filtrar e ordenar editais' });
   }
 };
+
 
 //GET Controller para buscar edital por ID
 const buscarEdital = async (req, res) => {
