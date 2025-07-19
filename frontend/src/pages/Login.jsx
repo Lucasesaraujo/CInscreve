@@ -21,6 +21,7 @@ export default function Login() {
             // envia requisicao post para a api com o corpo json esperado
             const resposta = await fetch('http://localhost:3000/api/auth/login', {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json'
                 },
