@@ -55,8 +55,28 @@ async function buscarEditalComValidacoes(idEdital, usuarioId) {
   return editalObj;
 }
 
+// Criar um novo edital
+async function criarEditalService(dados, idUsuario) {
+  dados.sugeridoPor = idUsuario;
+  const novoEdital = new Edital(dados);
+  return await novoEdital.save();
+}
+
+// Atualizar edital existente
+async function atualizarEditalService(id, dadosAtualizados) {
+  return await Edital.findByIdAndUpdate(id, dadosAtualizados, { new: true });
+}
+
+// Remover edital
+async function removerEditalService(id) {
+  return await Edital.findByIdAndDelete(id);
+}
+
 module.exports = {
   listarEditaisComFiltro,
   validarEditalService,
   buscarEditalComValidacoes,
+  criarEditalService,
+  atualizarEditalService,
+  removerEditalService
 };

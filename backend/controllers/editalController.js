@@ -1,5 +1,5 @@
 const Edital = require('../models/edital');
-const { listarEditaisComFiltro, validarEditalService, buscarEditalComValidacoes } = require('../services/editalServices');
+const { listarEditaisComFiltro, validarEditalService, buscarEditalComValidacoes, criarEditalService, atualizarEditalService, removerEditalService } = require('../services/editalServices');
 
 // GET Controller para listar os editais
 const listarEditais = async (req, res) => {
@@ -26,31 +26,23 @@ const buscarEdital = async (req, res) => {
 // POST Controller para criar um novo edital
 const criarEdital = async (req, res) => {
   try {
-    const editalData = req.body;
-    editalData.sugeridoPor = req.usuario.id; // pega o ID do token
-    const novoEdital = await Edital.create(editalData);
+    const novoEdital = await criarEditalService(req.body, req.usuario.id);
     res.status(201).json(novoEdital);
-    
-  } catch(error) {
+  } catch (error) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ erro: error.message });
     }
-    res.status(500).json({ erro: 'ERRO ao criar edital!' })
+    res.status(500).json({ erro: 'ERRO ao criar edital!' });
   }
 };
 
 // PUT Controller para editar um parâmetro do edital
 const atualizarEdital = async (req, res) => {
   try {
-    const editalAtualizado = await Edital.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const editalAtualizado = await atualizarEditalService(req.params.id, req.body);
 
     if (!editalAtualizado) return res.status(404).json({ erro: 'Edital não encontrado!' });
     res.json(editalAtualizado);
-
   } catch (err) {
     res.status(500).json({ erro: 'ERRO ao atualizar edital!' });
   }
@@ -59,21 +51,19 @@ const atualizarEdital = async (req, res) => {
 // DELETE Controller para deletar um edital
 const removerEdital = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const editalRemovido = await Edital.findByIdAndDelete(id);
+    const editalRemovido = await removerEditalService(req.params.id);
 
     if (!editalRemovido) {
       return res.status(404).json({ erro: 'Edital não encontrado!' });
     }
 
     res.json({ mensagem: 'Edital removido com sucesso!' });
-    
   } catch (error) {
     res.status(500).json({ erro: 'ERRO ao remover edital!' });
   }
 };
 
+// POST Controller para validar um edital
 const validarEdital = async (req, res) => {
   try {
     const edital = await validarEditalService(req.params.id, req.usuario.id);
