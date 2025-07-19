@@ -41,7 +41,7 @@ export default function Card({
           </Tipografia>
         </div>
 
-        <div className="flex items-center gap-14 mt-4">
+        <div className="flex items-center gap-28 mt-4">
           <Botao variante="card-detalhado">Conhecer</Botao>
 
           <div className="flex items-center gap-6 mt-2">
