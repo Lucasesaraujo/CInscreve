@@ -2,7 +2,7 @@ const axios = require('axios');
 const { gerarTokens } = require('../utils/gerarToken');
 const Usuario = require('../models/user');
 const Token = require('../models/token');
-const jwt = require('jsonwebtoken');
+const logger = require('../config/logger');
 
 // POST - Controller para logar usuário e retorna seus dados, token de acesso e de refresh
 const loginUsuario = async (req, res) => {
@@ -56,7 +56,7 @@ const loginUsuario = async (req, res) => {
     res.json({ usuario: dadosUsuario, accessToken});
 
   } catch (error) {
-    console.error("❌ Erro na autenticação:", error.response?.data || error.message);
+    logger.error("❌ Erro na autenticação:", error.response?.data || error.message, error);
     res.status(401).json({
       erro: 'Credenciais inválidas ou erro na API externa', detalhes: error.response?.data || null
     });
