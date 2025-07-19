@@ -21,13 +21,23 @@ async function listarEditaisComFiltro(query) {
 
 async function validarEditalService(idEdital, userId) {
   const edital = await Edital.findById(idEdital);
-  if (!edital) throw new Error('Edital não encontrado');
+  if (!edital) {
+    const error = new Error('Edital não encontrado');
+    error.status = 404;
+    return Promise.reject(error);
+  }
 
-  if (edital.sugeridoPor?.toString() === userId)
-    throw new Error('Você não pode validar o edital que sugeriu');
+  if (edital.sugeridoPor?.toString() === userId.toString()) { // Compare strings para segurança
+    const error = new Error('Você não pode validar o edital que sugeriu');
+    error.status = 400;
+    return Promise.reject(error); // <--- O RETORNO É CRÍTICO AQUI
+  }
 
-  if (edital.validacoes.includes(userId))
-    throw new Error('Você já validou esse edital');
+  if (edital.validacoes.includes(userId)) {
+    const error = new Error('Você já validou esse edital');
+    error.status = 400;
+    return Promise.reject(error); // <--- O RETORNO É CRÍTICO AQUI
+  }
 
   edital.validacoes.push(userId);
   if (edital.validacoes.length >= 3) {
@@ -57,6 +67,20 @@ async function buscarEditalComValidacoes(idEdital, usuarioId) {
 
 // Criar um novo edital
 async function criarEditalService(dados, idUsuario) {
+  if (dados.periodoInscricao) {
+    const { inicio, fim } = dados.periodoInscricao;
+
+    const dataInicio = inicio ? new Date(inicio) : null;
+    const dataFim = fim ? new Date(fim) : null;
+
+    if (dataInicio instanceof Date && !isNaN(dataInicio.getTime()) && dataFim instanceof Date && !isNaN(dataFim.getTime())) {
+      if (dataFim < dataInicio) {
+        const error = new Error('A data de fim deve ser posterior à data de início');
+        error.status = 400; // Define o status para o middleware de erro
+        throw error;
+      }
+    }
+  }
   dados.sugeridoPor = idUsuario;
   const novoEdital = new Edital(dados);
   return await novoEdital.save();
@@ -64,7 +88,25 @@ async function criarEditalService(dados, idUsuario) {
 
 // Atualizar edital existente
 async function atualizarEditalService(id, dadosAtualizados) {
-  return await Edital.findByIdAndUpdate(id, dadosAtualizados, { new: true });
+  // Se 'periodoInscricao' está sendo atualizado, faça a validação de data
+  if (dadosAtualizados.periodoInscricao) {
+    const { inicio, fim } = dadosAtualizados.periodoInscricao;
+
+    // Converte para objetos Date se forem strings
+    const dataInicio = inicio ? new Date(inicio) : null;
+    const dataFim = fim ? new Date(fim) : null;
+
+    // Se ambas as datas estão presentes e são válidas (não NaN), faça a comparação
+    if (dataInicio instanceof Date && !isNaN(dataInicio.getTime()) && dataFim instanceof Date && !isNaN(dataFim.getTime())) {
+      if (dataFim < dataInicio) {
+        const error = new Error('A data de fim deve ser posterior à data de início');
+        error.status = 400;
+        throw error;
+      }
+    }
+  }
+
+  return await Edital.findByIdAndUpdate(id, dadosAtualizados, { new: true, runValidators: true });
 }
 
 // Remover edital
