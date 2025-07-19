@@ -10,7 +10,7 @@ const loginUsuario = async (req, res) => {
 
   try {
     const resposta = await axios.post(
-      'https://bora-impactar-dev.setd.rdmapps.com.br/api/login',
+      process.env.EXTERNAL_AUTH_API_URL,
       { email, password },
       { headers: { 'Content-Type': 'application/json' } }
     );

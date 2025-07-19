@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const logger = require('./config/logger');
 require('dotenv').config();
 
 const editalRoutes = require('./routes/editalRoutes');
@@ -21,5 +22,26 @@ app.use(cookieParser());
 app.use('/editais', editalRoutes);
 app.use('/user', userRoutes);
 app.use('/api/auth', authRoutes);
+
+// Middleware de tratamento de erros global (SEMPRE POR ÚLTIMO)
+app.use((err, req, res, next) => {
+  logger.error(`Erro: ${err.message}`, err); // Loga o erro completo
+
+  if (err.name === 'ValidationError') {
+    // Erros de validação do Mongoose
+    return res.status(400).json({ erro: err.message, detalhes: err.errors });
+  }
+  if (err.status) {
+    // Erros customizados com status code (como os de buscarPorID.js)
+    return res.status(err.status).json({ erro: err.message });
+  }
+  if (err.code === 11000) { // Erro de duplicidade do MongoDB (ex: unique: true)
+    const field = Object.keys(err.keyValue)[0];
+    return res.status(409).json({ erro: `O ${field} já está em uso.`, campo: field });
+  }
+
+  // Erro interno do servidor (genérico)
+  res.status(500).json({ erro: 'Erro interno do servidor.' });
+});
 
 module.exports = app;
