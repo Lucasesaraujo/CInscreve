@@ -5,10 +5,7 @@ const Edital = require('../models/edital');
 require('dotenv').config();
 
 beforeAll(async () => {
-  await mongoose.connect(process.env.MONGO_URI_TEST, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  });
+  await mongoose.connect(process.env.MONGO_URI);
 }, 20000);
 
 afterEach(async () => {

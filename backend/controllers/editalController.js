@@ -1,4 +1,5 @@
 const Edital = require('../models/edital');
+const logger = require('../config/logger');
 const { listarEditaisComFiltro, validarEditalService, buscarEditalComValidacoes, criarEditalService, atualizarEditalService, removerEditalService } = require('../services/editalServices');
 
 // GET Controller para listar os editais
@@ -12,64 +13,68 @@ const listarEditais = async (req, res) => {
   }
 };
 
-//GET Controller para buscar edital por ID
-const buscarEdital = async (req, res) => {
+// GET Controller para buscar edital por ID
+const buscarEdital = async (req, res, next) => {
   try {
     const edital = await buscarEditalComValidacoes(req.params.id, req.usuario?.id);
-    if (!edital) return res.status(404).json({ erro: 'Edital não encontrado.' });
+    if (!edital) {
+      const error = new Error('Edital não encontrado.');
+      error.status = 404;
+      return next(error);
+    }
     res.json(edital);
   } catch (error) {
-    res.status(500).json({ erro: "Erro ao procurar edital." });
+    next(error);
   }
 };
 
 // POST Controller para criar um novo edital
-const criarEdital = async (req, res) => {
+const criarEdital = async (req, res, next) => { 
   try {
     const novoEdital = await criarEditalService(req.body, req.usuario.id);
     res.status(201).json(novoEdital);
   } catch (error) {
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({ erro: error.message });
-    }
-    res.status(500).json({ erro: 'ERRO ao criar edital!' });
+    next(error); // Passa o erro para o middleware de tratamento de erros global
   }
 };
 
 // PUT Controller para editar um parâmetro do edital
-const atualizarEdital = async (req, res) => {
+const atualizarEdital = async (req, res, next) => { 
   try {
     const editalAtualizado = await atualizarEditalService(req.params.id, req.body);
-
-    if (!editalAtualizado) return res.status(404).json({ erro: 'Edital não encontrado!' });
+    if (!editalAtualizado) {
+      const error = new Error('Edital não encontrado!');
+      error.status = 404; // Define o status para o middleware de erro
+      return next(error);
+    }
     res.json(editalAtualizado);
-  } catch (err) {
-    res.status(500).json({ erro: 'ERRO ao atualizar edital!' });
+  } catch (error) {
+    next(error); // Passa o erro
   }
 };
 
 // DELETE Controller para deletar um edital
-const removerEdital = async (req, res) => {
+const removerEdital = async (req, res, next) => { 
   try {
     const editalRemovido = await removerEditalService(req.params.id);
-
     if (!editalRemovido) {
-      return res.status(404).json({ erro: 'Edital não encontrado!' });
+      const error = new Error('Edital não encontrado!');
+      error.status = 404;
+      return next(error);
     }
-
     res.json({ mensagem: 'Edital removido com sucesso!' });
   } catch (error) {
-    res.status(500).json({ erro: 'ERRO ao remover edital!' });
+    next(error);
   }
 };
 
 // POST Controller para validar um edital
-const validarEdital = async (req, res) => {
+const validarEdital = async (req, res, next) => { // Adicione 'next'
   try {
     const edital = await validarEditalService(req.params.id, req.usuario.id);
     res.json({ mensagem: 'Edital validado com sucesso!', edital });
   } catch (error) {
-    res.status(400).json({ erro: error.message });
+    next(error);
   }
 };
 

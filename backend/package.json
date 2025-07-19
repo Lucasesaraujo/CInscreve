@@ -21,7 +21,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.17.0",
     "mongoose": "^8.15.1",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "jest": "^30.0.4",
