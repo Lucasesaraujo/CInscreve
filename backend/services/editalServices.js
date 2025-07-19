@@ -1,5 +1,5 @@
 const Edital = require('../models/edital');
-const { construirFiltroEditais } = require('../utils/filtroEditais');
+const { construirFiltroEditais } = require('../utils/filtrosEditais');
 const { configurarPaginacaoOrdenacao } = require('../utils/paginacao');
 
 async function listarEditaisComFiltro(query) {

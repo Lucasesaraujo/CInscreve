@@ -1,5 +1,5 @@
 const Edital = require('../models/edital');
-const { listarEditaisComFiltro } = require('../services/editalService');
+const { listarEditaisComFiltro } = require('../services/editalServices');
 
 // GET Controller para listar os editais
 const listarEditais = async (req, res) => {
