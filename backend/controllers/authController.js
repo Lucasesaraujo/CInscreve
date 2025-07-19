@@ -40,14 +40,14 @@ const loginUsuario = async (req, res) => {
     });
 
     res.cookie('accessToken', accessToken, {
-      httpOnly: true,
+      httpOnly: false,
       secure: false, //DEPOIS QUE FOR PRO AR, TIRA E COLOCA TRUE
       sameSite: 'Lax', //DEPOIS QUE FOR PRO AR, TIRA E COLOCA Strict
       maxAge: 1000 * 60 * 60  //1 Hora
     });
 
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
+      httpOnly: false,
       secure: false, //DEPOIS QUE FOR PRO AR, TIRA E COLOCA true
       sameSite: 'Lax', //DEPOIS QUE FOR PRO AR, TIRA E COLOCA Strict
       maxAge: 1000 * 60 * 60 * 24 * 30  //30 Dias
