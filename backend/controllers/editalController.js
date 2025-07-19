@@ -1,5 +1,5 @@
 const Edital = require('../models/edital');
-const { listarEditaisComFiltro, validarEditalService } = require('../services/editalServices');
+const { listarEditaisComFiltro, validarEditalService, buscarEditalComValidacoes } = require('../services/editalServices');
 
 // GET Controller para listar os editais
 const listarEditais = async (req, res) => {
@@ -15,28 +15,9 @@ const listarEditais = async (req, res) => {
 //GET Controller para buscar edital por ID
 const buscarEdital = async (req, res) => {
   try {
-    const { id } = req.params;
-    const usuarioId = req.usuario?.id; // Se estiver autenticado
-
-    const edital = await Edital.findById(id)
-      .populate('sugeridoPor', 'nome email')
-      .populate('validacoes', 'nome email');
-
-    if (!edital) {
-      return res.status(404).json({ erro: 'Edital não encontrado.' });
-    }
-
-    // Clona o objeto para não modificar o original
-    const editalObj = edital.toObject();
-
-    // Esconde o link se não for validado e usuário não participou da validação
-    const jaValidou = usuarioId && edital.validacoes.some(val => val._id.toString() === usuarioId);
-    if (!edital.validado && !jaValidou) {
-      editalObj.link = null; // ou undefined
-    }
-
-    res.json(editalObj);
-
+    const edital = await buscarEditalComValidacoes(req.params.id, req.usuario?.id);
+    if (!edital) return res.status(404).json({ erro: 'Edital não encontrado.' });
+    res.json(edital);
   } catch (error) {
     res.status(500).json({ erro: "Erro ao procurar edital." });
   }

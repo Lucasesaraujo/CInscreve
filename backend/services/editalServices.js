@@ -38,7 +38,25 @@ async function validarEditalService(idEdital, userId) {
   return edital;
 }
 
+async function buscarEditalComValidacoes(idEdital, usuarioId) {
+  const edital = await Edital.findById(idEdital)
+    .populate('sugeridoPor', 'nome email')
+    .populate('validacoes', 'nome email');
+
+  if (!edital) return null;
+
+  const editalObj = edital.toObject();
+  const jaValidou = usuarioId && edital.validacoes.some(val => val._id.toString() === usuarioId);
+
+  if (!edital.validado && !jaValidou) {
+    editalObj.link = null;
+  }
+
+  return editalObj;
+}
+
 module.exports = {
   listarEditaisComFiltro,
   validarEditalService,
+  buscarEditalComValidacoes,
 };

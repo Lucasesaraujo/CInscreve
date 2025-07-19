@@ -7,4 +7,4 @@ const UsuarioSchema = new mongoose.Schema({
   sugeridos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Edital' }],
 });
 
-module.exports = mongoose.model('Usuario', UsuarioSchema)
+module.exports = mongoose.model('User', UsuarioSchema)
