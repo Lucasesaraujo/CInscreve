@@ -1,5 +1,5 @@
 const Edital = require('../models/edital');
-const { listarEditaisComFiltro } = require('../services/editalServices');
+const { listarEditaisComFiltro, validarEditalService } = require('../services/editalServices');
 
 // GET Controller para listar os editais
 const listarEditais = async (req, res) => {
@@ -95,31 +95,10 @@ const removerEdital = async (req, res) => {
 
 const validarEdital = async (req, res) => {
   try {
-    const { id } = req.params;
-    const userId = req.usuario.id;
-
-    const edital = await Edital.findById(id);
-    if (!edital) return res.status(404).json({ erro: 'Edital não encontrado' });
-
-    if (edital.sugeridoPor?.toString() === userId) {
-      return res.status(403).json({ erro: 'Você não pode validar o edital que sugeriu' });
-    }
-
-    if (edital.validacoes.includes(userId)) {
-      return res.status(400).json({ erro: 'Você já validou esse edital' });
-    }
-
-    edital.validacoes.push(userId);
-
-    if (edital.validacoes.length >= 3) {
-      edital.validado = true;
-    }
-
-    await edital.save();
+    const edital = await validarEditalService(req.params.id, req.usuario.id);
     res.json({ mensagem: 'Edital validado com sucesso!', edital });
-
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao validar edital' });
+    res.status(400).json({ erro: error.message });
   }
 };
 

@@ -53,7 +53,7 @@ const loginUsuario = async (req, res) => {
       maxAge: 1000 * 60 * 60 * 24 * 30  //30 Dias
     });
 
-    res.json({ usuario: dadosUsuario});
+    res.json({ usuario: dadosUsuario, accessToken});
 
   } catch (error) {
     console.error("❌ Erro na autenticação:", error.response?.data || error.message);

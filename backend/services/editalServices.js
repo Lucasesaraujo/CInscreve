@@ -19,6 +19,26 @@ async function listarEditaisComFiltro(query) {
   };
 }
 
+async function validarEditalService(idEdital, userId) {
+  const edital = await Edital.findById(idEdital);
+  if (!edital) throw new Error('Edital não encontrado');
+
+  if (edital.sugeridoPor?.toString() === userId)
+    throw new Error('Você não pode validar o edital que sugeriu');
+
+  if (edital.validacoes.includes(userId))
+    throw new Error('Você já validou esse edital');
+
+  edital.validacoes.push(userId);
+  if (edital.validacoes.length >= 3) {
+    edital.validado = true;
+  }
+
+  await edital.save();
+  return edital;
+}
+
 module.exports = {
   listarEditaisComFiltro,
+  validarEditalService,
 };
