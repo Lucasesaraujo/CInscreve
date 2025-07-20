@@ -94,7 +94,7 @@ const logoutUsuario = async (req, res) => {
     res.json({ mensagem: 'Logout realizado com sucesso'})
 
   } catch(error) {
-    console.error('Erro ao fazer logout:', error);
+    logger.error('Erro ao fazer logout:', error);
     res.status(500).json({ erro: 'Erro interno ao realizar logout' });
   }
 }

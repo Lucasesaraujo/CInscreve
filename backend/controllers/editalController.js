@@ -8,8 +8,7 @@ const listarEditais = async (req, res) => {
     const resultado = await listarEditaisComFiltro(req.query);
     res.json(resultado);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: 'Erro ao listar editais' });
+    next(error);
   }
 };
 
