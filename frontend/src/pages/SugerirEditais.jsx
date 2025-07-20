@@ -6,10 +6,8 @@ import Footer from '../components/Footer'
 import Input from '../components/Input'
 import Botao from '../components/Botao'
 import Tipografia from '../components/Tipografia'
-import { FileText, X } from 'lucide-react'
 
 const SugerirEdital = () => {
-  // Estados para armazenar os dados de cada campo do formulário
   const [nomeEdital, setNomeEdital] = useState('')
   const [instituicao, setInstituicao] = useState('')
   const [link, setLink] = useState('')
@@ -18,68 +16,82 @@ const SugerirEdital = () => {
   const [dataFim, setDataFim] = useState('')
   const [horaFim, setHoraFim] = useState('')
   const [descricao, setDescricao] = useState('')
-  const [capa, setCapa] = useState(null)
-  const [anexos, setAnexos] = useState([])
-
-  // Estado para controlar o botão de submit e evitar múltiplos cliques
   const [submitting, setSubmitting] = useState(false)
 
-  const handleAnexoChange = (e) => {
-    const files = Array.from(e.target.files)
-    setAnexos((prev) => [...prev, ...files].slice(0, 5))
-  }
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setSubmitting(true);
 
-  const handleRemoveAnexo = (index) => {
-    setAnexos((prev) => prev.filter((_, i) => i !== index))
-  }
+  const dataHoraInicio = new Date(`${dataInicio}T${horaInicio || '00:00:00'}`);
+  const dataHoraFim = new Date(`${dataFim}T${horaFim || '23:59:59'}`);
 
-  // Função chamada ao enviar o formulário
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    setSubmitting(true)
+  const payloadParaAPI = {
+    nome: nomeEdital,
+    organizacao: instituicao,
+    periodoInscricao: {
+      inicio: dataHoraInicio,
+      fim: dataHoraFim,
+    },
+    descricao: descricao,
+    link: link,
+    imagens: [],
+    anexos: [],
+  };
 
-    const formData = {
-      nomeEdital,
-      instituicao,
-      link,
-      dataInicio,
-      horaInicio,
-      dataFim,
-      horaFim,
-      descricao,
-      capa,
-      anexos,
+  console.log('Cookies do navegador:', document.cookie)
+
+  try {
+    const resposta = await fetch('http://localhost:3000/editais', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+      'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payloadParaAPI),
+    });
+
+    console.log(resposta);
+  
+    if (!resposta.ok) {
+      if (resposta.status === 401) {
+        alert('Sessão expirada. Faça login novamente.');
+        window.location.href = '/login';
+        return;
+      }
+      throw new Error('Erro ao enviar sugestão de edital');
     }
 
-    // Apenas exibe os dados no console para fins de desenvolvimento
-    console.log('Dados do Formulário:', formData)
-    alert('Sugestão enviada! Verifique o console para ver os dados.')
+    const dados = await resposta.json();
+    console.log('Sugestão enviada com sucesso:', dados);
+    alert('Edital sugerido com sucesso!');
 
-    // Reativa o botão após um pequeno atraso
-    setTimeout(() => {
-      setSubmitting(false)
-    }, 500)
+    setNomeEdital('');
+    setInstituicao('');
+    setLink('');
+    setDataInicio('');
+    setHoraInicio('');
+    setDataFim('');
+    setHoraFim('');
+    setDescricao('');
+
+  } catch (erro) {
+    console.error('Erro ao sugerir edital:', erro);
+    alert('Erro ao sugerir edital. Verifique os dados e tente novamente.');
+  } finally {
+    setSubmitting(false);
   }
+};
 
   return (
-    // div principal que engloba toda a página
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
-
-      {/*Parte principal da página*/}
       <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-10">
         <Tipografia tipo="titulo" className="mb-4 text-zinc-800">
           Sugerir edital
         </Tipografia>
-
-        {/*Formulário principal que agrupa todas as seções de input*/}
         <form onSubmit={handleSubmit} className="space-y-8">
-
-          {/*Informações do edital*/}
           <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
             <h2 className="text-xl font-semibold mb-6 text-zinc-700">Informações</h2>
-            
-            {/* Grid para alinhar os campos de input em duas colunas */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
               <Input
                 titulo="Nome do edital"
@@ -105,7 +117,7 @@ const SugerirEdital = () => {
                 tamanho="grande"
                 required
               />
-              <div></div> {/*Espaçador do grid*/}
+              <div></div>
               <Input
                 titulo="Data de início do edital"
                 tipo="date"
@@ -136,8 +148,6 @@ const SugerirEdital = () => {
                 onChange={(e) => setHoraFim(e.target.value)}
                 tamanho="grande"
               />
-              
-              {/*Bloco pra descrição do edital*/}
               <div className="md:col-span-2">
                 <label className="text-sm font-semibold text-zinc-700">Descrição do edital</label>
                 <textarea
@@ -152,58 +162,8 @@ const SugerirEdital = () => {
                   {descricao.length}/500
                 </p>
               </div>
-              
-              {/*Capa do edital(colocar a capa)*/}
-              <div className="md:col-span-2">
-                <label className="text-sm font-semibold text-zinc-700">Capa do edital</label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                  <div className="space-y-1 text-center">
-                    <FileText className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="flex text-sm text-gray-600">
-                      <label htmlFor="capa-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-[#108cf0] hover:text-[#0b3e76] focus-within:outline-none">
-                        <span>Clique para fazer upload</span>
-                        <input id="capa-upload" name="capa-upload" type="file" className="sr-only" onChange={(e) => setCapa(e.target.files[0])} accept="image/*" />
-                      </label>
-                      <p className="pl-1">ou arraste e solte</p>
-                    </div>
-                    {capa ? (
-                      <p className="text-xs text-green-600 font-semibold">{capa.name}</p>
-                    ) : (
-                      <p className="text-xs text-gray-500">PDF, .DOCX, .ODT ou .EPUB</p>
-                    )}
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
-
-          {/*Anexos*/}
-          <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
-            <h2 className="text-xl font-semibold mb-6 text-zinc-700">Anexos</h2>
-            
-            {/*Anexos já colocados*/}
-            <div className="space-y-3">
-              {anexos.map((file, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-100 border border-gray-200 rounded-md">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-gray-600" />
-                    <span className="text-sm font-medium text-gray-800">{file.name}</span>
-                  </div>
-                  <button type="button" onClick={() => handleRemoveAnexo(index)}>
-                    <X className="h-5 w-5 text-red-500 hover:text-red-700" />
-                  </button>
-                </div>
-              ))}
-            </div>
-            
-            {/*Botão pra por novos anexos*/}
-            <label htmlFor="anexo-upload" className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 border border-dashed border-gray-400 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 cursor-pointer">
-              + Adicionar anexo
-              <input id="anexo-upload" name="anexo-upload" type="file" multiple className="sr-only" onChange={handleAnexoChange} />
-            </label>
-          </div>
-
-          {/*Botões(Cancelar e Sugerir)*/}
           <div className="flex justify-end gap-4 pt-4">
             <Botao variante="outline" type="button" onClick={() => window.history.back()}>
               Cancelar
@@ -218,10 +178,9 @@ const SugerirEdital = () => {
           </div>
         </form>
       </main>
-
       <Footer />
     </div>
   )
 }
 
-export default SugerirEdital
+export default SugerirEdital;

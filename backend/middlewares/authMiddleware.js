@@ -1,7 +1,7 @@
 const Token = require('../models/token');
 const jwt = require('jsonwebtoken');
+const logger = require('../config/logger'); 
 
-// Controller para verificar o token do usuário (Segurança)
 const autenticarToken = async (req, res, next) => {
     const accessToken = req.cookies.accessToken;
 
@@ -10,9 +10,22 @@ const autenticarToken = async (req, res, next) => {
     try {
         const token = await Token.findOne({ accessToken }).populate('userId');
 
-        if(!token) return res.status(403).json({ erro: 'Token inválido, expirado ou revogado' });
+        if(!token) {
+            logger.warn('Tentativa de acesso com token não encontrado/inválido:', accessToken); 
+            return res.status(403).json({ erro: 'Token inválido, expirado ou revogado' });
+        }
 
-        if(token.expiraEm < new Date()) return res.status(403).json({ erro: 'Token expirado' });
+        if(token.expiraEm < new Date()) {
+            logger.warn('Tentativa de acesso com token expirado:', accessToken); 
+            return res.status(403).json({ erro: 'Token expirado' });
+        }
+
+        // Verificação extra para garantir que userId foi populado e não é null
+        if (!token.userId) {
+            logger.error('Token encontrado, mas userId associado é null/não encontrado. Token ID:', token._id);
+            return res.status(403).json({ erro: 'Usuário associado ao token não encontrado' });
+        }
+
 
         req.usuario = {
             id: token.userId._id,
@@ -23,7 +36,7 @@ const autenticarToken = async (req, res, next) => {
         next();
 
     } catch(error) {
-        console.error('Erro ao autenticar token: ', error);
+        logger.error('Erro ao autenticar token: ', error.message, error); // Usar logger.error
         res.status(500).json({ erro: 'Erro interno ao validar o token' });
     }
 };

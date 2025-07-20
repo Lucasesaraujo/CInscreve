@@ -40,20 +40,20 @@ const loginUsuario = async (req, res) => {
     });
 
     res.cookie('accessToken', accessToken, {
-      httpOnly: true,
+      httpOnly: false, //COLOCAR PRA TRUE NO AR
       secure: false, //DEPOIS QUE FOR PRO AR, TIRA E COLOCA TRUE
       sameSite: 'Lax', //DEPOIS QUE FOR PRO AR, TIRA E COLOCA Strict
       maxAge: 1000 * 60 * 60  //1 Hora
     });
 
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
+      httpOnly: false, //COLOCAR PRA TRUE NO AR
       secure: false, //DEPOIS QUE FOR PRO AR, TIRA E COLOCA true
       sameSite: 'Lax', //DEPOIS QUE FOR PRO AR, TIRA E COLOCA Strict
       maxAge: 1000 * 60 * 60 * 24 * 30  //30 Dias
     });
 
-    res.json({ usuario: dadosUsuario, accessToken});
+    res.json({ usuario: dadosUsuario });
 
   } catch (error) {
     logger.error("❌ Erro na autenticação:", error.response?.data || error.message, error);
@@ -94,7 +94,7 @@ const logoutUsuario = async (req, res) => {
     res.json({ mensagem: 'Logout realizado com sucesso'})
 
   } catch(error) {
-    console.error('Erro ao fazer logout:', error);
+    logger.error('Erro ao fazer logout:', error);
     res.status(500).json({ erro: 'Erro interno ao realizar logout' });
   }
 }

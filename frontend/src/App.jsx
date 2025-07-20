@@ -3,7 +3,9 @@ import Login from './pages/Login';
 import Editais from './pages/Editais';
 
 function App() {
-  return <Editais />;
+  return (
+    <Editais />
+  )
 }
 
 export default App;

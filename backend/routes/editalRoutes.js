@@ -20,8 +20,8 @@ router.get('/:id', rateLimit, buscarEdital);
 
 // ########### ROTAS COM USUÁRIO LOGADO ##########
 router.post('/', autenticarToken, criarEdital);
-router.put('/:id', autenticarToken, atualizarEdital);
-router.delete('/:id', autenticarToken, removerEdital);
-router.post('/:id/validar', autenticarToken, validarEdital);
+router.put('/:id', validarObjectId(), autenticarToken, atualizarEdital);
+router.delete('/:id', validarObjectId(), autenticarToken, removerEdital);
+router.post('/:id/validar', validarObjectId(), autenticarToken, validarEdital);
 
 module.exports = router;

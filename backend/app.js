@@ -25,14 +25,18 @@ app.use('/api/auth', authRoutes);
 
 // Middleware de tratamento de erros global (SEMPRE POR ÚLTIMO)
 app.use((err, req, res, next) => {
-  logger.error(`Erro: ${err.message}`, err); // Loga o erro completo
+  logger.error(`Erro inesperado: ${err.message}`, {
+      stack: err.stack,
+      requestUrl: req.originalUrl,
+      requestMethod: req.method,
+      requestBody: req.body, 
+      // Adicione req.ip se necessário, mas já deve estar no token
+  }); // Loga o erro completo com detalhes adicionais
 
   if (err.name === 'ValidationError') {
-    // Erros de validação do Mongoose
     return res.status(400).json({ erro: err.message, detalhes: err.errors });
   }
-  if (err.status) {
-    // Erros customizados com status code (como os de buscarPorID.js)
+  if (err.status) { // Para erros customizados com status (como os de services e validarObjectID)
     return res.status(err.status).json({ erro: err.message });
   }
   if (err.code === 11000) { // Erro de duplicidade do MongoDB (ex: unique: true)

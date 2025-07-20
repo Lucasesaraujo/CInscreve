@@ -1,6 +1,6 @@
+// backend/models/edital.js
 const mongoose = require('mongoose')
 
-// Schema do edital para configurar seus parâmetros
 const EditalSchema = new mongoose.Schema({
   nome: {
     type: String,
@@ -15,17 +15,11 @@ const EditalSchema = new mongoose.Schema({
   periodoInscricao: {
     inicio: {
       type: Date,
-      required: true
+      required: true 
     },
     fim: {
       type: Date,
-      required: true,
-      validate: {
-        validator: function (valor) {
-          return this.periodoInscricao.inicio <= valor;
-        },
-        message: 'A data de fim deve ser posterior à data de início'
-      }
+      required: true 
     }
   },
   descricao: String,
@@ -36,9 +30,9 @@ const EditalSchema = new mongoose.Schema({
     default: false
   },
   sugeridoPor: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: 'User',
-  required: false
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false
   },
   validacoes: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -46,13 +40,12 @@ const EditalSchema = new mongoose.Schema({
   }],
   link: {
     type: String,
-    required: false // só será usado quando validado
+    required: false
   },
   favoritos: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }]
-
 });
 
 module.exports = mongoose.model('Edital', EditalSchema, 'editais')
