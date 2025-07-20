@@ -18,7 +18,7 @@ export default function Card({
   const base = 'bg-white rounded-xl shadow border flex flex-col justify-between'
 
   const estilos = {
-    simples: 'w-[300px] h-[300px] p-4 items-center text-center',
+    simples: 'w-[300px] h-[300px] p-4 items-center text-center border-zinc-200',
     detalhado: 'w-[360px] h-[320px] border-zinc-200 p-6',
   }
 
@@ -82,14 +82,14 @@ export default function Card({
           {titulo}
         </Tipografia>
 
-        <Tipografia tipo="legenda" className="mb-4 text-gray-700">
+        <Tipografia tipo="legenda" className="mb-4 text-gray-700 !text-xs">
           {instituicao}
         </Tipografia>
       </div>
 
       <div className="flex flex-row items-center justify-center gap-2">
         <Tipografia tipo="legenda" className="text-gray-700">
-          Áreas de Interesse:
+          Área de atuação:
         </Tipografia>
         <Botao variante="card-simples" className="text-xs px-3 py-1">
           {area}

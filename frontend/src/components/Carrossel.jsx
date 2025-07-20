@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import Card from './Card';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Tipografia from './Tipografia';
 
 export default function Carrossel({ titulo = '', cards = [] }) {
   const ref = useRef(null);
@@ -23,7 +24,9 @@ export default function Carrossel({ titulo = '', cards = [] }) {
   return (
     <div className="w-full relative py-6">
       {/* título do carrossel */}
-      <h2 className="text-2xl font-bold mb-6 px-4 capitalize">{titulo}</h2>
+      <Tipografia tipo="subtitulo" className="mb-6 capitalize font-bold">
+        {titulo}
+      </Tipografia>
 
       {/* wrapper com padding lateral */}
       <div className="relative px-16">
