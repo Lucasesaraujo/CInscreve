@@ -1,8 +1,8 @@
 const rateLimit = require('express-rate-limit');
 
 const visitanteLimiter = rateLimit({
-  windowMs: 15, // 15 minutos
-  max: 9999, // visitantes só podem fazer 300 requisições
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 300, // visitantes só podem fazer 30 requisições
   message: 'Limite de requisições atingido. Tente novamente em alguns minutos.',
   standardHeaders: true,
   legacyHeaders: false,

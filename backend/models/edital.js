@@ -42,7 +42,7 @@ const EditalSchema = new mongoose.Schema({
     type: String,
     required: false
   },
-  favoritos: [{
+  favoritadoPor: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }]
