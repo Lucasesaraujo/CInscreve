@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
-import Card from '../components/Card' // ✅ importa o card certo
+import Card from '../components/Card' 
 import { Search, Users } from 'lucide-react'
 
 // Simula uma chamada de API
@@ -34,7 +34,7 @@ const mockFetchEditais = (offset = 0, limit = 6) => {
   })
 }
 
-const Editais_Validados = () => {
+const EditaisValidados = () => {
   const [editais, setEditais] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -136,4 +136,4 @@ const Editais_Validados = () => {
   )
 }
 
-export default Editais_Validados
+export default EditaisValidados
