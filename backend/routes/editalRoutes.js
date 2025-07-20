@@ -1,7 +1,7 @@
 const express = require('express');
 const {
   listarEditais, criarEdital, removerEdital, atualizarEdital,
-  buscarEdital, validarEdital, listarNaoValidados
+  buscarEdital, validarEdital, listarNaoValidados, listarEditaisEmDestaque
 } = require('../controllers/editalController');
 
 const autenticarToken = require('../middlewares/authMiddleware');
@@ -17,6 +17,8 @@ const router = express.Router();
 router.get('/', rateLimit, listarEditais);
 router.get('/nao-validados', rateLimit, listarNaoValidados);
 router.get('/:id', rateLimit, buscarEdital);
+router.get('/destaque', rateLimit, listarEditaisEmDestaque);
+
 
 // ########### ROTAS COM USUÁRIO LOGADO ##########
 router.post('/', autenticarToken, criarEdital);
