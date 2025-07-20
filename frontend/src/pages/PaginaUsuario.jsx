@@ -3,40 +3,59 @@
 import React, { useState, useEffect } from 'react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
-import Card from '../components/Card' // Importa o Card
+import Card from '../components/Card'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-const mockFetchEditais = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        favoritos: [
-          {
-            id: 1,
-            titulo: 'Edital de Captação',
-            descricao: 'Descrição do edital de captação.',
-            favorito: true,
-            notificacao: false,
-          },
-          {
-            id: 2,
-            titulo: 'Edital de Pesquisa',
-            descricao: 'Descrição do edital de pesquisa.',
-            favorito: true,
-            notificacao: true,
-          },
-          {
-            id: 3,
-            titulo: 'Edital de Bolsa',
-            descricao: 'Descrição do edital de bolsa.',
-            favorito: false,
-            notificacao: false,
-          },
-        ],
-        sugeridos: [],
-      })
-    }, 1000)
-  })
+const USER_BASE_URL = 'http://localhost:3000/user' // ajustar se necessário
+
+async function getEditaisFavoritosDoUsuario() {
+  try {
+    const res = await fetch(`${USER_BASE_URL}/favoritos`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        window.location.href = '/login'
+      }
+      throw new Error(`Erro ao buscar favoritos: ${res.status} ${res.statusText}`)
+    }
+
+    const data = await res.json()
+    return data.favoritos || []
+  } catch (err) {
+    console.error('Erro ao buscar editais favoritos:', err)
+    return []
+  }
+}
+
+async function fetchEditaisSugeridos() {
+  try {
+    const res = await fetch(`${USER_BASE_URL}/sugeridos`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        window.location.href = '/login'
+      }
+      throw new Error(`Erro ao buscar sugeridos: ${res.status} ${res.statusText}`)
+    }
+
+    const data = await res.json()
+    return data.sugeridos || []
+  } catch (err) {
+    console.error('Erro ao buscar editais sugeridos:', err)
+    return []
+  }
 }
 
 const Usuario = () => {
@@ -46,39 +65,77 @@ const Usuario = () => {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    setLoading(true)
-    mockFetchEditais()
-      .then(({ favoritos, sugeridos }) => {
-        setFavoritos(favoritos)
-        setSugeridos(sugeridos)
+    async function carregarEditais() {
+      setLoading(true)
+      try {
+        const [fav, sug] = await Promise.all([
+          getEditaisFavoritosDoUsuario(),
+          fetchEditaisSugeridos()
+        ])
+        setFavoritos(fav)
+        setSugeridos(sug)
         setError(null)
-      })
-      .catch(() => setError('Erro ao carregar editais.'))
-      .finally(() => setLoading(false))
+      } catch {
+        setError('Erro ao carregar editais.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    carregarEditais()
   }, [])
 
-  // Funções para atualizar os estados e repassar para Card
-  const toggleFavorito = (id) => {
-    setFavoritos((prev) =>
-      prev.map((edital) =>
-        edital.id === id ? { ...edital, favorito: !edital.favorito } : edital
+  const toggleFavorito = async (id) => {
+    const edital = favoritos.find(e => e.id === id)
+    const novoFavorito = !edital.favorito
+
+    try {
+      await fetch(`${USER_BASE_URL}/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ favorito: novoFavorito }),
+      })
+
+      setFavoritos((prev) =>
+        prev.map((edital) =>
+          edital.id === id ? { ...edital, favorito: novoFavorito } : edital
+        )
       )
-    )
+    } catch (error) {
+      console.error('Erro ao atualizar favorito', error)
+    }
   }
 
-  const toggleNotificacao = (id) => {
-    setFavoritos((prev) =>
-      prev.map((edital) =>
-        edital.id === id ? { ...edital, notificacao: !edital.notificacao } : edital
+  const toggleNotificacao = async (id) => {
+    const edital = favoritos.find(e => e.id === id)
+    const novaNotificacao = !edital.notificacao
+
+    try {
+      await fetch(`${USER_BASE_URL}/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ notificacao: novaNotificacao }),
+      })
+
+      setFavoritos((prev) =>
+        prev.map((edital) =>
+          edital.id === id ? { ...edital, notificacao: novaNotificacao } : edital
+        )
       )
-    )
+    } catch (error) {
+      console.error('Erro ao atualizar notificação', error)
+    }
   }
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
 
-      {/* Editais Favoritados */}
+      {/* Favoritos */}
       <section className="px-6 py-10">
         <h2 className="text-2xl font-semibold mb-6 text-center">Editais favoritados</h2>
         {loading ? (
@@ -95,7 +152,7 @@ const Usuario = () => {
                 <Card
                   key={edital.id}
                   variante="detalhado"
-                  titulo={edital.titulo}
+                  titulo={edital.nome}
                   descricao={edital.descricao}
                   favoritoInicial={edital.favorito}
                   notificacaoInicial={edital.notificacao}
@@ -109,7 +166,7 @@ const Usuario = () => {
         )}
       </section>
 
-      {/* Editais sugeridos por você */}
+      {/* Sugeridos */}
       <section className="px-6 py-10 border-t border-gray-300">
         <h2 className="text-2xl font-semibold mb-10 text-center">Editais sugeridos por você</h2>
         {loading ? (
@@ -132,9 +189,8 @@ const Usuario = () => {
                 <Card
                   key={edital.id}
                   variante="detalhado"
-                  titulo={edital.titulo}
+                  titulo={edital.nome}
                   descricao={edital.descricao}
-                  // Aqui você pode ajustar se quiser favoritar/notificar sugeridos também
                 />
               ))}
             </div>
@@ -149,3 +205,4 @@ const Usuario = () => {
 }
 
 export default Usuario
+  
