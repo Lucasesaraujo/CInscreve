@@ -26,6 +26,46 @@ export default function Edital() {
   const [quantidadeRenderizada, setQuantidadeRenderizada] = useState(9);
   const [buscaDisparada, setBuscaDisparada] = useState(false);
 
+  const buscarEditaisPorUrl = async () => {
+    const params = new URLSearchParams();
+
+    if (termoBusca) params.append('nome', termoBusca);
+    if (categoriaSelecionada) params.append('area', categoriaSelecionada);
+
+    const url = `http://localhost:3000/editais?${params.toString()}`;
+
+    try {
+      const resposta = await fetch(url);
+      const data = await resposta.json();
+
+      const formatados = data.editais.map((edital) => ({
+        variante: 'simples',
+        titulo: edital.nome,
+        instituicao: edital.organizacao,
+        descricao: edital.descricao,
+        imagem: edital.imagens?.[0] || 'https://via.placeholder.com/300x200',
+        area: edital.area || 'Outros'
+      }));
+
+      setCardsValidados(formatados);
+      setQuantidadeRenderizada(9);
+      setBuscaDisparada(true);
+
+      const mensagem =
+        formatados.length === 0
+          ? 'Nenhum edital encontrado com os critérios selecionados.'
+          : `Resultados para: ${termoBusca || 'sem termo'} + área: ${categoriaSelecionada || 'todas'}`;
+
+      setDisplayStatusMessage(mensagem);
+
+    } catch (erro) {
+      console.error('Erro ao buscar editais:', erro);
+      setEditaisFiltradosEBuscados([]);
+      setDisplayStatusMessage('Erro ao buscar editais.');
+      setBuscaDisparada(true);
+    }
+  };
+
   useEffect(() => {
     const formatar = (edital) => ({
       variante: 'simples',
@@ -48,6 +88,7 @@ export default function Edital() {
       setCardsNaoValidados(editais.map(formatar))
     );
   }, []);
+
 
   useEffect(() => {
     const todos = [...cardsValidados, ...cardsDestaque, ...cardsNaoValidados];
@@ -101,7 +142,7 @@ export default function Edital() {
                   valor={termoBusca}
                   onChange={(e) => setTermoBuscado(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') setBuscaDisparada(true);
+                    if (e.key === 'Enter') buscarEditaisPorUrl();
                   }}
                   placeholder="Pesquisar editais..."
                   tamanho="pesquisa"
@@ -110,7 +151,7 @@ export default function Edital() {
                 <Botao
                   variante="azul-escuro"
                   className="rounded-l-none px-3 py-[0.44rem] !w-10 flex items-center justify-center h-[40px] -ml-px"
-                  onClick={() => setBuscaDisparada(true)}
+                  onClick={buscarEditaisPorUrl}
                 >
                   <Search className="w-4 h-4" />
                 </Botao>
@@ -168,8 +209,8 @@ export default function Edital() {
       </section>
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {buscaDisparada && categoriaSelecionada !== '' ? (
-          <section className="mt-0">
+        {(categoriaSelecionada !== '' || buscaDisparada) && editaisFiltradosEBuscados.length > 0 ? (
+          <section className="mt-8">
             <Tipografia tipo="subtitulo" className="mb-6 capitalize font-bold">
               Editais encontrados
             </Tipografia>
@@ -194,7 +235,7 @@ export default function Edital() {
         ) : (
           <>
             <div className="mb-10">
-              <Carrossel titulo="Editais em Destaque" cards={cardsValidados} />
+              <Carrossel titulo="Editais em Destaque" cards={cardsValidados} /> 
             </div>
             <div className="mb-10">
               <Carrossel titulo="Editais Validados" cards={cardsValidados} />

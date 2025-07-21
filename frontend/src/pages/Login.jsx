@@ -19,11 +19,18 @@ export default function Login() {
     try {
       const resposta = await fetch('http://localhost:3000/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password: senha }),
-      });
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: email,
+          password: senha
+        })
+      })
 
-      if (!resposta.ok) throw new Error('Erro ao fazer login');
+      if (!resposta.ok) {
+        throw new Error('Erro ao fazer login')
+      }
 
       const dados = await resposta.json();
       console.log('Login realizado com sucesso', dados);
