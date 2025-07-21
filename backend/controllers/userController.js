@@ -23,40 +23,36 @@ const listarFavoritos = async (req, res) => {
 
 // PATCH - Controller para favoritar ou desfavoritar o edital do usuário
 const toggleFavorito = async (req, res) => {
-  const userId = req.usuario.id; 
+  const userId = req.usuario.id;
   const editalId = req.params.id;
 
   try {
-    const usuario = await Usuario.findById(userId); // Busca por _id
+    const usuario = await Usuario.findById(userId);
     const edital = await Edital.findById(editalId);
 
     if (!usuario) {
       logger.warn(`Usuário com ID ${userId} não encontrado ao alternar favorito.`);
       return res.status(404).json({ erro: 'Usuário não encontrado' });
     }
+
     if (!edital) {
       logger.warn(`Edital com ID ${editalId} não encontrado ao alternar favorito.`);
       return res.status(404).json({ erro: 'Edital não encontrado' });
     }
 
-    const jaFavoritado = usuario.favoritos.includes(editalId);
+    if (!usuario.favoritos) usuario.favoritos = [];
+    if (!edital.favoritos) edital.favoritos = [];
+
+    const jaFavoritado = usuario.favoritos.some(favId => favId.toString() === editalId);
     let mensagem = '';
 
     if (jaFavoritado) {
-      // Remover dos favoritos do usuário
-      usuario.favoritos.pull(editalId);
-      // Remover o usuário da lista de favoritos do edital
-      edital.favoritos.pull(usuario._id);
+      usuario.favoritos = usuario.favoritos.filter(favId => favId.toString() !== editalId);
+      edital.favoritos = edital.favoritos.filter(userId => userId.toString() !== usuario._id.toString());
       mensagem = 'Edital removido dos favoritos';
     } else {
-      if (!usuario.favoritos.includes(editalId)) {
-        usuario.favoritos.push(editalId);
-      }
-
-      if (!edital.favoritos.includes(usuario._id)) {
-        edital.favoritos.push(usuario._id);
-      }
-      
+      usuario.favoritos.push(edital._id);
+      edital.favoritos.push(usuario._id);
       mensagem = 'Edital adicionado aos favoritos';
     }
 
