@@ -2,6 +2,7 @@ import React from 'react'
 import Botao from './Botao'
 import Tipografia from './Tipografia'
 import { Heart, Bell } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 export default function Card({
   variante = 'simples',
@@ -14,6 +15,7 @@ export default function Card({
   notificacaoInicial = false,
   onToggleFavorito,
   onToggleNotificacao,
+  _id
 }) {
   const base = 'bg-white rounded-xl shadow border flex flex-col justify-between'
 
@@ -23,8 +25,9 @@ export default function Card({
   }
 
   // Usa os valores vindos do pai para o estado
-  const favorito = favoritoInicial
-  const notificar = notificacaoInicial
+  const favorito = favoritoInicial;
+  const notificar = notificacaoInicial;
+  const navigate = useNavigate();
 
   if (variante === 'detalhado') {
     return (
@@ -68,7 +71,8 @@ export default function Card({
 
   // Card simples
   return (
-    <div className={`${base} ${estilos.simples}`}>
+    <div onClick = {() => navigate(`/editais/${_id}`)}
+    className={`${base} ${estilos.simples}`}>
       <div>
         <div className="mb-3">
           <img

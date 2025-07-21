@@ -72,7 +72,30 @@ const toggleFavorito = async (req, res) => {
   }
 };
 
+const listarSugeridos = async (req, res, next) => { 
+  try {
+    const userId = req.usuario.id;
+
+    if (!userId) {
+      logger.warn('Tentativa de buscar editais sugeridos sem userId na requisição.');
+      const error = new Error('ID do usuário não encontrado na requisição.');
+      error.status = 400;
+      return next(error);
+    }
+
+    // Busca editais onde o campo 'sugeridoPor' corresponde ao ID do usuário logado
+    const editaisSugeridos = await Edital.find({ sugeridoPor: userId });
+
+    logger.info(`Editais sugeridos encontrados para o usuário ${userId}: ${editaisSugeridos.length}`);
+    res.status(200).json({ sugeridos: editaisSugeridos });
+  } catch (error) {
+    logger.error('Erro ao buscar editais sugeridos pelo usuário:', error.message, error); 
+    next(error); // Passa o erro para o middleware de tratamento de erros global
+  }
+};
+
 module.exports = {
   listarFavoritos,
-  toggleFavorito
+  toggleFavorito,
+  listarSugeridos
 };

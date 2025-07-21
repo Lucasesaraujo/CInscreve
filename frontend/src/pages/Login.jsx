@@ -5,6 +5,7 @@ import Tipografia from '../components/Tipografia';
 import logo from '../assets/logo.png';
 import imagemLogin from '../assets/login.png';
 import AlertaErro from '../components/AlertaErro';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ export default function Login() {
   const [lembrar, setLembrar] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erroLogin, setErroLogin] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     setCarregando(true);
@@ -34,6 +36,7 @@ export default function Login() {
 
       const dados = await resposta.json();
       console.log('Login realizado com sucesso', dados);
+      navigate("/")
 
     } catch (erro) {
       console.error('Erro no login', erro);

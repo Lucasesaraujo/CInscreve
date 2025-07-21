@@ -114,11 +114,73 @@ async function removerEditalService(id) {
   return await Edital.findByIdAndDelete(id);
 }
 
+async function getEditaisDestaque(limit = 6) { // Limite padrão de 6 editais
+  try {
+    const editaisDestaque = await Edital.aggregate([
+      {
+        $project: { // Seleciona os campos que você quer e calcula o tamanho do array 'favoritos'
+          nome: 1,
+          organizacao: 1,
+          periodoInscricao: 1,
+          descricao: 1,
+          anexos: 1,
+          imagens: 1,
+          validado: 1,
+          sugeridoPor: 1,
+          validacoes: 1,
+          link: 1,
+          favoritos: 1, // Inclui o array favoritos, caso o frontend precise do count para algo
+          favoritosCount: { $size: "$favoritos" } // Cria um novo campo 'favoritosCount'
+        }
+      },
+      {
+        $sort: { favoritosCount: -1 } // Ordena em ordem decrescente pelo número de favoritos
+      },
+      {
+        $limit: limit // Limita ao número desejado de editais em destaque
+      },
+      {
+        $lookup: { // Opcional: Se quiser popular 'sugeridoPor' ou 'validacoes'
+          from: 'users', // Nome da coleção de usuários (verifique se é 'users')
+          localField: 'sugeridoPor',
+          foreignField: '_id',
+          as: 'sugeridoPorDetalhes'
+        }
+      },
+      {
+        $unwind: { path: '$sugeridoPorDetalhes', preserveNullAndEmptyArrays: true } // Descompacta o array do lookup
+      },
+      {
+        $project: { // Remodela o output para o formato desejado, removendo 'favoritosCount'
+          nome: 1,
+          organizacao: 1,
+          periodoInscricao: 1,
+          descricao: 1,
+          anexos: 1,
+          imagens: 1,
+          validado: 1,
+          sugeridoPor: "$sugeridoPorDetalhes", // Se populou sugeridoPor
+          validacoes: 1,
+          link: 1,
+          favoritos: 1,
+          favoritosCount: 1 // Opcional: manter o count se o frontend precisar
+        }
+      }
+    ]);
+
+    return editaisDestaque;
+  } catch (error) {
+    logger.error('Erro ao buscar editais em destaque (mais favoritos):', error.message, error);
+    throw error; // Propaga o erro para o controller
+  }
+}
+
 module.exports = {
   listarEditaisComFiltro,
   validarEditalService,
   buscarEditalComValidacoes,
   criarEditalService,
   atualizarEditalService,
-  removerEditalService
+  removerEditalService,
+  getEditaisDestaque
 };

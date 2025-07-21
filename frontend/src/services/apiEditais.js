@@ -1,4 +1,5 @@
 const BASE_URL = "http://localhost:3000/editais";
+const URL = "http://localhost:3000";
 
 // utilitário para fazer requisição com filtros e percorrer todas as páginas
 async function fetchEditais(filtros = {}) {
@@ -59,4 +60,90 @@ export async function getEditaisDestaque() {
     paginaAtual,
     totalPaginas
   };
+}
+export async function getEditalById(editalId) {
+  try {
+    const res = await fetch(`${BASE_URL}/${editalId}`, {
+      method: 'GET',
+      credentials: 'include', // Para enviar cookies de autenticação (necessário se o link é protegido)
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        window.location.href = '/login'; // Redireciona se não autenticado/autorizado
+        return null;
+      }
+      if (res.status === 404) {
+        throw new Error('Edital não encontrado.');
+      }
+      throw new Error(`Erro ao buscar edital: ${res.status} ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    return data; // Deve retornar o objeto edital
+  } catch (err) {
+    console.error("Erro ao buscar edital específico:", err);
+    throw err; // Rejoga o erro para o componente lidar
+  }
+}
+
+export async function validarEdital(editalId) {
+  try {
+    const res = await fetch(`${BASE_URL}/${editalId}/validar`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        window.location.href = '/login';
+        return null;
+      }
+      const errorData = await res.json();
+      throw new Error(errorData.erro || `Erro ao validar edital: ${res.status} ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    return data; // Deve retornar { mensagem: '...', edital: { ... } }
+  } catch (err) {
+    console.error("Erro ao validar edital:", err);
+    throw err;
+  }
+}
+
+// Função para alternar o estado de favorito de um edital para o usuário logado
+export async function toggleFavoritoEdital(editalId) {
+  try {
+    const res = await fetch(`${URL}/user/favoritar/${editalId}`, {
+      method: 'PATCH', 
+      credentials: 'include', // Para enviar os cookies de autenticação
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        // Redireciona para login se não autenticado/autorizado
+        // Em um projeto real, você usaria `useNavigate` do React Router DOM aqui
+        window.location.href = '/login';
+        return null;
+      }
+      const errorData = await res.json();
+      throw new Error(errorData.erro || `Erro ao alternar favorito: ${res.status} ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    // O backend deve retornar a lista atualizada de favoritos do usuário
+    return res.status || []; // Assumindo que o backend retorna { mensagem: '...', favoritos: [...] }
+  } catch (err) {
+    console.error("Erro em toggleFavoritoEdital:", err);
+    throw err; // Rejoga o erro para o componente lidar
+  }
 }

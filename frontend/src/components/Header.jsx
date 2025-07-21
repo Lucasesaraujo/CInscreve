@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { User } from "lucide-react";
 import Logo from '../assets/logo.png';
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
   const [active, setActive] = useState("home");
 
   const handleClick = (buttonName) => {

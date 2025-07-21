@@ -86,6 +86,18 @@ const listarNaoValidados = async (req, res) => {
   }
 };
 
+// NOVO CONTROLLER: Para listar editais em destaque
+const listarEditaisEmDestaque = async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit) || 6; // Permite que o frontend peça um limite customizado
+    const editais = await getEditaisMaisFavoritos(limit);
+    res.status(200).json({ editais });
+  } catch (error) {
+    logger.error('Erro no controller ao listar editais em destaque:', error.message, error);
+    next(error);
+  }
+};
+
 // Exportando os Controllers
 module.exports = {
   listarEditais,
@@ -94,5 +106,6 @@ module.exports = {
   removerEdital,
   buscarEdital,
   validarEdital,
-  listarNaoValidados
+  listarNaoValidados,
+  listarEditaisEmDestaque
 };

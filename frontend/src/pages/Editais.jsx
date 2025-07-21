@@ -14,6 +14,7 @@ import Carrossel from '../components/Carrossel';
 import { Search, ChevronDown } from 'lucide-react';
 import Fundo from '../assets/base.png';
 import Logo from '../assets/recife.png';
+import { useNavigate } from 'react-router-dom';
 
 export default function Edital() {
   const [termoBusca, setTermoBuscado] = useState('');
@@ -25,6 +26,7 @@ export default function Edital() {
   const [cardsNaoValidados, setCardsNaoValidados] = useState([]);
   const [quantidadeRenderizada, setQuantidadeRenderizada] = useState(9);
   const [buscaDisparada, setBuscaDisparada] = useState(false);
+  const navigate = useNavigate();
 
   const buscarEditaisPorUrl = async () => {
     const params = new URLSearchParams();
@@ -73,7 +75,8 @@ export default function Edital() {
       instituicao: edital.organizacao,
       descricao: edital.descricao,
       imagem: edital.imagens?.[0] || 'https://via.placeholder.com/300x200',
-      area: edital.area || 'Outros'
+      area: edital.area || 'Outros',
+      _id: edital._id || 'Erro'
     });
 
     getEditaisValidados().then(({ editais }) =>
