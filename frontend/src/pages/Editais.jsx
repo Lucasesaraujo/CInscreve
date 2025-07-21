@@ -14,7 +14,6 @@ import Carrossel from '../components/Carrossel';
 import { Search, ChevronDown } from 'lucide-react';
 import Fundo from '../assets/base.png';
 import Logo from '../assets/recife.png';
-import { useNavigate } from 'react-router-dom';
 
 export default function Edital() {
   const [termoBusca, setTermoBuscado] = useState('');
@@ -26,7 +25,6 @@ export default function Edital() {
   const [cardsNaoValidados, setCardsNaoValidados] = useState([]);
   const [quantidadeRenderizada, setQuantidadeRenderizada] = useState(9);
   const [buscaDisparada, setBuscaDisparada] = useState(false);
-  const navigate = useNavigate();
 
   const buscarEditaisPorUrl = async () => {
     const params = new URLSearchParams();
@@ -128,8 +126,6 @@ export default function Edital() {
         alt="fundo"
         className="absolute top-0 left-0 w-full h-full object-cover -z-10"
       />
-
-      <Header />
 
       <section className="w-full bg-[#f0f7fd] py-0 relative">
         <div className="flex flex-col md:flex-row items-center gap-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

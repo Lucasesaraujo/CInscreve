@@ -26,7 +26,6 @@ export default function Home() {
 
     return (
         <section className="text-zinc-800" style={{ backgroundImage: `url(${Fundo})` }}>
-            <Header />
 
             {/* Bloco de destaque visual e chamadas principais */}
             <section className="flex flex-col md:flex-row items-center justify-between py-0 bg-[#f0f7fd] relative overflow-hidden w-full h-[540px]">
