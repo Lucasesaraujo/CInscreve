@@ -84,7 +84,6 @@ const handleSubmit = async (e) => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
       <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-10">
         <Tipografia tipo="titulo" className="mb-4 text-zinc-800">
           Sugerir edital
