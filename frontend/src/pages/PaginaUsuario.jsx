@@ -5,6 +5,9 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Card from '../components/Card'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import Carrossel from '../components/Carrossel'
+import Tipografia from '../components/Tipografia'
+import Fundo from '../assets/base.png'
 
 const USER_BASE_URL = 'http://localhost:3000/user' // ajustar se necessário
 
@@ -132,48 +135,61 @@ const Usuario = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen" style={{ backgroundImage: `url(${Fundo})` }}>
 
-      {/* Favoritos */}
-      <section className="px-6 py-10">
-        <h2 className="text-2xl font-semibold mb-6 text-center">Editais favoritados</h2>
+      {/* Bloco de editais favoritados */}
+      <section className="relative bg-cover bg-center bg-no-repeat py-16">
+        <div className="w-full px-6 md:px-20 lg:px-32">
+          <Tipografia tipo="titulo" className="mb-2 text-4xl text-black text-center">
+            Editais favoritados por você
+          </Tipografia>
+          <Tipografia tipo="subtitulo" className="text-gray-500 text-center">
+            Seus favoritos ficam todos aqui.
+          </Tipografia>
+        </div>
+
         {loading ? (
-          <p className="text-center">Carregando editais...</p>
+          <p className="text-center mt-8 text-gray-600">Carregando editais...</p>
         ) : error ? (
-          <p className="text-center text-red-600">{error}</p>
+          <p className="text-center mt-8 text-red-600">{error}</p>
         ) : favoritos.length === 0 ? (
-          <p className="text-center text-gray-600">Nenhum edital favoritado.</p>
+          <p className="text-center mt-8 text-gray-600">Nenhum edital favoritado.</p>
         ) : (
-          <div className="flex items-center justify-center gap-4">
-            <ChevronLeft className="w-6 h-6 cursor-pointer" />
-            <div className="flex gap-4 overflow-x-auto">
-              {favoritos.map((edital) => (
-                <Card
-                  key={edital.id}
-                  variante="detalhado"
-                  titulo={edital.nome}
-                  descricao={edital.descricao}
-                  favoritoInicial={edital.favorito}
-                  notificacaoInicial={edital.notificacao}
-                  onToggleFavorito={() => toggleFavorito(edital.id)}
-                  onToggleNotificacao={() => toggleNotificacao(edital.id)}
-                />
-              ))}
-            </div>
-            <ChevronRight className="w-6 h-6 cursor-pointer" />
+          <div className="px-28 mt-8">
+            <Carrossel
+              titulo=""
+              cards={favoritos.map((edital) => ({
+                key: edital.id,
+                variante: 'detalhado',
+                titulo: edital.nome,
+                descricao: edital.descricao,
+                favoritoInicial: edital.favorito,
+                notificacaoInicial: edital.notificacao,
+                onToggleFavorito: () => toggleFavorito(edital.id),
+                onToggleNotificacao: () => toggleNotificacao(edital.id),
+              }))}
+            />
           </div>
         )}
       </section>
 
       {/* Sugeridos */}
-      <section className="px-6 py-10 border-t border-gray-300">
-        <h2 className="text-2xl font-semibold mb-10 text-center">Editais sugeridos por você</h2>
+      <section className="relative bg-cover bg-center bg-no-repeat py-16">
+        <div className="w-full px-6 md:px-20 lg:px-32">
+          <Tipografia tipo="titulo" className="mb-2 text-4xl text-black text-center">
+            Editais sugeridos por você
+          </Tipografia>
+          <Tipografia tipo="subtitulo" className="text-gray-500 text-center">
+            Seus sugeridos ficam todos aqui.
+          </Tipografia>
+        </div>
+
         {loading ? (
-          <p className="text-center">Carregando editais...</p>
+          <p className="text-center mt-8 text-gray-600">Carregando editais...</p>
         ) : error ? (
-          <p className="text-center text-red-600">{error}</p>
+          <p className="text-center mt-8 text-red-600">{error}</p>
         ) : sugeridos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center text-center">
+          <div className="flex flex-col items-center justify-center text-center mt-8">
             <p className="text-lg font-semibold mb-2">Nenhuma sugestão por aqui... ainda.</p>
             <p className="text-gray-600 mb-4">Compartilhe editais que podem fazer a diferença!</p>
             <button className="bg-black text-white px-4 py-2 rounded-md cursor-pointer">
@@ -181,19 +197,16 @@ const Usuario = () => {
             </button>
           </div>
         ) : (
-          <div className="flex items-center justify-center gap-4">
-            <ChevronLeft className="w-6 h-6 cursor-pointer" />
-            <div className="flex gap-4 overflow-x-auto">
-              {sugeridos.map((edital) => (
-                <Card
-                  key={edital.id}
-                  variante="detalhado"
-                  titulo={edital.nome}
-                  descricao={edital.descricao}
-                />
-              ))}
-            </div>
-            <ChevronRight className="w-6 h-6 cursor-pointer" />
+          <div className="px-28 mt-8">
+            <Carrossel
+              titulo=""
+              cards={sugeridos.map((edital) => ({
+                key: edital.id,
+                variante: 'detalhado',
+                titulo: edital.nome,
+                descricao: edital.descricao,
+              }))}
+            />
           </div>
         )}
       </section>
@@ -204,4 +217,3 @@ const Usuario = () => {
 }
 
 export default Usuario
-  

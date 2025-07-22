@@ -127,7 +127,7 @@ export default function Edital() {
         className="absolute top-0 left-0 w-full h-full object-cover -z-10"
       />
 
-      <section className="w-full bg-[#f0f7fd] py-0 relative">
+      <section className="w-full bg-[#f0f7fd] py-24 relative">
         <div className="flex flex-col md:flex-row items-center gap-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="md:w-1/2">
             <Tipografia tipo="titulo" className="mb-6 text-gray-800 text-5xl">
@@ -196,15 +196,15 @@ export default function Edital() {
             )}
           </div>
 
-          <div className="md:w-1/2 h-full z-10 flex items-center justify-end pr-0">
+          <div className="absolute top-0 right-0 bottom-0 left-auto w-full max-w-[700px] z-0 overflow-hidden">
             <img
               src={Logo}
               alt="imagem ilustrativa"
-              className="w-auto h-96 object-contain"
-              style={{ maxWidth: '100%', minWidth: '200px' }}
+              className="h-[384px] w-full object-cover"
             />
           </div>
         </div>
+        <div className="absolute top-0 bottom-0 left-[51%] w-24 bg-gradient-to-r from-[#f0f7fd] to-transparent z-20 pointer-events-none" />
       </section>
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -234,7 +234,7 @@ export default function Edital() {
         ) : (
           <>
             <div className="mb-10">
-              <Carrossel titulo="Editais em Destaque" cards={cardsValidados} /> 
+              <Carrossel titulo="Editais em Destaque" cards={cardsValidados} />
             </div>
             <div className="mb-10">
               <Carrossel titulo="Editais Validados" cards={cardsValidados} />
