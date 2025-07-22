@@ -133,7 +133,6 @@ const Usuario = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
 
       {/* Favoritos */}
       <section className="px-6 py-10">
