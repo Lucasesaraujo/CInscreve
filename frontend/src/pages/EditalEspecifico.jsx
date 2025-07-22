@@ -157,8 +157,6 @@ const EditalEspecifico = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
-
       <main className="flex-1 max-w-6xl mx-auto py-10 px-4">
         {/* Banner de Imagem do Edital */}
         <div className="w-full h-64 bg-gray-200 mb-0 shadow-md">
