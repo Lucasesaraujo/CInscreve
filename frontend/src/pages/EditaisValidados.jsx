@@ -60,8 +60,6 @@ const EditaisValidados = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
-
       <main className="flex-1 flex flex-col items-center px-4 md:px-12 py-8">
         <div className="w-full max-w-6xl mb-6">
           <h1 className="text-3xl font-bold flex items-center gap-2">
