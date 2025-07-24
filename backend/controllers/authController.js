@@ -1,144 +1,107 @@
-const axios = require('axios');
-const jwt = require('jsonwebtoken');
-const { gerarTokens } = require('../utils/gerarToken');
-const Usuario = require('../models/user');
-const Token = require('../models/token');
+// backend/controllers/authController.js
+
+const { loginService, getUserService, logoutService, renewTokenService } = require('../services/authServices'); // Importe a nova função
 const logger = require('../config/logger');
+const { accessTokenCookieOptions, refreshTokenOptions, clearCookieOptions } = require('../utils/cookieConfig'); // Importe as opções de cookie
 
 // POST - Controller para logar usuário e retorna seus dados, token de acesso e de refresh
-const loginUsuario = async (req, res) => {
-  const { email, password } = req.body;
+async function loginUsuario(req, res, next) {
+    const { email, password } = req.body;
 
-  try {
-    const resposta = await axios.post(
-      process.env.EXTERNAL_AUTH_API_URL,
-      { email, password },
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+    try {
+        const { usuario, accessToken, refreshToken } = await loginService(email, password, req.headers['user-agent'], req.ip);
 
-    const dadosUsuario = resposta.data;
+        // Use as opções de cookie centralizadas
+        res.cookie('accessToken', accessToken, accessTokenCookieOptions);
+        res.cookie('refreshToken', refreshToken, refreshTokenOptions);
 
-    const usuarioLocal = await Usuario.findOneAndUpdate(
-      { email: dadosUsuario.user.email },
-      {},
-      { upsert: true, new: true }
-    );
+        res.json({ usuario: usuario, accessToken });
 
-    const { accessToken, refreshToken } = gerarTokens(dadosUsuario);
+    } catch (error) {
+        // Lógica de tratamento de erro para a resposta HTTP
+        let errorMessage = 'Erro desconhecido na autenticação.';
+        let status = 500;
 
-    const expiracao = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
+        if (error.response) { // Erro vindo da API externa (Axios)
+            errorMessage = error.response.data?.message || error.response.data?.erro || 'Credenciais inválidas ou erro na API externa.';
+            status = error.response.status || 401;
+        } else if (error.request) { // Requisição feita, mas sem resposta recebida
+            errorMessage = 'Nenhuma resposta da API de autenticação. Verifique a conexão.';
+            status = 503; // Service Unavailable
+        } else if (error.message) { // Outros erros internos ou customizados lançados pelo serviço
+            errorMessage = error.message;
+            status = error.status || 401; // Usa o status do erro customizado do serviço, senão 401
+        }
 
-    await Token.deleteMany({
-      userId: usuarioLocal._id,
-      dispositivo: req.headers['user-agent'],
-      ip: req.ip
-    });
+        if (error.status) status = error.status;
 
-    // CRIANDO TOKEN NO BANCO DE DADOS
-    await Token.create({
-      userId: usuarioLocal._id,
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      dispositivo: req.headers['user-agent'],
-      ip: req.ip,
-      expiraEm: expiracao
-    });
-
-    res.cookie('accessToken', accessToken, {
-      httpOnly: false, //COLOCAR PRA TRUE NO AR
-      secure: false, //DEPOIS QUE FOR PRO AR, TIRA E COLOCA TRUE
-      sameSite: 'Lax', //DEPOIS QUE FOR PRO AR, TIRA E COLOCA Strict
-      maxAge: 1000 * 60 * 60  //1 Hora
-    });
-
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: false, //COLOCAR PRA TRUE NO AR
-      secure: false, //DEPOIS QUE FOR PRO AR, TIRA E COLOCA true
-      sameSite: 'Lax', //DEPOIS QUE FOR PRO AR, TIRA E COLOCA Strict
-      maxAge: 1000 * 60 * 60 * 24 * 30  //30 Dias
-    });
-
-    res.json({ usuario: dadosUsuario });
-
-  } catch (error) {
-    logger.error("❌ Erro na autenticação:", error.response?.data || error.message, error);
-    res.status(401).json({
-      erro: 'Credenciais inválidas ou erro na API externa', detalhes: error.response?.data || null
-    });
-  }
-};
+        res.status(status).json({ erro: errorMessage, detalhes: error.response?.data || null });
+    }
+}
 
 // GET - Controller para confirmar que o usuário está logado
-const getUsuarioLogado = (req, res) => {
-  res.json({ usuario: req.usuario });
+async function getUsuarioLogado(req, res, next) {
+    try {
+        const usuarioData = await getUserService(req.usuario);
+        res.json({ usuario: usuarioData });
+    } catch (error) {
+        next(error);
+    }
+}
+
+// POST - Controller para deslogar usuário
+async function logoutUsuario(req, res, next) {
+    const accessToken = req.cookies.accessToken;
+
+    if (!accessToken) {
+        return res.status(400).json({ erro: 'Token não fornecido' });
+    }
+
+    try {
+        await logoutService(accessToken);
+
+        // Limpa os cookies do navegador usando as opções centralizadas
+        res.clearCookie('accessToken', clearCookieOptions);
+        res.clearCookie('refreshToken', clearCookieOptions);
+
+        res.json({ mensagem: 'Logout realizado com sucesso' });
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+// NOVA FUNÇÃO: Renovar Access Token
+async function renovarAccessToken(req, res, next) {
+    const refreshToken = req.cookies.refreshToken;
+
+    try {
+        const newAccessToken = await renewTokenService(refreshToken);
+
+        // Define o novo access token no cookie
+        res.cookie('accessToken', newAccessToken, accessTokenCookieOptions);
+
+        return res.json({ mensagem: 'Novo access token gerado' });
+
+    } catch (error) {
+        // Lógica de tratamento de erro para a resposta HTTP
+        let errorMessage = 'Erro interno no servidor ao renovar token.';
+        let status = 500;
+
+        if (error.message) {
+            errorMessage = error.message;
+            status = error.status || 403; // Usa o status do erro customizado do serviço, senão 403
+        }
+
+        if (error.status) status = error.status;
+
+        return res.status(status).json({ erro: errorMessage });
+    }
+}
+
+module.exports = {
+    loginUsuario,
+    getUsuarioLogado,
+    logoutUsuario,
+    renovarAccessToken 
 };
-
-//POST - Controller para deslogar usuário
-const logoutUsuario = async (req, res) => {
-  const accessToken = req.cookies.accessToken;
-
-  if(!accessToken) return res.status(400).json({ erro: 'Token não fornecido' });
-
-  try{
-    const resultado = await Token.deleteOne({ accessToken: accessToken});
-
-    res.clearCookie('accessToken', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'Strict'
-    });
-
-    res.clearCookie('refreshToken', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'Strict'
-    });
-
-    if(resultado.deletedCount === 0) return res.status(404).json({ erro: 'Token não encontrado ou já removido' });
-
-    res.json({ mensagem: 'Logout realizado com sucesso'})
-
-  } catch(error) {
-    logger.error('Erro ao fazer logout:', error);
-    res.status(500).json({ erro: 'Erro interno ao realizar logout' });
-  }
-}
-
-const renovarAccessToken = async (req, res) => {
-  try {
-    const refreshToken = req.cookie.refreshToken;
-    if(!refreshToken) return res.status(401).json({ erro: 'Refresh Token ausente'});
-
-    const tokenDB = await Token.findOne({ refreshToken });
-    if(!tokenDB) return res.status(403).json({ erro: 'Token inválido ou expirado' });
-
-    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, async (error, decoded) => {
-      if(err) return res.status(403).json({ erro: 'Refresh Token inválido'});
-
-      const payload = {
-        id: decoded.id,
-        email: decoded.email
-      };
-
-      const newAccessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h'});
-
-      tokenDB.accessToken = newAccessToken;
-      await tokenDB.save();
-
-      res.cookie('accessToken', newAccessToken, {
-        httpOnly: false, // true em produção
-        secure: false,   // true em produção
-        sameSite: 'Lax', // Strict em produção
-        maxAge: 1000 * 60 * 60 // 1h
-      });
-
-      return res.json({ mensagem: 'Novo access token gerado'});
-    });
-
-  } catch (error) {
-    console.error('Erro no refresh token: ', error);
-    return res.status(500).json({erro: 'Erro interno no servidor'});
-  }
-}
-
-module.exports = { loginUsuario, getUsuarioLogado, logoutUsuario, renovarAccessToken };
