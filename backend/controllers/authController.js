@@ -1,4 +1,5 @@
 const axios = require('axios');
+const jwt = require('jsonwebtoken');
 const { gerarTokens } = require('../utils/gerarToken');
 const Usuario = require('../models/user');
 const Token = require('../models/token');
@@ -103,4 +104,41 @@ const logoutUsuario = async (req, res) => {
   }
 }
 
-module.exports = { loginUsuario, getUsuarioLogado, logoutUsuario };
+const renovarAccessToken = async (req, res) => {
+  try {
+    const refreshToken = req.cookie.refreshToken;
+    if(!refreshToken) return res.status(401).json({ erro: 'Refresh Token ausente'});
+
+    const tokenDB = await Token.findOne({ refreshToken });
+    if(!tokenDB) return res.status(403).json({ erro: 'Token inválido ou expirado' });
+
+    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, async (error, decoded) => {
+      if(err) return res.status(403).json({ erro: 'Refresh Token inválido'});
+
+      const payload = {
+        id: decoded.id,
+        email: decoded.email
+      };
+
+      const newAccessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h'});
+
+      tokenDB.accessToken = newAccessToken;
+      await tokenDB.save();
+
+      res.cookie('accessToken', newAccessToken, {
+        httpOnly: false, // true em produção
+        secure: false,   // true em produção
+        sameSite: 'Lax', // Strict em produção
+        maxAge: 1000 * 60 * 60 // 1h
+      });
+
+      return res.json({ mensagem: 'Novo access token gerado'});
+    });
+
+  } catch (error) {
+    console.error('Erro no refresh token: ', error);
+    return res.status(500).json({erro: 'Erro interno no servidor'});
+  }
+}
+
+module.exports = { loginUsuario, getUsuarioLogado, logoutUsuario, renovarAccessToken };
