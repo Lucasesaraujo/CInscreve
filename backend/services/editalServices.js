@@ -2,7 +2,7 @@ const Edital = require('../models/edital');
 const { construirFiltroEditais } = require('../utils/filtrosEditais');
 const { configurarPaginacaoOrdenacao } = require('../utils/paginacao');
 
-async function listarEditaisComFiltro(query) {
+async function listarEditaisService(query) {
   const filtro = construirFiltroEditais(query);
   const { parsedPage, parsedLimit, skip, ordenacao } = configurarPaginacaoOrdenacao(query);
 
@@ -176,7 +176,7 @@ async function getEditaisDestaque(limit = 6) { // Limite padrão de 6 editais
 }
 
 module.exports = {
-  listarEditaisComFiltro,
+  listarEditaisService,
   validarEditalService,
   buscarEditalComValidacoes,
   criarEditalService,

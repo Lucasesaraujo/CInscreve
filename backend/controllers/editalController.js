@@ -1,11 +1,11 @@
 const Edital = require('../models/edital');
 const logger = require('../config/logger');
-const { listarEditaisComFiltro, validarEditalService, buscarEditalComValidacoes, criarEditalService, atualizarEditalService, removerEditalService } = require('../services/editalServices');
+const { listarEditaisService, validarEditalService, buscarEditalComValidacoes, criarEditalService, atualizarEditalService, removerEditalService } = require('../services/editalServices');
 
 // GET Controller para listar os editais
 const listarEditais = async (req, res) => {
   try {
-    const resultado = await listarEditaisComFiltro(req.query);
+    const resultado = await listarEditaisService(req.query);
     res.json(resultado);
   } catch (error) {
     next(error);
