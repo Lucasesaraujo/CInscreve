@@ -32,8 +32,8 @@ async function loginService(email, password, userAgent, ip) {
 
         await Token.deleteMany({
             userId: usuarioLocal._id,
-            dispositivo: req.headers['user-agent'],
-            ip: req.ip
+            dispositivo: userAgent,
+            ip: ip
         });
 
         const expiracao = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
