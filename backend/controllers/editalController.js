@@ -1,6 +1,6 @@
 const Edital = require('../models/edital');
 const logger = require('../config/logger');
-const { listarEditaisService, validarEditalService, buscarEditalComValidacoes, criarEditalService, atualizarEditalService, removerEditalService } = require('../services/editalServices');
+const { listarEditaisService, validarEditalService, buscarEditalComValidacoes, criarEditalService, atualizarEditalService, removerEditalService, denunciarEditalService } = require('../services/editalServices');
 
 // GET Controller para listar os editais
 const listarEditais = async (req, res) => {
@@ -98,6 +98,20 @@ const listarEditaisEmDestaque = async (req, res, next) => {
   }
 };
 
+// PATCH - Controller para denunciar um edital
+async function denunciarEdital(req, res, next) {
+  const editalId = req.params.id;
+  const userId = req.usuario.id; // ID do usuário logado do authMiddleware
+
+  try {
+      const resultado = await denunciarEditalService(editalId, userId);
+      res.status(200).json(resultado);
+  } catch (error) {
+      // O middleware de erro global (`app.js`) tratará o status do erro (404, 409, 500)
+      next(error);
+  }
+}
+
 // Exportando os Controllers
 module.exports = {
   listarEditais,
@@ -107,5 +121,6 @@ module.exports = {
   buscarEdital,
   validarEdital,
   listarNaoValidados,
-  listarEditaisEmDestaque
+  listarEditaisEmDestaque,
+  denunciarEdital
 };

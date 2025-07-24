@@ -1,7 +1,7 @@
 const express = require('express');
 const {
   listarEditais, criarEdital, removerEdital, atualizarEdital,
-  buscarEdital, validarEdital, listarNaoValidados, listarEditaisEmDestaque
+  buscarEdital, validarEdital, listarNaoValidados, listarEditaisEmDestaque, denunciarEdital
 } = require('../controllers/editalController');
 
 const autenticarToken = require('../middlewares/authMiddleware');
@@ -25,5 +25,6 @@ router.post('/', autenticarToken, criarEdital);
 router.put('/:id', validarObjectId(), autenticarToken, atualizarEdital);
 router.delete('/:id', validarObjectId(), autenticarToken, removerEdital);
 router.post('/:id/validar', validarObjectId(), autenticarToken, validarEdital);
+router.patch('/:id/denunciar', autenticarToken, validarObjectId(), denunciarEdital);
 
 module.exports = router;

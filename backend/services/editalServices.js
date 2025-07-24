@@ -1,6 +1,9 @@
 const Edital = require('../models/edital');
 const { construirFiltroEditais } = require('../utils/filtrosEditais');
 const { configurarPaginacaoOrdenacao } = require('../utils/paginacao');
+const logger = require('../config/logger');
+
+const REPORT_THRESHOLD = 2;
 
 async function listarEditaisService(query) {
   const filtro = construirFiltroEditais(query);
@@ -175,6 +178,53 @@ async function getEditaisDestaque(limit = 6) { // Limite padrão de 6 editais
   }
 }
 
+async function denunciarEditalService(editalId, userId) {
+  try {
+      const edital = await Edital.findById(editalId);
+
+      if (!edital) {
+          logger.warn(`Edital com ID ${editalId} não encontrado para denúncia.`);
+          const error = new Error('Edital não encontrado');
+          error.status = 404;
+          throw error;
+      }
+
+      // Garante que denunciadoPor é um array
+      if (!edital.denunciadoPor) {
+          edital.denunciadoPor = [];
+      }
+
+      // Verifica se o usuário já denunciou este edital
+      const jaDenunciado = edital.denunciadoPor.some(reporterId => reporterId.toString() === userId.toString());
+
+      if (jaDenunciado) {
+          logger.info(`Usuário ${userId} já denunciou o edital ${editalId}. Nenhuma ação tomada.`);
+          const error = new Error('Você já denunciou este edital.');
+          error.status = 409; // Conflict
+          throw error;
+      }
+
+      // Adiciona o ID do usuário à lista de denunciantes
+      edital.denunciadoPor.push(userId);
+      await edital.save();
+
+      logger.info(`Edital ${editalId} denunciado por ${userId}. Total de denúncias: ${edital.denunciadoPor.length}`);
+
+      // Verifica se o número de denúncias atingiu o limite para exclusão
+      if (edital.denunciadoPor.length >= REPORT_THRESHOLD) {
+          await Edital.deleteOne({ _id: editalId }); // Exclui o edital
+          logger.info(`Edital ${editalId} excluído automaticamente após atingir ${REPORT_THRESHOLD} denúncias.`);
+          return { mensagem: `Edital denunciado e excluído automaticamente por atingir ${REPORT_THRESHOLD} denúncias.`, editalDeletado: true };
+      }
+
+      return { mensagem: 'Edital denunciado com sucesso.', editalDeletado: false, totalDenuncias: edital.denunciadoPor.length };
+
+  } catch (error) {
+      logger.error(`Erro no serviço ao denunciar edital ${editalId} pelo usuário ${userId}:`, error.message, error);
+      throw error;
+  }
+}
+
 module.exports = {
   listarEditaisService,
   validarEditalService,
@@ -182,5 +232,6 @@ module.exports = {
   criarEditalService,
   atualizarEditalService,
   removerEditalService,
-  getEditaisDestaque
+  getEditaisDestaque,
+  denunciarEditalService
 };
