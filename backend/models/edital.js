@@ -12,6 +12,10 @@ const EditalSchema = new mongoose.Schema({
     required: [true, 'A organização é obrigatória'],
     minlength: [3, 'A organização deve ter pelo menos 3 caracteres']
   },
+  descricao: {
+    type: String,
+    required: true
+  },
   periodoInscricao: {
     inicio: {
       type: Date,
@@ -22,30 +26,36 @@ const EditalSchema = new mongoose.Schema({
       required: true 
     }
   },
-  descricao: String,
-  anexos: [String],
-  imagens: [String],
   validado: {
     type: Boolean,
     default: false
+  },
+  link: {
+    type: String,
+    required: false
   },
   sugeridoPor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: false
   },
-  validacoes: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
-  link: {
-    type: String,
-    required: false
-  },
   favoritadoPor: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }]
+  }],
+  validadoPor: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  denunciadoPor: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+  }],
+  anexos: [String],
+  imagens: [String],
+}, {
+  timestamps: true
 });
+
 
 module.exports = mongoose.model('Edital', EditalSchema, 'editais')

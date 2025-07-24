@@ -1,8 +1,11 @@
 const Edital = require('../models/edital');
 const { construirFiltroEditais } = require('../utils/filtrosEditais');
 const { configurarPaginacaoOrdenacao } = require('../utils/paginacao');
+const logger = require('../config/logger');
 
-async function listarEditaisComFiltro(query) {
+const REPORT_THRESHOLD = 2;
+
+async function listarEditaisService(query) {
   const filtro = construirFiltroEditais(query);
   const { parsedPage, parsedLimit, skip, ordenacao } = configurarPaginacaoOrdenacao(query);
 
@@ -48,21 +51,41 @@ async function validarEditalService(idEdital, userId) {
   return edital;
 }
 
-async function buscarEditalComValidacoes(idEdital, usuarioId) {
-  const edital = await Edital.findById(idEdital)
-    .populate('sugeridoPor', 'nome email')
-    .populate('validacoes', 'nome email');
+async function buscarEditalByIdService(idEdital, usuarioId) { // Adicionado 'usuarioId' novamente aqui
+  try {
+      // Inclui os .populate() e busca o usuário que fez a requisição
+      const edital = await Edital.findById(idEdital)
+          .populate('sugeridoPor', 'email')
+          .populate('validadoPor', 'email')
+          .populate('denunciadoPor', 'email')
+          .populate('favoritadoPor', 'email');
 
-  if (!edital) return null;
+      if (!edital) {
+          return null; // Retorna null se não encontrar
+      }
 
-  const editalObj = edital.toObject();
-  const jaValidou = usuarioId && edital.validacoes.some(val => val._id.toString() === usuarioId);
+      const editalObj = edital.toObject();
 
-  if (!edital.validado && !jaValidou) {
-    editalObj.link = null;
+      // Lógica para verificar se o usuário logado já validou ou favoritou
+      const userLoggedIdStr = usuarioId ? usuarioId.toString() : null;
+
+      editalObj.usuarioJaValidou = userLoggedIdStr && edital.validadoPor.some(val => val && val._id?.toString() === userLoggedIdStr) || false;
+      editalObj.usuarioJaFavoritou = userLoggedIdStr && edital.favoritadoPor.some(fav => fav && fav._id?.toString() === userLoggedIdStr) || false;
+
+      // Lógica para ocultar link se não validado e usuário não validou
+      if (!edital.validado && !editalObj.usuarioJaValidou) {
+          editalObj.link = null;
+      }
+
+      // Adiciona contagens
+      editalObj.validacoesCount = edital.validadoPor.length;
+      editalObj.denunciasCount = edital.denunciadoPor.length;
+
+      return editalObj; // Retorna o objeto edital processado
+  } catch (error) {
+      logger.error(`Erro no serviço ao buscar edital por ID ${idEdital}:`, error.message, error);
+      throw error;
   }
-
-  return editalObj;
 }
 
 // Criar um novo edital
@@ -114,73 +137,88 @@ async function removerEditalService(id) {
   return await Edital.findByIdAndDelete(id);
 }
 
-async function getEditaisDestaque(limit = 6) { // Limite padrão de 6 editais
+async function listarDestaquesService(limit = 6) {
   try {
     const editaisDestaque = await Edital.aggregate([
       {
-        $project: { // Seleciona os campos que você quer e calcula o tamanho do array 'favoritos'
-          nome: 1,
-          organizacao: 1,
-          periodoInscricao: 1,
-          descricao: 1,
-          anexos: 1,
-          imagens: 1,
-          validado: 1,
-          sugeridoPor: 1,
-          validacoes: 1,
-          link: 1,
-          favoritos: 1, // Inclui o array favoritos, caso o frontend precise do count para algo
-          favoritosCount: { $size: "$favoritos" } // Cria um novo campo 'favoritosCount'
+        $project: {
+          nome: 1, organizacao: 1, periodoInscricao: 1, descricao: 1,
+          anexos: 1, imagens: 1, validado: 1, link: 1,
+          sugeridoPor: 1, validadoPor: 1, denunciadoPor: 1, favoritadoPor: 1,
+          createdAt: 1,
+          favoritosCount: { $size: "$favoritadoPor" }
         }
       },
       {
-        $sort: { favoritosCount: -1 } // Ordena em ordem decrescente pelo número de favoritos
+        $sort: { favoritosCount: -1, createdAt: -1 }
       },
       {
-        $limit: limit // Limita ao número desejado de editais em destaque
-      },
-      {
-        $lookup: { // Opcional: Se quiser popular 'sugeridoPor' ou 'validacoes'
-          from: 'users', // Nome da coleção de usuários (verifique se é 'users')
-          localField: 'sugeridoPor',
-          foreignField: '_id',
-          as: 'sugeridoPorDetalhes'
-        }
-      },
-      {
-        $unwind: { path: '$sugeridoPorDetalhes', preserveNullAndEmptyArrays: true } // Descompacta o array do lookup
-      },
-      {
-        $project: { // Remodela o output para o formato desejado, removendo 'favoritosCount'
-          nome: 1,
-          organizacao: 1,
-          periodoInscricao: 1,
-          descricao: 1,
-          anexos: 1,
-          imagens: 1,
-          validado: 1,
-          sugeridoPor: "$sugeridoPorDetalhes", // Se populou sugeridoPor
-          validacoes: 1,
-          link: 1,
-          favoritos: 1,
-          favoritosCount: 1 // Opcional: manter o count se o frontend precisar
-        }
+        $limit: limit
       }
+      // Se houver $lookup, $unwind, $project para populamento, mantenha-os aqui
     ]);
 
     return editaisDestaque;
   } catch (error) {
-    logger.error('Erro ao buscar editais em destaque (mais favoritos):', error.message, error);
-    throw error; // Propaga o erro para o controller
+    logger.error('Erro ao buscar editais em destaque (mais favoritos/recentes):', error.message, error);
+    throw error;
+  }
+}
+
+async function denunciarEditalService(editalId, userId) {
+  try {
+      const edital = await Edital.findById(editalId);
+
+      if (!edital) {
+          logger.warn(`Edital com ID ${editalId} não encontrado para denúncia.`);
+          const error = new Error('Edital não encontrado');
+          error.status = 404;
+          throw error;
+      }
+
+      // Garante que denunciadoPor é um array
+      if (!edital.denunciadoPor) {
+          edital.denunciadoPor = [];
+      }
+
+      // Verifica se o usuário já denunciou este edital
+      const jaDenunciado = edital.denunciadoPor.some(reporterId => reporterId.toString() === userId.toString());
+
+      if (jaDenunciado) {
+          logger.info(`Usuário ${userId} já denunciou o edital ${editalId}. Nenhuma ação tomada.`);
+          const error = new Error('Você já denunciou este edital.');
+          error.status = 409; // Conflict
+          throw error;
+      }
+
+      // Adiciona o ID do usuário à lista de denunciantes
+      edital.denunciadoPor.push(userId);
+      await edital.save();
+
+      logger.info(`Edital ${editalId} denunciado por ${userId}. Total de denúncias: ${edital.denunciadoPor.length}`);
+
+      // Verifica se o número de denúncias atingiu o limite para exclusão
+      if (edital.denunciadoPor.length >= REPORT_THRESHOLD) {
+          await Edital.deleteOne({ _id: editalId }); // Exclui o edital
+          logger.info(`Edital ${editalId} excluído automaticamente após atingir ${REPORT_THRESHOLD} denúncias.`);
+          return { mensagem: `Edital denunciado e excluído automaticamente por atingir ${REPORT_THRESHOLD} denúncias.`, editalDeletado: true };
+      }
+
+      return { mensagem: 'Edital denunciado com sucesso.', editalDeletado: false, totalDenuncias: edital.denunciadoPor.length };
+
+  } catch (error) {
+      logger.error(`Erro no serviço ao denunciar edital ${editalId} pelo usuário ${userId}:`, error.message, error);
+      throw error;
   }
 }
 
 module.exports = {
-  listarEditaisComFiltro,
+  listarEditaisService,
   validarEditalService,
-  buscarEditalComValidacoes,
+  buscarEditalByIdService,
   criarEditalService,
   atualizarEditalService,
   removerEditalService,
-  getEditaisDestaque
+  listarDestaquesService,
+  denunciarEditalService
 };

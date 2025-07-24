@@ -7,12 +7,14 @@ import EditaisValidados from './pages/EditaisValidados';
 import SugerirEdital from './pages/SugerirEditais';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
+import AutoRefresh from './components/AutoRefresh';
 
 
 function App() {
   return (
     // 1. BrowserRouter envolve toda a aplicação para gerenciar as URLs.
     <BrowserRouter>
+      < AutoRefresh />
       < Header />
       {/* 3. Routes olha a URL atual e decide qual Route renderizar. */}
       <Routes>
