@@ -165,6 +165,8 @@ const Usuario = () => {
                 descricao: edital.descricao,
                 favoritoInicial: edital.favorito,
                 notificacaoInicial: edital.notificacao,
+                area: edital.area || 'Outros',
+                _id: edital._id || 'Erro',
                 onToggleFavorito: () => toggleFavorito(edital.id),
                 onToggleNotificacao: () => toggleNotificacao(edital.id),
               }))}
@@ -205,6 +207,8 @@ const Usuario = () => {
                 variante: 'detalhado',
                 titulo: edital.nome,
                 descricao: edital.descricao,
+                area: edital.area || 'Outros',
+                _id: edital._id || 'Erro'
               }))}
             />
           </div>
