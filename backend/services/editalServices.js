@@ -51,21 +51,41 @@ async function validarEditalService(idEdital, userId) {
   return edital;
 }
 
-async function buscarEditalComValidacoes(idEdital, usuarioId) {
-  const edital = await Edital.findById(idEdital)
-    .populate('sugeridoPor', 'nome email')
-    .populate('validacoes', 'nome email');
+async function buscarEditalByIdService(idEdital, usuarioId) { // Adicionado 'usuarioId' novamente aqui
+  try {
+      // Inclui os .populate() e busca o usuário que fez a requisição
+      const edital = await Edital.findById(idEdital)
+          .populate('sugeridoPor', 'email')
+          .populate('validadoPor', 'email')
+          .populate('denunciadoPor', 'email')
+          .populate('favoritadoPor', 'email');
 
-  if (!edital) return null;
+      if (!edital) {
+          return null; // Retorna null se não encontrar
+      }
 
-  const editalObj = edital.toObject();
-  const jaValidou = usuarioId && edital.validacoes.some(val => val._id.toString() === usuarioId);
+      const editalObj = edital.toObject();
 
-  if (!edital.validado && !jaValidou) {
-    editalObj.link = null;
+      // Lógica para verificar se o usuário logado já validou ou favoritou
+      const userLoggedIdStr = usuarioId ? usuarioId.toString() : null;
+
+      editalObj.usuarioJaValidou = userLoggedIdStr && edital.validadoPor.some(val => val && val._id?.toString() === userLoggedIdStr) || false;
+      editalObj.usuarioJaFavoritou = userLoggedIdStr && edital.favoritadoPor.some(fav => fav && fav._id?.toString() === userLoggedIdStr) || false;
+
+      // Lógica para ocultar link se não validado e usuário não validou
+      if (!edital.validado && !editalObj.usuarioJaValidou) {
+          editalObj.link = null;
+      }
+
+      // Adiciona contagens
+      editalObj.validacoesCount = edital.validadoPor.length;
+      editalObj.denunciasCount = edital.denunciadoPor.length;
+
+      return editalObj; // Retorna o objeto edital processado
+  } catch (error) {
+      logger.error(`Erro no serviço ao buscar edital por ID ${idEdital}:`, error.message, error);
+      throw error;
   }
-
-  return editalObj;
 }
 
 // Criar um novo edital
@@ -195,7 +215,7 @@ async function denunciarEditalService(editalId, userId) {
 module.exports = {
   listarEditaisService,
   validarEditalService,
-  buscarEditalComValidacoes,
+  buscarEditalByIdService,
   criarEditalService,
   atualizarEditalService,
   removerEditalService,

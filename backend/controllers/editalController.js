@@ -1,6 +1,6 @@
 const Edital = require('../models/edital');
 const logger = require('../config/logger');
-const { listarEditaisService, validarEditalService, buscarEditalComValidacoes, criarEditalService, atualizarEditalService, listarDestaquesService, removerEditalService, denunciarEditalService } = require('../services/editalServices');
+const { listarEditaisService, validarEditalService, buscarEditalByIdService, criarEditalService, atualizarEditalService, listarDestaquesService, removerEditalService, denunciarEditalService } = require('../services/editalServices');
 
 // GET Controller para listar os editais
 const listarEditais = async (req, res) => {
@@ -12,20 +12,23 @@ const listarEditais = async (req, res) => {
   }
 };
 
-// GET Controller para buscar edital por ID
-const buscarEdital = async (req, res, next) => {
+// GET Controller para buscar edital por ID (AGORA MAIS SIMPLES)
+async function buscarEdital(req, res, next) {
   try {
-    const edital = await buscarEditalComValidacoes(req.params.id, req.usuario?.id);
+    // Passa req.usuario?.id para o serviço, que agora fará a lógica de cálculo
+    const edital = await buscarEditalByIdService(req.params.id, req.usuario?.id);
+
     if (!edital) {
       const error = new Error('Edital não encontrado.');
       error.status = 404;
       return next(error);
     }
-    res.json(edital);
+
+    res.json(edital); // Retorna o objeto edital já processado pelo serviço
   } catch (error) {
-    next(error);
+    next(error); // Passa o erro para o middleware global
   }
-};
+}
 
 // POST Controller para criar um novo edital
 const criarEdital = async (req, res, next) => { 
