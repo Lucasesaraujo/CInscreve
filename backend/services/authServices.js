@@ -30,10 +30,11 @@ async function loginService(email, password, userAgent, ip) {
             email: usuarioLocal.email
         });
 
-        await Token.deleteMany({ userId: usuarioLocal._id }); // Limpa todos os tokens do usuário, ou apenas os do dispositivo/IP específico se a regra for essa
-        // No seu authController original, você tinha:
-        // await Token.deleteMany({ userId: usuarioLocal._id, dispositivo: userAgent, ip: ip });
-        // Se essa for a regra, mantenha-a. Caso contrário, deleteMany({ userId: ... }) é mais comum para sessões únicas.
+        await Token.deleteMany({
+            userId: usuarioLocal._id,
+            dispositivo: req.headers['user-agent'],
+            ip: req.ip
+        });
 
         const expiracao = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
         await Token.create({
