@@ -1,5 +1,5 @@
-const BASE_URL = "http://localhost:3000/editais";
 const URL = "http://localhost:3000";
+const BASE_URL = `${URL}/editais`;
 
 // utilitário para fazer requisição com filtros e percorrer todas as páginas
 async function fetchEditais(filtros = {}) {
@@ -147,23 +147,3 @@ export async function toggleFavoritoEdital(editalId) {
     throw err; // Rejoga o erro para o componente lidar
   }
 }
-
-// services/apiEditais.js
-export const refreshToken = async () => {
-  try {
-    const res = await fetch('/api/auth/refresh', {
-      method: 'POST',
-      credentials: 'include',
-    });
-
-    if (!res.ok) {
-      throw new Error('Refresh falhou');
-    }
-
-    console.log('[✅] Token renovado com sucesso');
-  } catch (err) {
-    console.warn('[⚠️] Erro ao renovar token:', err);
-
-    throw err;
-  }
-};

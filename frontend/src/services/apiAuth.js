@@ -1,11 +1,10 @@
-const AUTH_BASE_URL = "http://localhost:3000/api/auth";
 const URL = "http://localhost:3000";
-
+const BASE_URL = `${URL}/api/auth`;
 
 // Função para buscar os dados do usuário logado
 export async function getUserData() {
     try {
-        const res = await fetch(`${AUTH_BASE_URL}/me`, {
+        const res = await fetch(`${BASE_URL}/me`, {
             method: 'GET',
             credentials: 'include', // Para enviar os cookies de autenticação
             headers: {
@@ -66,7 +65,7 @@ export async function getUserFavoritos() {
 // Opcional: Adicionar a função de logout aqui também para centralizar
 export async function logoutUser() {
     try {
-        const res = await fetch(`${AUTH_BASE_URL}/logout`, {
+        const res = await fetch(`${BASE_URL}/logout`, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -84,3 +83,22 @@ export async function logoutUser() {
         throw err;
     }
 }
+
+export const refreshToken = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/refresh`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+
+    if (!res.ok) {
+      throw new Error('Refresh falhou');
+    }
+
+    console.log('[✅] Token renovado com sucesso');
+  } catch (err) {
+    console.warn('[⚠️] Erro ao renovar token:', err);
+
+    throw err;
+  }
+};
