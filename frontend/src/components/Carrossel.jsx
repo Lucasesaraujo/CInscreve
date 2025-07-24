@@ -33,7 +33,7 @@ export default function Carrossel({ titulo = '', cards = [] }) {
         {/* botões de scroll - mais distantes dos cards */}
         <button
           onClick={scrollEsquerda}
-          className="absolute -left-10 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md p-4 rounded-full"
+          className="absolute -left-10 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md p-4 rounded-full cursor-pointer"
           aria-label="Anterior"
         >
           <ChevronLeft className="w-8 h-8" />
@@ -41,7 +41,7 @@ export default function Carrossel({ titulo = '', cards = [] }) {
 
         <button
           onClick={scrollDireita}
-          className="absolute -right-10 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md p-4 rounded-full"
+          className="absolute -right-10 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md p-4 rounded-full cursor-pointer"
           aria-label="Próximo"
         >
           <ChevronRight className="w-8 h-8" />

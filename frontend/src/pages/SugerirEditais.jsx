@@ -164,12 +164,12 @@ const handleSubmit = async (e) => {
             </div>
           </div>
           <div className="flex justify-end gap-4 pt-4">
-            <Botao variante="outline" type="button" onClick={() => window.history.back()}>
+            <Botao variante="outline" type="button" onClick={() => window.history.back()} className='cursor-pointer'>
               Cancelar
             </Botao>
             <button
               type="submit"
-              className="rounded-md px-6 py-3 transition flex items-center justify-center gap-2 text-sm font-medium bg-gray-800 text-white hover:bg-gray-700 w-40 disabled:bg-gray-400"
+              className="rounded-md px-6 py-3 transition flex items-center justify-center gap-2 text-sm font-medium bg-gray-800 text-white hover:bg-gray-700 w-40 disabled:bg-gray-400 cursor-pointer"
               disabled={submitting}
             >
               {submitting ? 'Enviando...' : 'Sugerir'}

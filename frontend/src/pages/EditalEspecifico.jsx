@@ -9,7 +9,7 @@ import Tipografia from '../components/Tipografia'
 import { Heart, Bell, FileText } from 'lucide-react'
 import { useParams } from 'react-router-dom'; // Importar useParams para pegar o ID da URL
 import { getEditalById, validarEdital, toggleFavoritoEdital } from '../services/apiEditais'; // Importar as funções da API
-import { getUserData, getUserFavoritos } from '../services/apiAuth'; // Para saber quem é o usuário logado
+import { getUserData, getUserFavoritos } from '../services/apiUser'; // Para saber quem é o usuário logado
 
 const EditalEspecifico = () => {
   // Obter o ID do edital da URL (ex: /editais/123 -> id = 123)
@@ -80,9 +80,6 @@ const EditalEspecifico = () => {
         return;
     }
 
-    // Otimista: atualiza o estado da UI imediatamente
-    const novoEstadoFavorito = !favorito; // O estado que estamos tentando atingir
-
     try {
       // Chama a API para alternar o favorito
       // `toggleFavoritoEdital` retorna a lista atualizada de favoritos do usuário logado
@@ -98,7 +95,6 @@ const EditalEspecifico = () => {
       console.error("Erro ao alternar favorito:", err);
       alert(err.message || 'Erro ao favoritar/desfavoritar edital. Tente novamente.');
       // Reverte o estado da UI se a API falhou
-      //setFavorito(novoEstadoFavorito); // Reverte para o estado anterior
     }
   };
 
@@ -190,7 +186,7 @@ const EditalEspecifico = () => {
               </div>
               <Botao
                 variante="azul-medio"
-                className="!w-48 h-full"
+                className="!w-48 h-full cursor-pointer"
                 onClick={handleInscrever}
                 disabled={!edital.link} // Desabilita se não houver link
               >
@@ -200,8 +196,8 @@ const EditalEspecifico = () => {
               <div className="flex items-center gap-4">
                   <p className="font-semibold text-sm">Este edital é confiável? ({edital.validacoesCount || 0} votos)</p>
                   <div className="flex gap-2">
-                    <Botao variante="sim" onClick={() => handleValidarEdital(true)} disabled={!usuarioLogado || !podeValidar}>Sim</Botao>
-                    <Botao variante="nao" onClick={() => handleValidarEdital(false)} disabled={!usuarioLogado || !podeValidar}>Não</Botao>
+                    <Botao className='cursor-pointer' variante="sim" onClick={() => handleValidarEdital(true)} disabled={!usuarioLogado || !podeValidar}>Sim</Botao>
+                    <Botao className='cursor-pointer' variante="nao" onClick={() => handleValidarEdital(false)} disabled={!usuarioLogado || !podeValidar}>Não</Botao>
                   </div>
               </div>
             </div>
@@ -223,7 +219,7 @@ const EditalEspecifico = () => {
             <div className="flex items-center justify-around bg-white border border-gray-200 p-4 rounded-lg shadow-sm">
                 <button
                   onClick={handleToggleFavorito}
-                  className="flex flex-col items-center gap-2 text-gray-700 hover:text-red-500 transition-colors"
+                  className="flex flex-col items-center gap-2 text-gray-700 hover:text-red-500 transition-colors cursor-pointer"
                   disabled={!usuarioLogado} // Desabilita se não logado
                 >
                   <Heart className={`w-7 h-7 ${favorito ? 'text-red-500 fill-current' : ''}`} />
@@ -231,7 +227,7 @@ const EditalEspecifico = () => {
                 </button>
                 <button
                   onClick={() => setNotificacao(!notificacao)} // Implementar lógica de notificação
-                  className="flex flex-col items-center gap-2 text-gray-700 hover:text-blue-500 transition-colors"
+                  className="flex flex-col items-center gap-2 text-gray-700 hover:text-blue-500 transition-colors cursor-pointer"
                   disabled={!usuarioLogado} // Desabilita se não logado
                 >
                   <Bell className={`w-7 h-7 ${notificacao ? 'text-blue-500 fill-current' : ''}`} />

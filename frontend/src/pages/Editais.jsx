@@ -149,7 +149,7 @@ export default function Edital() {
                 />
                 <Botao
                   variante="azul-escuro"
-                  className="rounded-l-none px-3 py-[0.44rem] !w-10 flex items-center justify-center h-[40px] -ml-px"
+                  className="rounded-l-none px-3 py-[0.44rem] !w-10 flex items-center justify-center h-[40px] -ml-px cursor-pointer"
                   onClick={buscarEditaisPorUrl}
                 >
                   <Search className="w-4 h-4" />
@@ -158,7 +158,7 @@ export default function Edital() {
 
               <div className="relative w-2/3 max-w-xs ml-4 rounded-md shadow-sm overflow-hidden">
                 <select
-                  className="w-full h-full appearance-none bg-white border-none py-2 pl-4 pr-12 text-gray-700 focus:ring-0"
+                  className="w-full h-full appearance-none bg-white border-none py-2 pl-4 pr-12 text-gray-700 focus:ring-0 cursor-pointer"
                   value={categoriaSelecionada}
                   onChange={(e) => {
                     setcategoriaSelecionada(e.target.value);
@@ -221,8 +221,8 @@ export default function Edital() {
             </div>
 
             {editaisFiltradosEBuscados.length > quantidadeRenderizada && (
-              <div className="flex justify-center mt-16 mb-0">
-                <Botao
+              <div className="flex justify-center mt-16 mb-0 ">
+                <Botao className='cursor-pointer'
                   variante="azul-escuro"
                   onClick={() => setQuantidadeRenderizada(quantidadeRenderizada + 9)}
                 >
