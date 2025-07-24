@@ -1,9 +1,12 @@
 import React from "react";
 import Logo from '../assets/logo.png';
 import Fundo from '../assets/base.png';
+import { useNavigate, useLocation } from "react-router-dom";
 
 
 const Footer = () => {
+  const navigate = useNavigate();
+
   return (
     <footer className="">
       <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between gap-8">
@@ -21,8 +24,8 @@ const Footer = () => {
         <div>
           <h4 className="font-bold mb-2 text-blue-900">Portal</h4>
           <ul className="space-y-1 text-sm text-gray-900 font-medium">
-            <li><a href="#">Ver editais</a></li>
-            <li><a href="#">Sugerir editais</a></li>
+            <li><a onClick = {() => navigate('/editais')} href="#">Ver editais</a></li>
+            <li><a onClick = {() => navigate('/sugerir')} href="#">Sugerir editais</a></li>
           </ul>
         </div>
 

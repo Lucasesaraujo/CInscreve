@@ -44,7 +44,7 @@ export default function Header() {
   return (
     <header className="relative w-full bg-white shadow py-2 overflow-visible">
       {/* Logo + nome */}
-      <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center space-x-2 pl-6">
+      <div onClick = {() => navigate('/')} className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center space-x-2 pl-6 cursor-pointer">
         <img src={Logo} alt="Logo" className="w-10 h-10 sm:w-14 sm:h-14" />
         <span className="text-blue-800 text-base sm:text-lg md:text-xl font-semibold whitespace-nowrap">
           Cinscreve
@@ -55,7 +55,7 @@ export default function Header() {
       <div className="absolute right-6 top-1/2 -translate-y-1/2">
         <button
           type="button"
-          onClick={() => handleNavigate("/login")} // Navega para a página de login
+          onClick={() => handleNavigate("/meu-perfil")}
           className="focus:outline-none cursor-pointer p-2 rounded-full hover:bg-gray-100"
           aria-label="Login"
         >

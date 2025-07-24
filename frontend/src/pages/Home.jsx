@@ -41,8 +41,8 @@ export default function Home() {
                         O CInscreve oferece a você um ambiente unificado onde você pode buscar e acompanhar editais de seu interesse.
                     </Tipografia>
                     <div className="flex gap-8">
-                        <Botao onClick={() => navigate('/editais')} variante="azul-escuro" >Ver editais</Botao>
-                        <Botao onClick={() => navigate('/sugerir')} variante="azul-escuro">Sugerir editais</Botao>
+                        <Botao onClick={() => navigate('/editais')} variante="azul-escuro" className='cursor-pointer'>Ver editais</Botao>
+                        <Botao onClick={() => navigate('/sugerir')} variante="azul-escuro" className='cursor-pointer'>Sugerir editais</Botao>
                     </div>
                 </div>
                 <div className="md:w-1/2 h-full z-10">
@@ -106,8 +106,8 @@ export default function Home() {
                         e receba alertas no momento certo.
                     </Tipografia>
                     <div className="flex justify-center gap-8 mt-12">
-                        <Botao onClick={() => navigate('/editais')} variante="azul-escuro">Ver editais</Botao>
-                        <Botao onClick={() => navigate('/sugerir')} variante="azul-escuro">Sugerir editais</Botao>
+                        <Botao onClick={() => navigate('/editais')} variante="azul-escuro" className='cursor-pointer'>Ver editais</Botao>
+                        <Botao onClick={() => navigate('/sugerir')} variante="azul-escuro" className='cursor-pointer'>Sugerir editais</Botao>
                     </div>
                 </div>
             </section>
