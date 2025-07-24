@@ -31,7 +31,11 @@ export default function Card({
 
   if (variante === 'detalhado') {
     return (
-      <div className={`${base} ${estilos.detalhado}`}>
+      <div
+        onClick={() => navigate(`/editais/${_id}`)}
+        className={`${base} ${estilos.detalhado} transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-lg cursor-pointer`}
+      >
+
         <div>
           <Tipografia tipo="subtitulo" className="mb-2">
             {titulo}
@@ -71,8 +75,11 @@ export default function Card({
 
   // Card simples
   return (
-    <div onClick = {() => navigate(`/editais/${_id}`)}
-    className={`${base} ${estilos.simples}`}>
+    <div
+      onClick={() => navigate(`/editais/${_id}`)}
+      className={`${base} ${estilos.simples} transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-lg cursor-pointer`}
+    >
+
       <div>
         <div className="mb-3">
           <img

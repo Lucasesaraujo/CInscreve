@@ -6,7 +6,7 @@ import Tipografia from './Tipografia';
 export default function Carrossel({ titulo = '', cards = [] }) {
   const ref = useRef(null);
 
-  
+
   const scrollEsquerda = () => {
     if (ref.current) {
       // Ajuste para rolar pela largura visível do contêiner
@@ -22,14 +22,14 @@ export default function Carrossel({ titulo = '', cards = [] }) {
   };
 
   return (
-    <div className="w-full relative py-6">
+    <div className="w-full relative py-6 overflow-visible">
       {/* título do carrossel */}
       <Tipografia tipo="subtitulo" className="mb-6 capitalize font-bold">
         {titulo}
       </Tipografia>
 
       {/* wrapper com padding lateral */}
-      <div className="relative px-16">
+      <div className="px-16 overflow-visible">
         {/* botões de scroll - mais distantes dos cards */}
         <button
           onClick={scrollEsquerda}
@@ -50,10 +50,11 @@ export default function Carrossel({ titulo = '', cards = [] }) {
         {/* container dos cards */}
         <div
           ref={ref}
-          className="flex gap-8 overflow-x-hidden scroll-smooth"
+          className="flex gap-8 overflow-x-auto overflow-y-visible scroll-smooth pb-4 no-scrollbar"
         >
+
           {cards.map((card, index) => (
-            <div key={index} className="flex-shrink-0">
+            <div key={index} className="flex-shrink-0 mt-6">
               <Card {...card} />
             </div>
           ))}
