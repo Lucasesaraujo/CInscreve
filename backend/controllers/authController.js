@@ -27,8 +27,12 @@ const loginUsuario = async (req, res) => {
 
     const expiracao = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
 
-    await Token.deleteMany({ userId: usuarioLocal._id });
-    
+    await Token.deleteMany({
+      userId: usuarioLocal._id,
+      dispositivo: req.headers['user-agent'],
+      ip: req.ip
+    });
+
     // CRIANDO TOKEN NO BANCO DE DADOS
     await Token.create({
       userId: usuarioLocal._id,
