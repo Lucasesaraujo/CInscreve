@@ -53,6 +53,9 @@ const EditalSchema = new mongoose.Schema({
   }],
   anexos: [String],
   imagens: [String],
+}, {
+  timestamps: true
 });
+
 
 module.exports = mongoose.model('Edital', EditalSchema, 'editais')

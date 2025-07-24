@@ -1,6 +1,6 @@
 const Edital = require('../models/edital');
 const logger = require('../config/logger');
-const { listarEditaisService, validarEditalService, buscarEditalComValidacoes, criarEditalService, atualizarEditalService, removerEditalService, denunciarEditalService } = require('../services/editalServices');
+const { listarEditaisService, validarEditalService, buscarEditalComValidacoes, criarEditalService, atualizarEditalService, listarDestaquesService, removerEditalService, denunciarEditalService } = require('../services/editalServices');
 
 // GET Controller para listar os editais
 const listarEditais = async (req, res) => {
@@ -87,16 +87,16 @@ const listarNaoValidados = async (req, res) => {
 };
 
 // NOVO CONTROLLER: Para listar editais em destaque
-const listarEditaisEmDestaque = async (req, res, next) => {
+async function listarDestaques(req, res, next) {
   try {
-    const limit = parseInt(req.query.limit) || 6; // Permite que o frontend peça um limite customizado
-    const editais = await getEditaisMaisFavoritos(limit);
+    const limit = parseInt(req.query.limit) || 6;
+    const editais = await listarDestaquesService(limit); // <--- CHAMA O SERVIÇO RENOMEADO
     res.status(200).json({ editais });
   } catch (error) {
     logger.error('Erro no controller ao listar editais em destaque:', error.message, error);
     next(error);
   }
-};
+}
 
 // PATCH - Controller para denunciar um edital
 async function denunciarEdital(req, res, next) {
@@ -121,6 +121,6 @@ module.exports = {
   buscarEdital,
   validarEdital,
   listarNaoValidados,
-  listarEditaisEmDestaque,
+  listarDestaques,
   denunciarEdital
 };

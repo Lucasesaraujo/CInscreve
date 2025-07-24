@@ -1,7 +1,7 @@
 const express = require('express');
 const {
   listarEditais, criarEdital, removerEdital, atualizarEdital,
-  buscarEdital, validarEdital, listarNaoValidados, listarEditaisEmDestaque, denunciarEdital
+  buscarEdital, validarEdital, listarNaoValidados, listarDestaques, denunciarEdital
 } = require('../controllers/editalController');
 
 const autenticarToken = require('../middlewares/authMiddleware');
@@ -10,14 +10,14 @@ const validarObjectId = require('../middlewares/validarObjectID');
 
 const router = express.Router();
 
-// Rota: /editar/...
+// Rota: /editais/...
 
 // ########## ROTAS COM USUÁRIO DESLOGADO OU LOGADO ##########
 // Aplica rate limit APENAS nas rotas públicas
 router.get('/', rateLimit, listarEditais);
 router.get('/nao-validados', rateLimit, listarNaoValidados);
+router.get('/destaque', rateLimit, listarDestaques);
 router.get('/:id', rateLimit, buscarEdital);
-router.get('/destaque', rateLimit, listarEditaisEmDestaque);
 
 
 // ########### ROTAS COM USUÁRIO LOGADO ##########
