@@ -12,75 +12,71 @@ const SugerirEdital = () => {
   const [instituicao, setInstituicao] = useState('')
   const [link, setLink] = useState('')
   const [dataInicio, setDataInicio] = useState('')
-  const [horaInicio, setHoraInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
-  const [horaFim, setHoraFim] = useState('')
   const [descricao, setDescricao] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setSubmitting(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
 
-  const dataHoraInicio = new Date(`${dataInicio}T${horaInicio || '00:00:00'}`);
-  const dataHoraFim = new Date(`${dataFim}T${horaFim || '23:59:59'}`);
+    const dataHoraInicio = new Date(`${dataInicio}T00:00:00`);
+    const dataHoraFim = new Date(`${dataFim}T23:59:59`);
 
-  const payloadParaAPI = {
-    nome: nomeEdital,
-    organizacao: instituicao,
-    periodoInscricao: {
-      inicio: dataHoraInicio,
-      fim: dataHoraFim,
-    },
-    descricao: descricao,
-    link: link,
-    imagens: [],
-    anexos: [],
-  };
-
-  console.log('Cookies do navegador:', document.cookie)
-
-  try {
-    const resposta = await fetch('http://localhost:3000/editais', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-      'Content-Type': 'application/json'
+    const payloadParaAPI = {
+      nome: nomeEdital,
+      organizacao: instituicao,
+      periodoInscricao: {
+        inicio: dataHoraInicio,
+        fim: dataHoraFim,
       },
-      body: JSON.stringify(payloadParaAPI),
-    });
+      descricao: descricao,
+      link: link,
+      imagens: [],
+      anexos: [],
+    };
 
-    console.log(resposta);
-  
-    if (!resposta.ok) {
-      if (resposta.status === 401) {
-        alert('Sessão expirada. Faça login novamente.');
-        window.location.href = '/login';
-        return;
+    console.log('Cookies do navegador:', document.cookie)
+
+    try {
+      const resposta = await fetch('http://localhost:3000/editais', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payloadParaAPI),
+      });
+
+      console.log(resposta);
+    
+      if (!resposta.ok) {
+        if (resposta.status === 401) {
+          alert('Sessão expirada. Faça login novamente.');
+          window.location.href = '/login';
+          return;
+        }
+        throw new Error('Erro ao enviar sugestão de edital');
       }
-      throw new Error('Erro ao enviar sugestão de edital');
+
+      const dados = await resposta.json();
+      console.log('Sugestão enviada com sucesso:', dados);
+      alert('Edital sugerido com sucesso!');
+
+      setNomeEdital('');
+      setInstituicao('');
+      setLink('');
+      setDataInicio('');
+      setDataFim('');
+      setDescricao('');
+
+    } catch (erro) {
+      console.error('Erro ao sugerir edital:', erro);
+      alert('Erro ao sugerir edital. Verifique os dados e tente novamente.');
+    } finally {
+      setSubmitting(false);
     }
-
-    const dados = await resposta.json();
-    console.log('Sugestão enviada com sucesso:', dados);
-    alert('Edital sugerido com sucesso!');
-
-    setNomeEdital('');
-    setInstituicao('');
-    setLink('');
-    setDataInicio('');
-    setHoraInicio('');
-    setDataFim('');
-    setHoraFim('');
-    setDescricao('');
-
-  } catch (erro) {
-    console.error('Erro ao sugerir edital:', erro);
-    alert('Erro ao sugerir edital. Verifique os dados e tente novamente.');
-  } finally {
-    setSubmitting(false);
-  }
-};
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -101,14 +97,6 @@ const handleSubmit = async (e) => {
                 required
               />
               <Input
-                titulo="Link do edital"
-                placeholder="Escreva aqui..."
-                tipo="url"
-                valor={link}
-                onChange={(e) => setLink(e.target.value)}
-                tamanho="grande"
-              />
-              <Input
                 titulo="Instituição responsável"
                 placeholder="Escreva aqui..."
                 valor={instituicao}
@@ -116,9 +104,18 @@ const handleSubmit = async (e) => {
                 tamanho="grande"
                 required
               />
+              <Input
+                titulo="Link do edital"
+                placeholder="Escreva aqui..."
+                tipo="url"
+                valor={link}
+                onChange={(e) => setLink(e.target.value)}
+                tamanho="grande"
+              />
+               {/* Espaço vazio para manter o alinhamento do grid */}
               <div></div>
               <Input
-                titulo="Data de início do edital"
+                titulo="Data de início das inscrições"
                 tipo="date"
                 valor={dataInicio}
                 onChange={(e) => setDataInicio(e.target.value)}
@@ -126,26 +123,12 @@ const handleSubmit = async (e) => {
                 required
               />
               <Input
-                titulo="Hora de início do edital"
-                tipo="time"
-                valor={horaInicio}
-                onChange={(e) => setHoraInicio(e.target.value)}
-                tamanho="grande"
-              />
-              <Input
-                titulo="Data de encerramento do edital"
+                titulo="Data de encerramento das inscrições"
                 tipo="date"
                 valor={dataFim}
                 onChange={(e) => setDataFim(e.target.value)}
                 tamanho="grande"
                 required
-              />
-              <Input
-                titulo="Horário de encerramento do edital"
-                tipo="time"
-                valor={horaFim}
-                onChange={(e) => setHoraFim(e.target.value)}
-                tamanho="grande"
               />
               <div className="md:col-span-2">
                 <label className="text-sm font-semibold text-zinc-700">Descrição do edital</label>
