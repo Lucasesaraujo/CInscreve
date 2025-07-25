@@ -1,37 +1,33 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Card from '../components/Card' 
 import { Search, Users } from 'lucide-react'
 
-// Simula uma chamada de API
-const mockFetchEditais = (offset = 0, limit = 6) => {
-  const totalEditais = 20
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (offset >= totalEditais) {
-        resolve([])
-        return
-      }
-      const editais = Array.from({ length: limit }, (_, i) => {
-        const index = offset + i
-        if (index >= totalEditais) return null
-        return {
-          id: index + 1,
-          titulo:
-            index % 4 === 0
-              ? 'Prêmio Mejores ONGs 2025 - Colômbia'
-              : `Descrição do edital #${index + 1}`,
-          certificadora: index % 4 === 0 ? 'CertificadoraSocial' : null,
-          areaInteresse: index % 4 === 0 ? 'Cidadania e Justiça' : null,
-          descricao: 'Descrição detalhada do edital aqui.',
-        }
-      }).filter(Boolean)
-      resolve(editais)
-    }, 1000)
-  })
+const BASE_URL = 'http://localhost:3000/editais'
+
+async function fetchEditaisValidados(offset = 0, limit = 6) {
+  try {
+    const params = new URLSearchParams({
+      page: Math.floor(offset / limit) + 1,
+      limit,
+      validado: true
+    })
+
+    const res = await fetch(`${BASE_URL}?${params.toString()}`)
+
+    if (!res.ok) {
+      throw new Error(`Erro ao buscar editais: ${res.status}`)
+    }
+
+    const data = await res.json()
+    return data.editais || []
+  } catch (err) {
+    console.error('Erro ao buscar editais:', err)
+    throw err
+  }
 }
 
 const EditaisValidados = () => {
@@ -39,24 +35,35 @@ const EditaisValidados = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [offset, setOffset] = useState(0)
+  const [hasMore, setHasMore] = useState(true) // Novo estado para controlar se há mais itens
   const limit = 6
 
-  const carregarEditais = () => {
+  const carregarEditais = useCallback(async () => {
+    if (loading || !hasMore) return // Não executa se já estiver carregando ou não houver mais itens
+    
     setLoading(true)
     setError(null)
-    mockFetchEditais(offset, limit)
-      .then((novosEditais) => {
-        if (novosEditais.length === 0) return
-        setEditais((prev) => [...prev, ...novosEditais])
-        setOffset((prev) => prev + limit)
-      })
-      .catch(() => setError('Erro ao carregar editais.'))
-      .finally(() => setLoading(false))
-  }
+    
+    try {
+      const novosEditais = await fetchEditaisValidados(offset, limit)
+      
+      if (novosEditais.length === 0) {
+        setHasMore(false) // Não há mais itens para carregar
+        return
+      }
+      
+      setEditais((prev) => [...prev, ...novosEditais])
+      setOffset((prev) => prev + limit)
+    } catch (err) {
+      setError(err.message || 'Erro ao carregar editais.')
+    } finally {
+      setLoading(false)
+    }
+  }, [offset, limit, loading, hasMore]) // Adicionado hasMore nas dependências
 
   useEffect(() => {
     carregarEditais()
-  }, [])
+  }, [carregarEditais])
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -107,26 +114,30 @@ const EditaisValidados = () => {
         <div className="w-full max-w-6xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10">
           {editais.map((edital) => (
             <Card
-              key={edital.id}
-              variante={edital.certificadora ? 'detalhado' : 'simples'}
-              titulo={edital.titulo}
-              instituicao={edital.certificadora || 'Instituição não informada'}
+              key={edital._id}
+              variante={edital.instituicao ? 'detalhado' : 'simples'}
+              titulo={edital.nome}
+              instituicao={edital.instituicao || 'Instituição não informada'}
               descricao={edital.descricao}
-              imagem={null} // ou coloque uma URL de imagem se quiser
-              area={edital.areaInteresse || 'Sem área'}
+              imagem={null}
+              area={edital.area || 'Sem área'}
             />
           ))}
         </div>
 
         {error && <p className="text-red-600 mb-4">{error}</p>}
 
-        <button
-          className="mb-16 px-6 py-2 rounded bg-gray-800 text-white hover:bg-gray-700 transition cursor-pointer"
-          onClick={carregarEditais}
-          disabled={loading}
-        >
-          {loading ? 'Carregando...' : 'Carregar mais'}
-        </button>
+        {hasMore ? (
+          <button
+            className="mb-16 px-6 py-2 rounded bg-gray-800 text-white hover:bg-gray-700 transition cursor-pointer"
+            onClick={carregarEditais}
+            disabled={loading}
+          >
+            {loading ? 'Carregando...' : 'Carregar mais'}
+          </button>
+        ) : (
+          <p className="mb-16 text-gray-500">Todos os editais foram carregados</p>
+        )}
       </main>
 
       <Footer />
