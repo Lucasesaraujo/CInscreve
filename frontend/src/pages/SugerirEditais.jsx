@@ -11,10 +11,14 @@ const SugerirEdital = () => {
   const [nomeEdital, setNomeEdital] = useState('')
   const [instituicao, setInstituicao] = useState('')
   const [link, setLink] = useState('')
+  const [categoria, setCategoria] = useState('')
   const [dataInicio, setDataInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
   const [descricao, setDescricao] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  const categorias = ['Audiovisual', 'Ciência', 'Cultura', 'Educação', 'Emprego',
+    'Esporte', 'Inovação', 'Meio Ambiente', 'Saúde', 'Tecnologia', 'Outros']
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,6 +36,7 @@ const SugerirEdital = () => {
       },
       descricao: descricao,
       link: link,
+      categoria: categoria,
       imagens: [],
       anexos: [],
     };
@@ -66,6 +71,7 @@ const SugerirEdital = () => {
       setNomeEdital('');
       setInstituicao('');
       setLink('');
+      setCategoria('');
       setDataInicio('');
       setDataFim('');
       setDescricao('');
@@ -112,8 +118,28 @@ const SugerirEdital = () => {
                 onChange={(e) => setLink(e.target.value)}
                 tamanho="grande"
               />
-               {/* Espaço vazio para manter o alinhamento do grid */}
-              <div></div>
+              <div>
+                <label htmlFor="Categoria do Edital" 
+                className="text-sm font-semibold text-zinc-700">Categoria do Edital
+                </label>
+                  <select 
+                    id="categoria-do-edital"
+                    value={categoria}
+                    onChange={(e) => setCategoria(e.target.value)}
+                    required
+                    className="w-full mt-1 px-3 py-2 border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#108cf0] focus:border-transparent text-sm"
+                    style={{ color: categoria === '' ? '#9ca3af' : 'black', height: '42px' }}
+                    >
+                    <option value="" disabled style={{ color: '#9ca3af' }}>
+                      Selecione uma categoria...
+                    </option>
+                    {categorias.map((categoriaOption) => (
+                      <option key={categoriaOption} value={categoriaOption} style={{ color: 'black' }}>
+                        {categoriaOption}
+                      </option>
+                    ))}
+                </select>
+              </div>
               <Input
                 titulo="Data de início das inscrições"
                 tipo="date"
