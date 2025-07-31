@@ -35,19 +35,6 @@ export default function Edital() {
     const url = `http://localhost:3000/editais?${params.toString()}`;
 
     try {
-      const resposta = await fetch(url);
-      const data = await resposta.json();
-
-      const formatados = data.editais.map((edital) => ({
-        variante: 'simples',
-        titulo: edital.nome,
-        instituicao: edital.organizacao,
-        descricao: edital.descricao,
-        imagem: edital.imagens?.[0] || 'https://via.placeholder.com/300x200',
-        area: edital.area || 'Outros'
-      }));
-
-      setCardsValidados(formatados);
       setQuantidadeRenderizada(9);
       setBuscaDisparada(true);
 
@@ -72,11 +59,11 @@ export default function Edital() {
       titulo: edital.nome,
       instituicao: edital.organizacao,
       descricao: edital.descricao,
-      imagem: edital.imagens?.[0] || 'https://via.placeholder.com/300x200',
-      area: edital.area || 'Outros',
+      imagem: edital.imagem?.[0] || 'https://via.assets.so/img.jpg?w=400&h=300&tc=blue&bg=#cecece&t=nome_ong',
+      area: edital.categoria || 'Outros',
       _id: edital._id || 'Erro'
     });
-
+    
     getEditaisValidados().then(({ editais }) =>
       setCardsValidados(editais.map(formatar))
     );
@@ -98,7 +85,7 @@ export default function Edital() {
 
     if (categoriaSelecionada) {
       resultado = resultado.filter(edital =>
-        edital.area?.toLowerCase() === categoriaSelecionada.toLowerCase()
+        edital.categoria?.toLowerCase() === categoriaSelecionada.toLowerCase()
       );
       mensagem = `Editais filtrados por área: "${categoriaSelecionada}"`;
     }
