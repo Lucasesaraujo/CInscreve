@@ -2,6 +2,7 @@ const Edital = require('../models/edital');
 const { construirFiltroEditais } = require('../utils/filtrosEditais');
 const { configurarPaginacaoOrdenacao } = require('../utils/paginacao');
 const logger = require('../config/logger');
+const defaultImages = require('../utils/defaultImages');
 
 const REPORT_THRESHOLD = 2;
 
@@ -104,6 +105,13 @@ async function criarEditalService(dados, idUsuario) {
       }
     }
   }
+
+  if ((!dados.imagens || dados.imagens.length === 0) && dados.categoria) {
+    const fileName = defaultImages[dados.categoria] || defaultImages['Outros'];
+    const imagePath = `/assets/default_covers/${fileName}`; // <-- Agora retorna apenas o caminho relativo
+    dados.imagens = [imagePath];
+  }
+
   dados.sugeridoPor = idUsuario;
   const novoEdital = new Edital(dados);
   return await novoEdital.save();
