@@ -123,10 +123,10 @@ const EditalEspecifico = () => {
     return <div className="flex justify-center items-center flex-1 text-gray-600">Edital não encontrado.</div>;
   }
 
-  const imagemDoEdital = edital.imagens && edital.imagens.length > 0
-    ? edital.imagens[0].startsWith('http')
-        ? edital.imagens[0]
-        : `http://localhost:3000${edital.imagens[0]}`
+  const imagemDoEdital = edital.imagem && edital.imagem.length > 0
+    ? edital.imagem[0].startsWith('http')
+        ? edital.imagem[0]
+        : `http://localhost:3000${edital.imagem[0]}`
     : 'https://via.placeholder.com/1152x250?text=Imagem+Padrao+do+Edital';
 
   return (
