@@ -234,7 +234,7 @@ export default function Edital() {
         ) : (
           <>
             <div className="mb-10">
-              <Carrossel titulo="Editais em Destaque" cards={cardsValidados} />
+              <Carrossel titulo="Editais em Destaque" cards={cardsDestaque} />
             </div>
             <div className="mb-10">
               <Carrossel titulo="Editais Validados" cards={cardsValidados} />

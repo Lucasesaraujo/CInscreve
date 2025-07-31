@@ -47,20 +47,32 @@ export async function getEditaisValidados() {
 }
 
 // destaques (baseado em favoritos, acessos...)
-export async function getEditaisDestaque() {
-  const { editais, total, paginaAtual, totalPaginas } = await fetchEditais();
+export async function getEditaisDestaque(limit = 6) {
+  try {
+    const url = `${BASE_URL}/destaque?limit=${limit}`;
+    const res = await fetch(url, { credentials: 'include' });
+    
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        window.location.href = '/login';
+        return { editais: [], total: 0, paginaAtual: 1, totalPaginas: 1 };
+      }
+      throw new Error(`Erro ao buscar editais em destaque: ${res.status} ${res.statusText}`);
+    }
 
-  const destaque = editais.filter(e =>
-    (e.favoritos?.length || 0) >= 5 // podemos ajustar esse critério
-  );
-
-  return {
-    editais: destaque,
-    total,
-    paginaAtual,
-    totalPaginas
-  };
+    const data = await res.json();
+    return {
+      editais: data.editais || [],
+      total: data.editais?.length || 0,
+      paginaAtual: 1,
+      totalPaginas: 1
+    };
+  } catch (err) {
+    console.error("Erro ao buscar editais em destaque:", err);
+    return { editais: [], total: 0, paginaAtual: 1, totalPaginas: 1 };
+  }
 }
+
 export async function getEditalById(editalId) {
   try {
     const res = await fetch(`${BASE_URL}/${editalId}`, {
