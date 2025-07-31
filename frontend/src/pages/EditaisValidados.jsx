@@ -1,69 +1,78 @@
-'use client'
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';  // Importando Link para navegação
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import Card from '../components/Card';
+import { Search, Users } from 'lucide-react';
 
-import React, { useState, useEffect, useCallback } from 'react'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import Card from '../components/Card' 
-import { Search, Users } from 'lucide-react'
+const BASE_URL = 'http://localhost:3000/editais';
 
-const BASE_URL = 'http://localhost:3000/editais'
-
-async function fetchEditaisValidados(offset = 0, limit = 6) {
+async function fetchEditaisValidados(offset = 0, limit = 6, searchTerm = '') {
   try {
     const params = new URLSearchParams({
       page: Math.floor(offset / limit) + 1,
       limit,
-      validado: true
-    })
+      validado: true,
+    });
 
-    const res = await fetch(`${BASE_URL}?${params.toString()}`)
-
-    if (!res.ok) {
-      throw new Error(`Erro ao buscar editais: ${res.status}`)
+    // Adicionando o termo de pesquisa na URL
+    if (searchTerm) {
+      params.append('search', searchTerm); // Passando a pesquisa
     }
 
-    const data = await res.json()
-    return data.editais || []
+    const res = await fetch(`${BASE_URL}?${params.toString()}`);
+
+    if (!res.ok) {
+      throw new Error(`Erro ao buscar editais: ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data.editais || [];
   } catch (err) {
-    console.error('Erro ao buscar editais:', err)
-    throw err
+    console.error('Erro ao buscar editais:', err);
+    throw err;
   }
 }
 
 const EditaisValidados = () => {
-  const [editais, setEditais] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [offset, setOffset] = useState(0)
-  const [hasMore, setHasMore] = useState(true) // Novo estado para controlar se há mais itens
-  const limit = 6
+  const [editais, setEditais] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(''); // Estado para o termo de pesquisa
+  const limit = 6;
 
   const carregarEditais = useCallback(async () => {
-    if (loading || !hasMore) return // Não executa se já estiver carregando ou não houver mais itens
-    
-    setLoading(true)
-    setError(null)
-    
+    if (loading || !hasMore) return;
+
+    setLoading(true);
+    setError(null);
+
     try {
-      const novosEditais = await fetchEditaisValidados(offset, limit)
-      
+      const novosEditais = await fetchEditaisValidados(offset, limit, searchTerm); // Passando o termo de pesquisa
+
       if (novosEditais.length === 0) {
-        setHasMore(false) // Não há mais itens para carregar
-        return
+        setHasMore(false);
+        return;
       }
-      
-      setEditais((prev) => [...prev, ...novosEditais])
-      setOffset((prev) => prev + limit)
+
+      setEditais((prev) => [...prev, ...novosEditais]);
+      setOffset((prev) => prev + limit);
     } catch (err) {
-      setError(err.message || 'Erro ao carregar editais.')
+      setError(err.message || 'Erro ao carregar editais.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [offset, limit, loading, hasMore]) // Adicionado hasMore nas dependências
+  }, [offset, limit, loading, hasMore, searchTerm]); // Adicionando searchTerm como dependência
 
   useEffect(() => {
-    carregarEditais()
-  }, [carregarEditais])
+    carregarEditais();
+  }, [carregarEditais]);
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value); // Atualizando o termo de pesquisa
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -81,9 +90,14 @@ const EditaisValidados = () => {
               <input
                 type="text"
                 placeholder="Pesquisar"
+                value={searchTerm} // Vinculando o estado ao campo de input
+                onChange={handleSearchChange} // Atualizando o termo de busca
                 className="w-80 px-4 py-2 rounded-l border border-gray-300 focus:outline-none"
               />
-              <button className="px-4 bg-gray-200 rounded-r border-t border-b border-r border-gray-300 cursor-pointer">
+              <button
+                className="px-4 bg-gray-200 rounded-r cursor-pointer focus:outline-none active:bg-gray-400"
+                onClick={() => carregarEditais()} // Recarrega os editais ao clicar no botão
+              >
                 <Search className="w-5 h-5 text-gray-600" />
               </button>
             </div>
@@ -111,17 +125,18 @@ const EditaisValidados = () => {
         </div>
 
         {/* GRID COM OS CARDS */}
-        <div className="w-full max-w-6xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10">
+        <div className="w-full max-w-6xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-22 gap-y-10 mb-10">
           {editais.map((edital) => (
-            <Card
-              key={edital._id}
-              variante={edital.instituicao ? 'detalhado' : 'simples'}
-              titulo={edital.nome}
-              instituicao={edital.instituicao || 'Instituição não informada'}
-              descricao={edital.descricao}
-              imagem={null}
-              area={edital.area || 'Sem área'}
-            />
+            <Link to={`/editais/${edital._id}`} key={edital._id}>  {/* Link para a página de detalhes */}
+              <Card
+                variante={edital.instituicao ? 'detalhado' : 'simples'}
+                titulo={edital.nome}
+                instituicao={edital.instituicao || 'Instituição não informada'}
+                descricao={edital.descricao}
+                imagem={null}
+                area={edital.area || 'Sem área'}
+              />
+            </Link>
           ))}
         </div>
 
@@ -142,7 +157,7 @@ const EditaisValidados = () => {
 
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default EditaisValidados
+export default EditaisValidados;
