@@ -47,6 +47,10 @@ const EditalSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
+  notificadoPor: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
   validadoPor: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
@@ -56,7 +60,7 @@ const EditalSchema = new mongoose.Schema({
       ref: 'User'
   }],
   anexos: [String],
-  imagens: [String],
+  imagem: [String],
 }, {
   timestamps: true
 });
