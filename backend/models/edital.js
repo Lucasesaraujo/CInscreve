@@ -7,6 +7,10 @@ const EditalSchema = new mongoose.Schema({
     required: [true, 'O nome é obrigatório'],
     minlength: [3, 'O nome deve ter pelo menos 3 caracteres']
   },
+  categoria: {
+    type: String,
+    required: true
+  },
   organizacao: {
     type: String,
     required: [true, 'A organização é obrigatória'],
