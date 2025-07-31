@@ -37,7 +37,7 @@ const SugerirEdital = () => {
       descricao: descricao,
       link: link,
       categoria: categoria,
-      imagens: [],
+      imagem: [],
       anexos: [],
     };
 
