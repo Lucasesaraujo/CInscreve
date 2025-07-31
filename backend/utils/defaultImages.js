@@ -6,7 +6,7 @@ const defaultImages = {
   'Meio Ambiente': 'meio_ambiente.png',
   'Saúde': 'saude.png',
   'Educação': 'educacao.png',
-  'Emprego': 'emprego.jpeg',
+  'Emprego': 'emprego.png',
   'Ciência': 'ciencia.webp',
   'Esporte': 'esporte.jpeg',
   'Audiovisual': 'audiovisual.jpg',

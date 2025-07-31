@@ -106,10 +106,14 @@ async function criarEditalService(dados, idUsuario) {
     }
   }
 
-  if ((!dados.imagens || dados.imagens.length === 0) && dados.categoria) {
+  if ((!dados.imagem || dados.imagem.length === 0) && dados.categoria) {
     const fileName = defaultImages[dados.categoria] || defaultImages['Outros'];
-    const imagePath = `/assets/default_covers/${fileName}`; // <-- Agora retorna apenas o caminho relativo
-    dados.imagens = [imagePath];
+    const imagePath = `http://localhost:3000/assets/default_covers/${fileName}`;
+    dados.imagem = [imagePath];
+  } else if (!dados.imagem || dados.imagem.length === 0) {
+    // Se o usuário não forneceu categoria, mas a imagem está vazia
+    const imagePath = `http://localhost:3000/assets/default_covers/${defaultImages['Outros']}`;
+    dados.imagem = [imagePath];
   }
 
   dados.sugeridoPor = idUsuario;
@@ -151,7 +155,7 @@ async function listarDestaquesService(limit = 6) {
       {
         $project: {
           nome: 1, organizacao: 1, periodoInscricao: 1, descricao: 1,
-          anexos: 1, imagens: 1, validado: 1, link: 1,
+          anexos: 1, imagem: 1, validado: 1, link: 1,
           sugeridoPor: 1, validadoPor: 1, denunciadoPor: 1, favoritadoPor: 1,
           createdAt: 1,
           favoritosCount: { $size: "$favoritadoPor" }
