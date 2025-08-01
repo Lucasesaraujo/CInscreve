@@ -27,31 +27,47 @@ export default function Edital() {
   const [buscaDisparada, setBuscaDisparada] = useState(false);
 
   const buscarEditaisPorUrl = async () => {
-    const params = new URLSearchParams();
+  const params = new URLSearchParams();
 
-    if (termoBusca) params.append('nome', termoBusca);
-    if (categoriaSelecionada) params.append('area', categoriaSelecionada);
+  if (termoBusca) params.append('nome', termoBusca);
+  if (categoriaSelecionada) params.append('area', categoriaSelecionada);
 
-    const url = `http://localhost:3000/editais?${params.toString()}`;
+  const url = `http://localhost:3000/editais?${params.toString()}`;
 
-    try {
-      setQuantidadeRenderizada(9);
-      setBuscaDisparada(true);
+  try {
+    setQuantidadeRenderizada(9);
+    setBuscaDisparada(true);
 
-      const mensagem =
-        formatados.length === 0
-          ? 'Nenhum edital encontrado com os critérios selecionados.'
-          : `Resultados para: ${termoBusca || 'sem termo'} + área: ${categoriaSelecionada || 'todas'}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Erro ao buscar editais');
 
-      setDisplayStatusMessage(mensagem);
+    const data = await response.json();
+    const formatar = (edital) => ({
+      variante: 'simples',
+      titulo: edital.nome,
+      instituicao: edital.organizacao,
+      descricao: edital.descricao,
+      imagem: edital.imagem?.[0] || 'https://via.assets.so/img.jpg?w=400&h=300&tc=blue&bg=#cecece&t=nome_ong',
+      area: edital.categoria || 'Outros',
+      _id: edital._id || 'Erro'
+    });
 
-    } catch (erro) {
-      console.error('Erro ao buscar editais:', erro);
-      setEditaisFiltradosEBuscados([]);
-      setDisplayStatusMessage('Erro ao buscar editais.');
-      setBuscaDisparada(true);
-    }
-  };
+    const formatados = data.editais.map(formatar);
+    setEditaisFiltradosEBuscados(formatados);
+
+    const mensagem =
+      formatados.length === 0
+        ? 'Nenhum edital encontrado com os critérios selecionados.'
+        : `Resultados para: ${termoBusca || 'sem termo'} + área: ${categoriaSelecionada || 'todas'}`;
+    setDisplayStatusMessage(mensagem);
+
+  } catch (erro) {
+    console.error('Erro ao buscar editais:', erro);
+    setEditaisFiltradosEBuscados([]);
+    setDisplayStatusMessage('Erro ao buscar editais.');
+    setBuscaDisparada(true);
+  }
+};
 
   useEffect(() => {
     const formatar = (edital) => ({
@@ -85,7 +101,7 @@ export default function Edital() {
 
     if (categoriaSelecionada) {
       resultado = resultado.filter(edital =>
-        edital.categoria?.toLowerCase() === categoriaSelecionada.toLowerCase()
+        edital.area?.toLowerCase() === categoriaSelecionada.toLowerCase()
       );
       mensagem = `Editais filtrados por área: "${categoriaSelecionada}"`;
     }
