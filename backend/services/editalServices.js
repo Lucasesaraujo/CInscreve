@@ -154,7 +154,7 @@ async function listarDestaquesService(limit = 6) {
     const editaisDestaque = await Edital.aggregate([
       {
         $project: {
-          nome: 1, organizacao: 1, periodoInscricao: 1, descricao: 1,
+          nome: 1, categoria: 1, organizacao: 1, periodoInscricao: 1, descricao: 1,
           anexos: 1, imagem: 1, validado: 1, link: 1,
           sugeridoPor: 1, validadoPor: 1, denunciadoPor: 1, favoritadoPor: 1,
           createdAt: 1,
