@@ -42,18 +42,18 @@ async function toggleFavoritoService(userId, editalId) {
     }
 
     if (!usuario.favoritos) usuario.favoritos = [];
-    if (!edital.favoritos) edital.favoritos = [];
+    if (!edital.favoritadoPor) edital.favoritadoPor = [];
 
     const jaFavoritado = usuario.favoritos.some(favId => favId.toString() === editalId.toString());
     let mensagem = '';
 
     if (jaFavoritado) {
       usuario.favoritos = usuario.favoritos.filter(favId => favId.toString() !== editalId.toString());
-      edital.favoritos = edital.favoritos.filter(uid => uid.toString() !== usuario._id.toString());
+      edital.favoritadoPor = edital.favoritadoPor.filter(uid => uid.toString() !== usuario._id.toString());
       mensagem = 'Edital removido dos favoritos';
     } else {
       usuario.favoritos.push(edital._id);
-      edital.favoritos.push(usuario._id);
+      edital.favoritadoPor.push(usuario._id);
       mensagem = 'Edital adicionado aos favoritos';
     }
 
