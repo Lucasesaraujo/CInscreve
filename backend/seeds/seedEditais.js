@@ -27,7 +27,7 @@ const seedEditais = async () => {
 
     const baseUrl = 'https://exemplo.com/edital';
 
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 100; i++) {
       const dados = {
         nome: `Edital ${i + 1} - ${categorias[i % categorias.length]}`,
         categoria: categorias[i % categorias.length],
@@ -46,7 +46,7 @@ const seedEditais = async () => {
       await criarEditalService(dados, usuario._id);
     }
 
-    console.log('40 editais criados com sucesso via service!');
+    console.log('100 editais criados com sucesso via service!');
   } catch (error) {
     console.error('Erro ao rodar o seed:', error.message);
   } finally {
