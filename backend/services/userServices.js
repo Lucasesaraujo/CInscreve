@@ -23,6 +23,25 @@ async function listarFavoritosService(userId) {
   }
 }
 
+async function listarNotificacoesService(userId) {
+  try {
+    const usuario = await Usuario.findById(userId).populate('notificacoes');
+
+    if (!usuario) {
+      logger.warn(`Usuário com ID ${userId} não encontrado no serviço de listar notificações.`);
+      const error = new Error('Usuário não encontrado');
+      error.status = 404;
+      throw error;
+    }
+
+    logger.info(`Editais para notificação listados para o usuário: ${userId}`);
+    return usuario.notificacoes;
+  } catch (error) {
+    logger.error('Erro no serviço ao listar favoritos:', error.message, error);
+    throw error;
+  }
+}
+
 async function toggleFavoritoService(userId, editalId) {
   try {
     const usuario = await Usuario.findById(userId);
@@ -70,6 +89,53 @@ async function toggleFavoritoService(userId, editalId) {
   }
 }
 
+async function toggleNotificacaoService(userId, editalId) {
+  try {
+    const usuario = await Usuario.findById(userId);
+    const edital = await Edital.findById(editalId);
+
+    if (!usuario) {
+      logger.warn(`Usuário com ID ${userId} não encontrado no serviço de toggle notificação.`);
+      const error = new Error('Usuário não encontrado');
+      error.status = 404;
+      throw error;
+    }
+    if (!edital) {
+      logger.warn(`Edital com ID ${editalId} não encontrado no serviço de toggle notificação.`);
+      const error = new Error('Edital não encontrado');
+      error.status = 404;
+      throw error;
+    }
+
+    if (!usuario.notificacoes) usuario.notificacoes = [];
+    if (!edital.notificadoPor) edital.notificadoPor = [];
+
+    const jaNotificado = usuario.notificacoes.some(favId => favId.toString() === editalId.toString());
+    let mensagem = '';
+
+    if (jaNotificado) {
+      usuario.notificacoes = usuario.notificacoes.filter(favId => favId.toString() !== editalId.toString());
+      edital.notificadoPor = edital.notificadoPor.filter(uid => uid.toString() !== usuario._id.toString());
+      mensagem = 'Edital removido das notificações';
+    } else {
+      usuario.notificacoes.push(edital._id);
+      edital.notificadoPor.push(usuario._id);
+      mensagem = 'Edital adicionado às notificações';
+    }
+
+    await usuario.save();
+    await edital.save();
+
+    const notificacoesAtualizadas = await Usuario.findById(usuario._id).populate('notificacoes');
+
+    logger.info(`Notificação alternada para o Edital ${editalId} pelo Usuário ${userId}. Estado: ${mensagem}`);
+    return { mensagem, notificacoes: notificacoesAtualizadas.notificacoes };
+  } catch (error) {
+    logger.error('Erro no serviço ao alternar notificação:', error.message, error);
+    throw error;
+  }
+}
+
 async function listarSugeridosService(userId) {
   try {
     if (!userId) {
@@ -92,5 +158,7 @@ async function listarSugeridosService(userId) {
 module.exports = {
     listarFavoritosService,
     toggleFavoritoService,
-    listarSugeridosService
+    listarSugeridosService,
+    listarNotificacoesService,
+    toggleNotificacaoService
 };

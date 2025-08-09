@@ -1,3 +1,5 @@
+// frontend/src/pages/EditalEspecifico.jsx
+
 'use client'
 
 import React, { useState, useEffect } from 'react'
@@ -6,9 +8,9 @@ import Footer from '../components/Footer'
 import Botao from '../components/Botao'
 import Tipografia from '../components/Tipografia'
 import { Heart, Bell, FileText } from 'lucide-react'
-import { useParams } from 'react-router-dom'; // Importar useParams para pegar o ID da URL
-import { getEditalById, validarEdital, toggleFavoritoEdital } from '../services/apiEditais'; // Importar as funções da API
-import { getUserData, getUserFavoritos } from '../services/apiUser'; // Para saber quem é o usuário logado
+import { useNavigate, useParams } from 'react-router-dom'; // Importar useParams para pegar o ID da URL
+import { getEditalById, validarEdital, toggleFavoritoEdital, toggleNotificacoesEdital } from '../services/apiEditais'; // Importar as funções da API
+import { getUserData, getUserFavoritos, getUserNotificacoes } from '../services/apiUser'; // Para saber quem é o usuário logado
 
 const EditalEspecifico = () => {
   // Obter o ID do edital da URL (ex: /editais/123 -> id = 123)
@@ -23,6 +25,7 @@ const EditalEspecifico = () => {
   const [notificacao, setNotificacao] = useState(false) // (Implementação futura, se houver backend para isso)
   const [jaValidou, setJaValidou] = useState(false); // Para controlar se o botão "Sim" fica desabilitado
   const [podeValidar, setPodeValidar] = useState(true); // Para desabilitar botões Sim/Não se sugeridor ou já validou
+  const navigate = useNavigate();
 
   // Efeito para buscar os dados do edital e do usuário ao carregar a página
   useEffect(() => {
@@ -32,6 +35,7 @@ const EditalEspecifico = () => {
       try {
         const userData = await getUserData(); // Puxa os dados do usuário logado
         const userFavoritos = await getUserFavoritos(); // Puxa editais favoritos
+        const userNotificacoes = await getUserNotificacoes(); //Puxa editais de notificações
         setUsuarioLogado(userData?.usuario); // Pode ser null se não logado
 
         if (!id) {
@@ -74,8 +78,7 @@ const EditalEspecifico = () => {
   const handleToggleFavorito = async () => {
     if (!usuarioLogado) {
         alert('Você precisa estar logado para favoritar/desfavoritar um edital!');
-        // Se estiver usando React Router, você pode redirecionar:
-        // navigate('/login');
+        navigate('/login')
         return;
     }
 
@@ -93,6 +96,32 @@ const EditalEspecifico = () => {
     } catch (err) {
       console.error("Erro ao alternar favorito:", err);
       alert(err.message || 'Erro ao favoritar/desfavoritar edital. Tente novamente.');
+      // Reverte o estado da UI se a API falhou
+    }
+  };
+
+   // --- Função para alternar o estado de notificação ---
+  const handleToggleNotificacao = async () => {
+    if (!usuarioLogado) {
+        alert('Você precisa estar logado para ativar/desativar notificações de um edital!');
+        navigate('/login')
+        return;
+    }
+
+    try {
+      // Chama a API para alternar a notificação
+      // `toggleNotificacoesEdital` retorna a lista atualizada de notificações do usuário logado
+      const statusReq = await toggleNotificacoesEdital(edital._id);
+
+      if (statusReq == 200){
+        setNotificacao(!notificacao)
+      }
+      // Confirma o estado do notificação com base na lista retornada pela API
+      // (caso a atualização otimista falhe ou a lista da API seja a fonte de verdade)
+
+    } catch (err) {
+      console.error("Erro ao alternar notificação:", err);
+      alert(err.message || 'Erro ao ativar/desativar notificações do edital. Tente novamente.');
       // Reverte o estado da UI se a API falhou
     }
   };
@@ -231,7 +260,7 @@ const EditalEspecifico = () => {
                   <span className="text-sm font-medium">{favorito ? 'Favorito' : 'Favoritar'}</span>
                 </button>
                 <button
-                  onClick={() => setNotificacao(!notificacao)} // Implementar lógica de notificação
+                  onClick={handleToggleNotificacao}
                   className="flex flex-col items-center gap-2 text-gray-700 hover:text-blue-500 transition-colors cursor-pointer"
                   disabled={!usuarioLogado} // Desabilita se não logado
                 >

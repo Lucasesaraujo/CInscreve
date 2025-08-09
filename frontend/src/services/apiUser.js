@@ -61,3 +61,29 @@ export async function getUserFavoritos() {
         return null;
     }
 }
+
+export async function getUserNotificacoes() {
+    try {
+        const res = await fetch(`${URL}/user/notificacoes`, {
+            method: 'GET',
+            credentials: 'include', // Para enviar os cookies de autenticação
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!res.ok) {
+            if (res.status === 401 || res.status === 403) {
+                console.warn("Usuário não autenticado ou sessão expirada. Retornando null para getUserData.");
+                return null;
+            }
+            throw new Error(`Erro ao buscar dados do usuário: ${res.status} ${res.statusText}`);
+        }
+        const data = await res.json();
+        return data; // Seu backend retorna { usuario: { id, email, nome } }
+    } catch (err) {
+        console.error("Erro em getUserData:", err);
+        // Em caso de erro de rede ou outro, retorne null
+        return null;
+    }
+}

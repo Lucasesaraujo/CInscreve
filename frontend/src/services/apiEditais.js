@@ -1,5 +1,8 @@
+import { useNavigate} from 'react-router-dom';
+
 const URL = "http://localhost:3000";
 const BASE_URL = `${URL}/editais`;
+const navigate = useNavigate();
 
 // utilitário para fazer requisição com filtros e percorrer todas as páginas
 async function fetchEditais(filtros = {}) {
@@ -48,29 +51,29 @@ export async function getEditaisValidados() {
 
 // destaques (baseado em favoritos, acessos...)
 export async function getEditaisDestaque(limit = 6) {
-  try {
-    const url = `${BASE_URL}/destaque?limit=${limit}`;
-    const res = await fetch(url, { credentials: 'include' });
-    
-    if (!res.ok) {
-      if (res.status === 401 || res.status === 403) {
-        window.location.href = '/login';
-        return { editais: [], total: 0, paginaAtual: 1, totalPaginas: 1 };
-      }
-      throw new Error(`Erro ao buscar editais em destaque: ${res.status} ${res.statusText}`);
-    }
+  try {
+    const url = `${BASE_URL}/destaque?limit=${limit}`;
+    const res = await fetch(url, { credentials: 'include' });
+    
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        window.location.href = '/login';
+        return { editais: [], total: 0, paginaAtual: 1, totalPaginas: 1 };
+      }
+      throw new Error(`Erro ao buscar editais em destaque: ${res.status} ${res.statusText}`);
+    }
 
-    const data = await res.json();
-    return {
-      editais: data.editais || [],
-      total: data.editais?.length || 0,
-      paginaAtual: 1,
-      totalPaginas: 1
-    };
-  } catch (err) {
-    console.error("Erro ao buscar editais em destaque:", err);
-    return { editais: [], total: 0, paginaAtual: 1, totalPaginas: 1 };
-  }
+    const data = await res.json();
+    return {
+      editais: data.editais || [],
+      total: data.editais?.length || 0,
+      paginaAtual: 1,
+      totalPaginas: 1
+    };
+  } catch (err) {
+    console.error("Erro ao buscar editais em destaque:", err);
+    return { editais: [], total: 0, paginaAtual: 1, totalPaginas: 1 };
+  }
 }
 
 export async function getEditalById(editalId) {
@@ -143,8 +146,7 @@ export async function toggleFavoritoEdital(editalId) {
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
         // Redireciona para login se não autenticado/autorizado
-        // Em um projeto real, você usaria `useNavigate` do React Router DOM aqui
-        window.location.href = '/login';
+        navigate('/login');
         return null;
       }
       const errorData = await res.json();
@@ -156,6 +158,36 @@ export async function toggleFavoritoEdital(editalId) {
     return res.status || []; // Assumindo que o backend retorna { mensagem: '...', favoritos: [...] }
   } catch (err) {
     console.error("Erro em toggleFavoritoEdital:", err);
+    throw err; // Rejoga o erro para o componente lidar
+  }
+}
+
+// Função para alternar o estado de notificação de um edital para o usuário logado
+export async function toggleNotificacoesEdital(editalId) {
+  try {
+    const res = await fetch(`${URL}/user/notificacoes/${editalId}`, {
+      method: 'PATCH', 
+      credentials: 'include', // Para enviar os cookies de autenticação
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        // Redireciona para login se não autenticado/autorizado
+        navigate('/login');
+        return null;
+      }
+      const errorData = await res.json();
+      throw new Error(errorData.erro || `Erro ao alternar notificação: ${res.status} ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    // O backend deve retornar a lista atualizada de notificações do usuário
+    return res.status || []; // Assumindo que o backend retorna { mensagem: '...', notificações: [...] }
+  } catch (err) {
+    console.error("Erro em toggleNotificacoesEdital:", err);
     throw err; // Rejoga o erro para o componente lidar
   }
 }
