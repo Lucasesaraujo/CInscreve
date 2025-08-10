@@ -4,6 +4,7 @@ import {
   getEditaisDestaque,
   getEditaisNaoValidados
 } from '../services/apiEditais';
+import { useLocation } from 'react-router-dom'; // IMPORTADO AGORA
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Input from '../components/Input';
@@ -16,6 +17,9 @@ import Fundo from '../assets/base.png';
 import Logo from '../assets/recife.png';
 
 export default function Edital() {
+  const location = useLocation(); // PEGA O TIPO DA NAVEGAÇÃO
+  const tipoRecebido = location.state?.tipo || ''; // TIPO VINDO DO BOTÃO "VER MAIS"
+
   const [termoBusca, setTermoBuscado] = useState('');
   const [categoriaSelecionada, setcategoriaSelecionada] = useState('');
   const [editaisFiltradosEBuscados, setEditaisFiltradosEBuscados] = useState([]);
@@ -27,47 +31,47 @@ export default function Edital() {
   const [buscaDisparada, setBuscaDisparada] = useState(false);
 
   const buscarEditaisPorUrl = async () => {
-  const params = new URLSearchParams();
+    const params = new URLSearchParams();
 
-  if (termoBusca) params.append('nome', termoBusca);
-  if (categoriaSelecionada) params.append('area', categoriaSelecionada);
+    if (termoBusca) params.append('nome', termoBusca);
+    if (categoriaSelecionada) params.append('area', categoriaSelecionada);
 
-  const url = `http://localhost:3000/editais?${params.toString()}`;
+    const url = `http://localhost:3000/editais?${params.toString()}`;
 
-  try {
-    setQuantidadeRenderizada(9);
-    setBuscaDisparada(true);
+    try {
+      setQuantidadeRenderizada(9);
+      setBuscaDisparada(true);
 
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Erro ao buscar editais');
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Erro ao buscar editais');
 
-    const data = await response.json();
-    const formatar = (edital) => ({
-      variante: 'simples',
-      titulo: edital.nome,
-      instituicao: edital.organizacao,
-      descricao: edital.descricao,
-      imagem: edital.imagem?.[0] || 'https://via.assets.so/img.jpg?w=400&h=300&tc=blue&bg=#cecece&t=nome_ong',
-      area: edital.categoria || 'Outros',
-      _id: edital._id || 'Erro'
-    });
+      const data = await response.json();
+      const formatar = (edital) => ({
+        variante: 'simples',
+        titulo: edital.nome,
+        instituicao: edital.organizacao,
+        descricao: edital.descricao,
+        imagem: edital.imagem?.[0] || 'https://via.assets.so/img.jpg?w=400&h=300&tc=blue&bg=#cecece&t=nome_ong',
+        area: edital.categoria || 'Outros',
+        _id: edital._id || 'Erro'
+      });
 
-    const formatados = data.editais.map(formatar);
-    setEditaisFiltradosEBuscados(formatados);
+      const formatados = data.editais.map(formatar);
+      setEditaisFiltradosEBuscados(formatados);
 
-    const mensagem =
-      formatados.length === 0
-        ? 'Nenhum edital encontrado com os critérios selecionados.'
-        : `Resultados para: ${termoBusca || 'sem termo'} + área: ${categoriaSelecionada || 'todas'}`;
-    setDisplayStatusMessage(mensagem);
+      const mensagem =
+        formatados.length === 0
+          ? 'Nenhum edital encontrado com os critérios selecionados.'
+          : `Resultados para: ${termoBusca || 'sem termo'} + área: ${categoriaSelecionada || 'todas'}`;
+      setDisplayStatusMessage(mensagem);
 
-  } catch (erro) {
-    console.error('Erro ao buscar editais:', erro);
-    setEditaisFiltradosEBuscados([]);
-    setDisplayStatusMessage('Erro ao buscar editais.');
-    setBuscaDisparada(true);
-  }
-};
+    } catch (erro) {
+      console.error('Erro ao buscar editais:', erro);
+      setEditaisFiltradosEBuscados([]);
+      setDisplayStatusMessage('Erro ao buscar editais.');
+      setBuscaDisparada(true);
+    }
+  };
 
   useEffect(() => {
     const formatar = (edital) => ({
@@ -79,7 +83,7 @@ export default function Edital() {
       area: edital.categoria || 'Outros',
       _id: edital._id || 'Erro'
     });
-    
+
     getEditaisValidados().then(({ editais }) =>
       setCardsValidados(editais.map(formatar))
     );
@@ -93,6 +97,48 @@ export default function Edital() {
     );
   }, []);
 
+  // useEffect: dispara busca automática se veio de "Ver mais"
+  useEffect(() => {
+    if (!tipoRecebido) return;
+
+    const formatar = (edital) => ({
+      variante: 'simples',
+      titulo: edital.nome,
+      instituicao: edital.organizacao,
+      descricao: edital.descricao,
+      imagem: edital.imagem?.[0] || 'https://via.assets.so/img.jpg?w=400&h=300',
+      area: edital.categoria || 'Outros',
+      _id: edital._id || 'Erro'
+    });
+
+    const buscarPorTipo = async () => {
+      let resposta;
+      if (tipoRecebido === 'validados') resposta = await getEditaisValidados();
+      else if (tipoRecebido === 'destaque') resposta = await getEditaisDestaque();
+      else if (tipoRecebido === 'nao-validados') resposta = await getEditaisNaoValidados();
+      else return;
+
+      const formatados = resposta.editais.map(formatar);
+      setEditaisFiltradosEBuscados(formatados);
+      setBuscaDisparada(true);
+      let mensagem = '';
+
+      if (tipoRecebido === 'validados') {
+        mensagem = 'Editais do tipo: Validados';
+      } else if (tipoRecebido === 'destaque') {
+        mensagem = 'Editais do tipo: Em destaque';
+      } else if (tipoRecebido === 'nao-validados') {
+        mensagem = 'Editais do tipo: Não validados';
+      } else {
+        mensagem = 'Filtrados';
+      }
+
+      setDisplayStatusMessage(mensagem);
+      setQuantidadeRenderizada(9);
+    };
+
+    buscarPorTipo();
+  }, [tipoRecebido]);
 
   useEffect(() => {
     const todos = [...cardsValidados, ...cardsDestaque, ...cardsNaoValidados];
@@ -214,7 +260,10 @@ export default function Edital() {
         {(categoriaSelecionada !== '' || buscaDisparada) && editaisFiltradosEBuscados.length > 0 ? (
           <section className="mt-8">
             <Tipografia tipo="subtitulo" className="mb-6 capitalize font-bold">
-              Editais encontrados
+              {tipoRecebido === 'validados' && 'Editais validados'}
+              {tipoRecebido === 'destaque' && 'Editais em destaque'}
+              {tipoRecebido === 'nao-validados' && 'Editais esperando validação'}
+              {!tipoRecebido && 'Editais encontrados'}
             </Tipografia>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-16 mt-10 max-w-6xl pl-16">
@@ -237,13 +286,13 @@ export default function Edital() {
         ) : (
           <>
             <div className="mb-10">
-              <Carrossel titulo="Editais em Destaque" cards={cardsDestaque} />
+              <Carrossel titulo="Editais em Destaque" cards={cardsDestaque} tipo="destaque" />
             </div>
             <div className="mb-10">
-              <Carrossel titulo="Editais Validados" cards={cardsValidados} />
+              <Carrossel titulo="Editais Validados" cards={cardsValidados} tipo="validados" />
             </div>
             <div className="mb-0">
-              <Carrossel titulo="Editais esperando validação" cards={cardsNaoValidados} />
+              <Carrossel titulo="Editais esperando validação" cards={cardsNaoValidados} tipo="nao-validados" />
             </div>
           </>
         )}

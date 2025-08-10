@@ -23,7 +23,6 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/editais" element={<Editais />} />
-        <Route path="/editais-validados" element={<EditaisValidados />} />
         <Route path="/sugerir" element={<SugerirEdital />} />
         <Route path="/meu-perfil" element={<PaginaUsuario />} />
 

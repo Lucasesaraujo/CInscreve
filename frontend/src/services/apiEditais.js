@@ -1,8 +1,5 @@
-import { useNavigate} from 'react-router-dom';
-
 const URL = "http://localhost:3000";
 const BASE_URL = `${URL}/editais`;
-const navigate = useNavigate();
 
 // utilitário para fazer requisição com filtros e percorrer todas as páginas
 async function fetchEditais(filtros = {}) {
@@ -146,7 +143,7 @@ export async function toggleFavoritoEdital(editalId) {
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
         // Redireciona para login se não autenticado/autorizado
-        navigate('/login');
+        window.location.href = '/login';
         return null;
       }
       const errorData = await res.json();
@@ -176,7 +173,7 @@ export async function toggleNotificacoesEdital(editalId) {
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
         // Redireciona para login se não autenticado/autorizado
-        navigate('/login');
+        window.location.href = '/login';
         return null;
       }
       const errorData = await res.json();
