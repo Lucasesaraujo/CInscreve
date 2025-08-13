@@ -1,24 +1,36 @@
-'use client'
-
-import React, { useState } from 'react'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import Input from '../components/Input'
-import Botao from '../components/Botao'
-import Tipografia from '../components/Tipografia'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import Input from '../components/Input';
+import Botao from '../components/Botao';
+import Tipografia from '../components/Tipografia';
 
 const SugerirEdital = () => {
-  const [nomeEdital, setNomeEdital] = useState('')
-  const [instituicao, setInstituicao] = useState('')
-  const [link, setLink] = useState('')
-  const [categoria, setCategoria] = useState('')
-  const [dataInicio, setDataInicio] = useState('')
-  const [dataFim, setDataFim] = useState('')
-  const [descricao, setDescricao] = useState('')
-  const [submitting, setSubmitting] = useState(false)
+  const [nomeEdital, setNomeEdital] = useState('');
+  const [instituicao, setInstituicao] = useState('');
+  const [link, setLink] = useState('');
+  const [categoria, setCategoria] = useState('');
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
+  const [descricao, setDescricao] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const categorias = ['Audiovisual', 'Ciência', 'Cultura', 'Educação', 'Emprego',
-    'Esporte', 'Inovação', 'Meio Ambiente', 'Saúde', 'Tecnologia', 'Outros']
+  const navigate = useNavigate();
+
+  const categorias = [
+    'Audiovisual',
+    'Ciência',
+    'Cultura',
+    'Educação',
+    'Emprego',
+    'Esporte',
+    'Inovação',
+    'Meio Ambiente',
+    'Saúde',
+    'Tecnologia',
+    'Outros',
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,24 +53,24 @@ const SugerirEdital = () => {
       anexos: [],
     };
 
-    console.log('Cookies do navegador:', document.cookie)
+    console.log('Cookies do navegador:', document.cookie);
 
     try {
       const resposta = await fetch('http://localhost:3000/editais', {
         method: 'POST',
         credentials: 'include',
         headers: {
-        'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(payloadParaAPI),
       });
 
       console.log(resposta);
-    
+
       if (!resposta.ok) {
         if (resposta.status === 401) {
           alert('Sessão expirada. Faça login novamente.');
-          window.location.href = '/login';
+          navigate('/login');
           return;
         }
         throw new Error('Erro ao enviar sugestão de edital');
@@ -75,6 +87,8 @@ const SugerirEdital = () => {
       setDataInicio('');
       setDataFim('');
       setDescricao('');
+
+      navigate('/meu-perfil');
 
     } catch (erro) {
       console.error('Erro ao sugerir edital:', erro);
@@ -119,25 +133,32 @@ const SugerirEdital = () => {
                 tamanho="grande"
               />
               <div>
-                <label htmlFor="Categoria do Edital" 
-                className="text-sm font-semibold text-zinc-700">Categoria do Edital
+                <label
+                  htmlFor="categoria-do-edital"
+                  className="text-sm font-semibold text-zinc-700"
+                >
+                  Categoria do Edital
                 </label>
-                  <select 
-                    id="categoria-do-edital"
-                    value={categoria}
-                    onChange={(e) => setCategoria(e.target.value)}
-                    required
-                    className="w-full mt-1 px-3 py-2 border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#108cf0] focus:border-transparent text-sm"
-                    style={{ color: categoria === '' ? '#9ca3af' : 'black', height: '42px' }}
+                <select
+                  id="categoria-do-edital"
+                  value={categoria}
+                  onChange={(e) => setCategoria(e.target.value)}
+                  required
+                  className="w-full mt-1 px-3 py-2 border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#108cf0] focus:border-transparent text-sm"
+                  style={{ color: categoria === '' ? '#9ca3af' : 'black', height: '42px' }}
+                >
+                  <option value="" disabled style={{ color: '#9ca3af' }}>
+                    Selecione uma categoria...
+                  </option>
+                  {categorias.map((categoriaOption) => (
+                    <option
+                      key={categoriaOption}
+                      value={categoriaOption}
+                      style={{ color: 'black' }}
                     >
-                    <option value="" disabled style={{ color: '#9ca3af' }}>
-                      Selecione uma categoria...
+                      {categoriaOption}
                     </option>
-                    {categorias.map((categoriaOption) => (
-                      <option key={categoriaOption} value={categoriaOption} style={{ color: 'black' }}>
-                        {categoriaOption}
-                      </option>
-                    ))}
+                  ))}
                 </select>
               </div>
               <Input
@@ -157,7 +178,9 @@ const SugerirEdital = () => {
                 required
               />
               <div className="md:col-span-2">
-                <label className="text-sm font-semibold text-zinc-700">Descrição do edital</label>
+                <label className="text-sm font-semibold text-zinc-700">
+                  Descrição do edital
+                </label>
                 <textarea
                   value={descricao}
                   onChange={(e) => setDescricao(e.target.value)}
@@ -173,7 +196,12 @@ const SugerirEdital = () => {
             </div>
           </div>
           <div className="flex justify-end gap-4 pt-4">
-            <Botao variante="outline" type="button" onClick={() => window.history.back()} className='cursor-pointer'>
+            <Botao
+              variante="outline"
+              type="button"
+              onClick={() => window.history.back()}
+              className="cursor-pointer"
+            >
               Cancelar
             </Botao>
             <button
@@ -188,7 +216,7 @@ const SugerirEdital = () => {
       </main>
       <Footer />
     </div>
-  )
-}
+  );
+};
 
 export default SugerirEdital;
