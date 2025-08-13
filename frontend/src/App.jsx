@@ -8,12 +8,13 @@ import SugerirEdital from './pages/SugerirEditais';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import AutoRefresh from './components/AutoRefresh';
-
+import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
   return (
     // 1. BrowserRouter envolve toda a aplicação para gerenciar as URLs.
     <BrowserRouter>
+      <AuthProvider>
       < AutoRefresh />
       < Header />
       {/* 3. Routes olha a URL atual e decide qual Route renderizar. */}
@@ -33,8 +34,8 @@ function App() {
 
         {/* Você pode adicionar uma rota "catch-all" para páginas não encontradas */}
         <Route path="*" element={<h1>Página Não Encontrada</h1>} />
-
       </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

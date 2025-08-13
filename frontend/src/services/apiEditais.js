@@ -1,5 +1,8 @@
+//import { useAuth } from "../contexts/AuthContext";
+
 const URL = "http://localhost:3000";
 const BASE_URL = `${URL}/editais`;
+//const {logout} = useAuth();
 
 // utilitário para fazer requisição com filtros e percorrer todas as páginas
 async function fetchEditais(filtros = {}) {
@@ -54,6 +57,7 @@ export async function getEditaisDestaque(limit = 6) {
     
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
+        //logout();
         window.location.href = '/login';
         return { editais: [], total: 0, paginaAtual: 1, totalPaginas: 1 };
       }
@@ -85,6 +89,7 @@ export async function getEditalById(editalId) {
 
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
+        //logout();
         window.location.href = '/login'; // Redireciona se não autenticado/autorizado
         return null;
       }
@@ -114,6 +119,7 @@ export async function validarEdital(editalId) {
 
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
+        //logout();
         window.location.href = '/login';
         return null;
       }
@@ -142,7 +148,7 @@ export async function toggleFavoritoEdital(editalId) {
 
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
-        // Redireciona para login se não autenticado/autorizado
+        //logout();
         window.location.href = '/login';
         return null;
       }
@@ -172,7 +178,7 @@ export async function toggleNotificacoesEdital(editalId) {
 
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
-        // Redireciona para login se não autenticado/autorizado
+        //logout();
         window.location.href = '/login';
         return null;
       }

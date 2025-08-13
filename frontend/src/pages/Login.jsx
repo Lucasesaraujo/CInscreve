@@ -6,6 +6,7 @@ import logo from '../assets/logo.png';
 import imagemLogin from '../assets/login.png';
 import AlertaErro from '../components/AlertaErro';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -14,7 +15,8 @@ export default function Login() {
   const [carregando, setCarregando] = useState(false);
   const [erroLogin, setErroLogin] = useState('');
   const navigate = useNavigate();
-
+  const {login} = useAuth();
+  
   const handleLogin = async () => {
     setCarregando(true);
 
@@ -36,6 +38,7 @@ export default function Login() {
       }
 
       const dados = await resposta.json();
+      login(dados.usuario.user);
       console.log('Login realizado com sucesso', dados);
       navigate("/")
 
