@@ -31,20 +31,21 @@ async function validarEditalService(idEdital, userId) {
     return Promise.reject(error);
   }
 
-  if (edital.sugeridoPor?.toString() === userId.toString()) { // Compare strings para segurança
+  if (edital.sugeridoPor?.toString() === userId.toString()) {
     const error = new Error('Você não pode validar o edital que sugeriu');
     error.status = 400;
-    return Promise.reject(error); // <--- O RETORNO É CRÍTICO AQUI
+    return Promise.reject(error);
   }
 
-  if (edital.validacoes.includes(userId)) {
+  if (edital.validadoPor.some(u => u.toString() === userId.toString())) {
     const error = new Error('Você já validou esse edital');
     error.status = 400;
-    return Promise.reject(error); // <--- O RETORNO É CRÍTICO AQUI
+    return Promise.reject(error);
   }
 
-  edital.validacoes.push(userId);
-  if (edital.validacoes.length >= 3) {
+  edital.validadoPor.push(userId);
+
+  if (edital.validadoPor.length >= 3) {
     edital.validado = true;
   }
 

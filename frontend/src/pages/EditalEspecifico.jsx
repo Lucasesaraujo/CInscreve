@@ -28,39 +28,41 @@ const EditalEspecifico = () => {
   const navigate = useNavigate();
 
   // Efeito para buscar os dados do edital e do usuário ao carregar a página
-  useEffect(() => {
+    useEffect(() => {
     const fetchEditalAndUser = async () => {
       setLoading(true);
       setError(null);
       try {
-        const userData = await getUserData(); // Puxa os dados do usuário logado
-        const userFavoritos = await getUserFavoritos(); // Puxa editais favoritos
-        const userNotificacoes = await getUserNotificacoes(); //Puxa editais de notificações
-        setUsuarioLogado(userData?.usuario); // Pode ser null se não logado
+        const userData = await getUserData();
+        setUsuarioLogado(userData?.usuario);
 
         if (!id) {
-            setError('ID do edital não fornecido na URL.');
-            setLoading(false);
-            return;
+          setError('ID do edital não fornecido na URL.');
+          setLoading(false);
+          return;
         }
 
         const fetchedEdital = await getEditalById(id);
-        setEdital(fetchedEdital);
+        setEdital(fetchedEdital); 
 
-        // Se o usuário está logado, atualiza os estados de favorito e validação
-        if (userData?.usuario) {
+        if (userData?.usuario && fetchedEdital) {
+          const usuarioId = userData.usuario.id;
 
-          if (userFavoritos.favoritos.some(favorito => favorito._id == fetchedEdital._id)){
-            setFavorito(true)
-          }
-          else{
-            setFavorito(false)
-          }
-            // Verifica se o edital está nos favoritos do usuário
-            // Verifica se o usuário já validou ou é o sugeridor
-            setJaValidou(fetchedEdital.validacoes?.some(val => val._id?.toString() === userData.usuario?.id?.toString()) || false);
-            setPodeValidar(!(fetchedEdital.sugeridoPor?._id?.toString() === userData.usuario?.id?.toString() || fetchedEdital.usuarioJaValidou));
-            // A notificação seria similar, se o backend gerenciasse isso
+          // Verifica se o usuário já validou
+          const usuarioJaValidou = fetchedEdital.validadoPor?.some(
+          uid => uid._id?.toString() === usuarioId.toString()
+        ) || false;
+        setJaValidou(usuarioJaValidou);
+
+          // Define se pode validar
+          setPodeValidar(
+            !(fetchedEdital.sugeridoPor?._id?.toString() === usuarioId.toString() || usuarioJaValidou)
+          );
+
+          // Atualiza estado do botão de favorito
+          setFavorito(fetchedEdital.favoritadoPor?.some(
+            uid => uid.toString() === usuarioId.toString()
+          ));
         }
 
       } catch (err) {
@@ -72,7 +74,7 @@ const EditalEspecifico = () => {
     };
 
     fetchEditalAndUser();
-  }, [id]); // Depende do ID da URL e do usuário
+  }, [id]);
 
   // --- Função para alternar o estado de favorito ---
   const handleToggleFavorito = async () => {
@@ -127,33 +129,27 @@ const EditalEspecifico = () => {
   };
 
   const handleValidarEdital = async (confiavel) => {
-    if (!usuarioLogado) {
-        alert('Você precisa estar logado para validar um edital!');
-        return;
-    }
-    if (!podeValidar) {
-        alert('Você não pode validar este edital (já validou ou é o sugeridor).');
-        return;
-    }
-    // A API só tem uma rota para "validar".
-    // Se o botão "Não" significa "desvalidar" ou "remover validação",
-    // você precisaria de outra rota no backend.
-    // Assumindo que "Não" significa apenas "não votar Sim".
-    if (!confiavel) {
-        alert('A função "Não" ainda não está implementada para registrar desconfiança. Obrigado pela sua honestidade!');
-        return;
-    }
+    if (!usuarioLogado) return alert('Você precisa estar logado para validar!');
+    if (!podeValidar) return alert('Você não pode validar este edital.');
+    if (!confiavel) return alert('Função "Não" ainda não implementada.');
 
     try {
-        const result = await validarEdital(edital._id);
-        setEdital(result.edital); // Atualiza o edital com os dados mais recentes do backend
-        setJaValidou(true); // Marca que o usuário logado já validou
-        setPodeValidar(false); // Desabilita os botões
+      await validarEdital(edital._id);
 
-        alert(result.mensagem || 'Edital validado com sucesso!');
+      // Atualiza o estado localmente sem precisar esperar o backend
+      setEdital(prev => ({
+        ...prev,
+        validadoPor: [...prev.validadoPor, { _id: usuarioLogado.id }],
+        validacoesCount: (prev.validacoesCount || 0) + 1
+      }));
+
+      // Atualiza frase e desabilita botões
+      setJaValidou(true);
+      setPodeValidar(false);
+
     } catch (err) {
-        console.error("Erro ao validar edital:", err);
-        alert(err.message || 'Erro ao validar edital.');
+      console.error("Erro ao validar edital:", err);
+      alert(err.message || 'Erro ao validar edital.');
     }
   };
 
@@ -227,12 +223,35 @@ const EditalEspecifico = () => {
                 Inscreva-se
               </Botao>
 
-              <div className="flex items-center gap-4">
-                  <p className="font-semibold text-sm">Este edital é confiável? ({edital.validacoesCount || 0} votos)</p>
-                  <div className="flex gap-2">
-                    <Botao className='cursor-pointer' variante="sim" onClick={() => handleValidarEdital(true)} disabled={!usuarioLogado || !podeValidar}>Sim</Botao>
-                    <Botao className='cursor-pointer' variante="nao" onClick={() => handleValidarEdital(false)} disabled={!usuarioLogado || !podeValidar}>Não</Botao>
-                  </div>
+              <div className="flex gap-2 items-center flex-wrap">
+                <p className="font-semibold text-sm">
+                  Este edital é confiável? ({edital.validacoesCount || 0} votos)
+                </p>
+
+                <div className="flex gap-2">
+                  <Botao
+                    className="cursor-pointer"
+                    variante="sim"
+                    onClick={() => handleValidarEdital(true)}
+                    disabled={!usuarioLogado || !podeValidar}
+                  >
+                    Sim
+                  </Botao>
+                  <Botao
+                    className="cursor-pointer"
+                    variante="nao"
+                    onClick={() => handleValidarEdital(false)}
+                    disabled={!usuarioLogado || !podeValidar}
+                  >
+                    Não
+                  </Botao>
+                </div>
+
+                {jaValidou && (
+                  <span className="text-green-600 font-semibold mt-2">
+                    Você validou este edital!
+                  </span>
+                )}
               </div>
             </div>
 
