@@ -74,11 +74,6 @@ async function buscarEditalByIdService(idEdital, usuarioId) { // Adicionado 'usu
       editalObj.usuarioJaValidou = userLoggedIdStr && edital.validadoPor.some(val => val && val._id?.toString() === userLoggedIdStr) || false;
       editalObj.usuarioJaFavoritou = userLoggedIdStr && edital.favoritadoPor.some(fav => fav && fav._id?.toString() === userLoggedIdStr) || false;
 
-      // Lógica para ocultar link se não validado e usuário não validou
-      if (!edital.validado && !editalObj.usuarioJaValidou) {
-          editalObj.link = null;
-      }
-
       // Adiciona contagens
       editalObj.validacoesCount = edital.validadoPor.length;
       editalObj.denunciasCount = edital.denunciadoPor.length;

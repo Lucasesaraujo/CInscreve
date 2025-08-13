@@ -181,6 +181,7 @@ const EditalEspecifico = () => {
   };
 
   const handleInscrever = () => {
+    console.log(edital);
     if (edital.link) {
       window.open(edital.link, '_blank'); // Abre o link em uma nova aba
     } else {
@@ -245,7 +246,7 @@ const EditalEspecifico = () => {
                 variante="azul-medio"
                 className="!w-48 h-full cursor-pointer"
                 onClick={handleInscrever}
-                disabled={!edital.link} // Desabilita se não houver link
+                disabled={!(edital.link && (edital.validado || jaValidou))} 
               >
                 Inscreva-se
               </Botao>
