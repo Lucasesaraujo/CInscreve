@@ -15,7 +15,7 @@ async function loginUsuario(req, res, next) {
         res.cookie('accessToken', accessToken, accessTokenCookieOptions);
         res.cookie('refreshToken', refreshToken, refreshTokenOptions);
 
-        res.json({ usuario: usuario, accessToken });
+        res.json({ usuario: usuario });
 
     } catch (error) {
         // Lógica de tratamento de erro para a resposta HTTP
