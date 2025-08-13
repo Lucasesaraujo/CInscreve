@@ -14,7 +14,7 @@ import Card from '../components/Card';
 import Carrossel from '../components/Carrossel';
 import { Search, ChevronDown } from 'lucide-react';
 import Fundo from '../assets/base.png';
-import Logo from '../assets/recife.png';
+import Logo from '../assets/editais2.png';
 
 export default function Edital() {
   const location = useLocation(); // PEGA O TIPO DA NAVEGAÇÃO

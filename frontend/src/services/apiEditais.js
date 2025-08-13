@@ -135,6 +135,21 @@ export async function validarEdital(editalId) {
   }
 }
 
+export async function denunciarEdital(editalId) {
+  const res = await fetch(`${BASE_URL}/${editalId}/denunciar`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.erro || 'Erro ao denunciar edital');
+  }
+  
+  return res.json();
+}
+
 // Função para alternar o estado de favorito de um edital para o usuário logado
 export async function toggleFavoritoEdital(editalId) {
   try {

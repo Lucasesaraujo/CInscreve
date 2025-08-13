@@ -9,7 +9,7 @@ import Botao from '../components/Botao'
 import Tipografia from '../components/Tipografia'
 import { Heart, Bell, FileText } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'; // Importar useParams para pegar o ID da URL
-import { getEditalById, validarEdital, toggleFavoritoEdital, toggleNotificacoesEdital } from '../services/apiEditais'; // Importar as funções da API
+import { getEditalById, validarEdital, denunciarEdital, toggleFavoritoEdital, toggleNotificacoesEdital } from '../services/apiEditais'; // Importar as funções da API
 import { getUserData, getUserFavoritos, getUserNotificacoes } from '../services/apiUser'; // Para saber quem é o usuário logado
 
 const EditalEspecifico = () => {
@@ -24,6 +24,7 @@ const EditalEspecifico = () => {
   const [favorito, setFavorito] = useState(false) // Será o estado do usuário logado
   const [notificacao, setNotificacao] = useState(false) // (Implementação futura, se houver backend para isso)
   const [jaValidou, setJaValidou] = useState(false); // Para controlar se o botão "Sim" fica desabilitado
+  const [jaDenunciou, setJaDenunciou] = useState(false);
   const [podeValidar, setPodeValidar] = useState(true); // Para desabilitar botões Sim/Não se sugeridor ou já validou
   const navigate = useNavigate();
 
@@ -53,6 +54,11 @@ const EditalEspecifico = () => {
           uid => uid._id?.toString() === usuarioId.toString()
         ) || false;
         setJaValidou(usuarioJaValidou);
+
+        const usuarioJaDenunciou = fetchedEdital.denunciadoPor?.some(
+          uid => uid._id?.toString() === usuarioId.toString()
+        ) || false;
+        setJaDenunciou(usuarioJaDenunciou);
 
           // Define se pode validar
           setPodeValidar(
@@ -131,7 +137,6 @@ const EditalEspecifico = () => {
   const handleValidarEdital = async (confiavel) => {
     if (!usuarioLogado) return alert('Você precisa estar logado para validar!');
     if (!podeValidar) return alert('Você não pode validar este edital.');
-    if (!confiavel) return alert('Função "Não" ainda não implementada.');
 
     try {
       await validarEdital(edital._id);
@@ -153,7 +158,30 @@ const EditalEspecifico = () => {
     }
   };
 
+  // --- Função para denunciar edital ---
+  const handleDenunciarEdital = async () => {
+    if (!usuarioLogado) return alert('Você precisa estar logado para denunciar!');
+
+    try {
+      await denunciarEdital(edital._id);
+
+      // Atualiza o estado local sem depender da API retornar a lista atualizada
+      setEdital(prev => ({
+        ...prev,
+        denunciadoPor: [...prev.denunciadoPor, { _id: usuarioLogado.id }]
+      }));
+
+      setJaDenunciou(true);
+      setPodeValidar(false);
+
+    } catch (err) {
+      console.error("Erro ao denunciar edital:", err);
+      alert(err.message || 'Erro ao denunciar edital.');
+    }
+  };
+
   const handleInscrever = () => {
+    console.log(edital);
     if (edital.link) {
       window.open(edital.link, '_blank'); // Abre o link em uma nova aba
     } else {
@@ -218,7 +246,7 @@ const EditalEspecifico = () => {
                 variante="azul-medio"
                 className="!w-48 h-full cursor-pointer"
                 onClick={handleInscrever}
-                disabled={!edital.link} // Desabilita se não houver link
+                disabled={!(edital.link && (edital.validado || jaValidou))} 
               >
                 Inscreva-se
               </Botao>
@@ -228,28 +256,33 @@ const EditalEspecifico = () => {
                   Este edital é confiável? ({edital.validacoesCount || 0} votos)
                 </p>
 
-                <div className="flex gap-2">
-                  <Botao
-                    className="cursor-pointer"
-                    variante="sim"
-                    onClick={() => handleValidarEdital(true)}
-                    disabled={!usuarioLogado || !podeValidar}
-                  >
-                    Sim
-                  </Botao>
-                  <Botao
-                    className="cursor-pointer"
-                    variante="nao"
-                    onClick={() => handleValidarEdital(false)}
-                    disabled={!usuarioLogado || !podeValidar}
-                  >
-                    Não
-                  </Botao>
-                </div>
+                <Botao
+                  className="cursor-pointer"
+                  variante="sim"
+                  onClick={() => handleValidarEdital(true)}
+                  disabled={!usuarioLogado || !podeValidar}
+                >
+                  Sim
+                </Botao>
+
+                <Botao
+                  className="cursor-pointer"
+                  variante="nao"
+                  onClick={handleDenunciarEdital} // sem argumentos
+                  disabled={!usuarioLogado || !podeValidar}
+                >
+                  Não
+                </Botao>
 
                 {jaValidou && (
                   <span className="text-green-600 font-semibold mt-2">
                     Você validou este edital!
+                  </span>
+                )}
+
+                {jaDenunciou && (
+                  <span className="text-red-600 font-semibold mt-2">
+                    Você denunciou este edital!
                   </span>
                 )}
               </div>

@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Carrossel from '../components/Carrossel'
 import Tipografia from '../components/Tipografia'
 import Fundo from '../assets/base.png'
+import Botao from '../components/Botao'
 
 const USER_BASE_URL = 'http://localhost:3000/user' // ajustar se necessário
 
@@ -194,9 +195,9 @@ const Usuario = () => {
           <div className="flex flex-col items-center justify-center text-center mt-8">
             <p className="text-lg font-semibold mb-2">Nenhuma sugestão por aqui... ainda.</p>
             <p className="text-gray-600 mb-4">Compartilhe editais que podem fazer a diferença!</p>
-            <button className="bg-black text-white px-4 py-2 rounded-md cursor-pointer">
+            <Botao variante='azul-escuro' className='px-4 py-2 rounded-md cursor-pointer'>
               Sugerir edital
-            </button>
+            </Botao>
           </div>
         ) : (
           <div className="px-28 mt-8">

@@ -25,6 +25,6 @@ router.post('/', autenticarToken, criarEdital);
 router.put('/:id', validarObjectId(), autenticarToken, atualizarEdital);
 router.delete('/:id', validarObjectId(), autenticarToken, removerEdital);
 router.post('/:id/validar', validarObjectId(), autenticarToken, validarEdital);
-router.patch('/:id/denunciar', autenticarToken, validarObjectId(), denunciarEdital);
+router.post('/:id/denunciar', autenticarToken, validarObjectId(), denunciarEdital);
 
 module.exports = router;
