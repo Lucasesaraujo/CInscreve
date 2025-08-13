@@ -5,7 +5,7 @@ import Tipografia from '../components/Tipografia';
 import Botao from '../components/Botao';
 import Carrossel from '../components/Carrossel';
 import Funcionalidade from '../components/Funcionalidade';
-import Logo from '../assets/recife.png';
+import Logo from '../assets/editais2.png';
 import Fundo from '../assets/base.png';
 import { getEditaisValidados } from '../services/apiEditais';
 import { useNavigate } from 'react-router-dom';
