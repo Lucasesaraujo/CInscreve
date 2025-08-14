@@ -9,10 +9,15 @@ import Logo from '../assets/editais2.png';
 import Fundo from '../assets/base.png';
 import { getEditaisValidados } from '../services/apiEditais';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext'; // importar contexto
+import AlertaErro from '../components/AlertaErro';
 
 export default function Home() {
     const [cards, setCards] = useState([]);
+    const [mostrarErro, setMostrarErro] = useState(false);
+    const [mensagemErro, setMensagemErro] = useState('');
     const navigate = useNavigate();
+    const { isAutenticado } = useAuth(); // pegar autenticação
 
     useEffect(() => {
         getEditaisValidados().then(({ editais }) => {
@@ -28,8 +33,31 @@ export default function Home() {
         });
     }, []);
 
+    const handleSugerir = () => {
+        if (!isAutenticado) {
+            setMensagemErro('Você precisa estar logado para sugerir um edital!');
+            setMostrarErro(true);
+
+            // Redireciona pro login depois de 2s
+            setTimeout(() => {
+                navigate('/login');
+            }, 2000);
+
+            return;
+        }
+        navigate('/sugerir');
+    }
+
     return (
         <section className="text-zinc-800" style={{ backgroundImage: `url(${Fundo})` }}>
+            
+            {/* Alerta de erro */}
+            {mostrarErro && (
+                <AlertaErro 
+                    mensagem={mensagemErro} 
+                    onClose={() => setMostrarErro(false)} 
+                />
+            )}
 
             {/* Bloco de destaque visual e chamadas principais */}
             <section className="flex flex-col md:flex-row items-center justify-between py-0 bg-[#f0f7fd] relative overflow-hidden w-full h-[540px]">
@@ -42,7 +70,7 @@ export default function Home() {
                     </Tipografia>
                     <div className="flex gap-8">
                         <Botao onClick={() => navigate('/editais')} variante="azul-escuro" className='cursor-pointer'>Ver editais</Botao>
-                        <Botao onClick={() => navigate('/sugerir')} variante="azul-escuro" className='cursor-pointer'>Sugerir editais</Botao>
+                        <Botao onClick={handleSugerir} variante="azul-escuro" className='cursor-pointer'>Sugerir editais</Botao>
                     </div>
                 </div>
                 <div className="md:w-1/2 h-full z-10">
@@ -107,7 +135,7 @@ export default function Home() {
                     </Tipografia>
                     <div className="flex justify-center gap-8 mt-12">
                         <Botao onClick={() => navigate('/editais')} variante="azul-escuro" className='cursor-pointer'>Ver editais</Botao>
-                        <Botao onClick={() => navigate('/sugerir')} variante="azul-escuro" className='cursor-pointer'>Sugerir editais</Botao>
+                        <Botao onClick={handleSugerir} variante="azul-escuro" className='cursor-pointer'>Sugerir editais</Botao>
                     </div>
                 </div>
             </section>
