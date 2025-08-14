@@ -36,13 +36,19 @@ export default function Card({
       >
 
         <div>
-          <Tipografia tipo="subtitulo" className="mb-2">
+          <Tipografia
+            tipo="subtitulo"
+            className="mb-2 line-clamp-2"
+          >
             {titulo}
           </Tipografia>
 
           <hr className="mb-4" />
 
-          <Tipografia tipo="texto" className="text-zinc-700 text-sm line-clamp-[5]">
+          <Tipografia
+            tipo="texto"
+            className="text-zinc-700 text-sm line-clamp-5"
+          >
             {descricao}
           </Tipografia>
         </div>
@@ -88,11 +94,11 @@ export default function Card({
           />
         </div>
 
-        <Tipografia tipo="texto" className="font-bold text-gray-900 mb-1">
+        <Tipografia tipo="texto" className="font-bold text-gray-900 mb-1 line-clamp-2">
           {titulo}
         </Tipografia>
 
-        <Tipografia tipo="legenda" className="mb-4 text-gray-700 !text-xs">
+        <Tipografia tipo="legenda" className="mb-4 text-gray-700 !text-xs line-clamp-1">
           {instituicao}
         </Tipografia>
       </div>
@@ -101,7 +107,7 @@ export default function Card({
         <Tipografia tipo="legenda" className="text-gray-700">
           Área de atuação:
         </Tipografia>
-        <Botao variante="card-simples" className="text-xs px-3 py-1">
+        <Botao variante="card-simples" className="text-xs px-6 py-2 whitespace-nowrap">
           {area}
         </Botao>
       </div>
