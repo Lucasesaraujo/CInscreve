@@ -20,11 +20,11 @@ export default function Perfil({ visivel, fechar }) {
       </Tipografia>
 
       <div className="text-sm space-y-1 text-gray-700 mb-4">
-        <p><strong>Nome:</strong> {usuario?.nome || '---'}</p>
+        <p><strong>Nome:</strong> {usuario?.name || '---'}</p>
         <p><strong>Email:</strong> {usuario?.email || '---'}</p>
-        <p><strong>CNPJ:</strong> {usuario?.cnpj || '---'}</p>
-        <p><strong>Telefone:</strong> {usuario?.telefone || '---'}</p>
-        <p><strong>ODS:</strong> {usuario?.ods || '---'}</p>
+        <p><strong>ONG:</strong> {usuario?.ngo.name || '---'}</p>
+        <p><strong>Telefone:</strong> {usuario?.ngo.contact_phone || '---'}</p>
+        <p><strong>ODS:</strong> {usuario?.ngo.causes[0].name || '---'}</p>
       </div>
 
       <Botao

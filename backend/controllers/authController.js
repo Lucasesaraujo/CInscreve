@@ -41,12 +41,12 @@ async function loginUsuario(req, res, next) {
 
 // GET - Controller para confirmar que o usuário está logado
 async function getUsuarioLogado(req, res, next) {
-    try {
-        const usuarioData = await getUserService(req.usuario);
-        res.json({ usuario: usuarioData });
-    } catch (error) {
-        next(error);
-    }
+  try {
+    const usuarioData = await getUserService(req.usuario); // req.usuario vem do middleware de autenticação
+    res.json({ usuario: usuarioData });
+  } catch (error) {
+    next(error);
+  }
 }
 
 // POST - Controller para deslogar usuário
