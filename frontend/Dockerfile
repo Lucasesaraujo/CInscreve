@@ -1,29 +1,18 @@
-# === ESTÁGIO 1: CONSTRUÇÃO DA APLICAÇÃO REACT ===
-# Usa uma imagem Node.js como base para o build
+# === ESTÁGIO 1: BUILD DA APLICAÇÃO ===
 FROM node:18-alpine AS builder
 
-# Define o diretório de trabalho
 WORKDIR /app
 
-# Copia os arquivos de dependências
+# Copia apenas arquivos de dependência para aproveitar cache
 COPY package*.json ./
 
-# Instala as dependências e constrói a aplicação
+# Instala as dependências (npm install como você pediu)
 RUN npm install
+
+# Copia o restante do código
 COPY . .
-RUN npm run build
 
-# === ESTÁGIO 2: SERVIDOR NGINX PARA SERVIR OS ARQUIVOS ===
-# Usa uma imagem Nginx oficial como base
-FROM nginx:stable-alpine
+# Expõe a porta usada pelo Nginx
+EXPOSE 5173
 
-# Copia os arquivos de build do estágio anterior para o Nginx
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copia um arquivo de configuração Nginx personalizado (criaremos no próximo passo)
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
-
-# Expõe a porta padrão do Nginx
-EXPOSE 80
-
-# O Nginx já vem com um comando padrão para iniciar, então não precisamos de CMD aqui.
+CMD ["npm", "start"]

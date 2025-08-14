@@ -1,31 +1,14 @@
 version: '3.8'
 
 services:
-  mongo:
-    image: mongo:latest
-    container_name: mongodb_cinscreve
-    restart: unless-stopped
-    ports:
-      - "27017:27017" # Mapeia a porta do MongoDB para sua máquina local
-    volumes:
-      - mongo-data:/data/db # Persiste os dados do banco de dados
-    networks:
-      - cinscreve-network
-
   backend:
     build: ./backend
     container_name: backend_cinscreve
     restart: unless-stopped
     ports:
-      - "3000:3000" # Mapeia a porta do backend para sua máquina local
-    environment:
-      # Use a variável de ambiente do Docker Compose
-      - MONGO_URI=mongodb://mongo:27017/dev?retryWrites=true&w=majority&appName=Cluster0 
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
-      - EXTERNAL_AUTH_API_URL=${EXTERNAL_AUTH_API_URL}
-    depends_on:
-      - mongo # Garante que o MongoDB inicie antes do backend
+      - "3000:3000" # altere para a porta real do backend
+    env_file:
+      - ./backend/.env
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -38,14 +21,13 @@ services:
     container_name: frontend_cinscreve
     restart: unless-stopped
     ports:
-      - "5173:80"
+      - "5173:5173"
     depends_on:
       - backend
+    environment:
+      - VITE_API_URL=http://backend:5000 # use o nome do serviço para acessar o backend
     networks:
       - cinscreve-network
-
-volumes:
-  mongo-data:
 
 networks:
   cinscreve-network:
