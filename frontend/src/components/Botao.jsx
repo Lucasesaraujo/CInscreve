@@ -32,8 +32,8 @@ export default function Botao({
     'cinza': 'bg-gray-200 text-gray-800 hover:bg-gray-300 w-40',
     
     // botoes de sim e nao 
-    sim: 'bg-green-600 text-white hover:bg-green-700 flex-col text-center w-16 h-16 !p-2 !gap-0',
-    nao: 'bg-red-600 text-white hover:bg-red-700 flex-col text-center w-16 h-16 !p-2 !gap-0',
+    sim: 'bg-green-600 text-white hover:bg-green-700 flex-row text-center w-16 h-12 !p-2 !gap-2',
+    nao: 'bg-red-600 text-white hover:bg-red-700 flex-row text-center w-16 h-12 !p-2 !gap-2',
 
     // botao de perfil e login
     perfil: 'bg-gray-200 hover:bg-gray-300 rounded-full w-16 h-14 flex justify-center items-center p-0 gap-0',

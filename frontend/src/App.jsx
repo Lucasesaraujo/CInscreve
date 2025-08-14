@@ -11,6 +11,7 @@ import Header from './components/Header';
 import Perfil from './components/Perfil';
 import AutoRefresh from './components/AutoRefresh';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { EditalProvider } from './contexts/EditalContext';
 
 function AppContent() {
   const [mostrarPerfil, setMostrarPerfil] = useState(false);
@@ -47,7 +48,9 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppContent />
+        <EditalProvider>
+          <AppContent />
+        </EditalProvider>
       </AuthProvider>
     </BrowserRouter>
   );

@@ -171,7 +171,6 @@ export async function toggleFavoritoEdital(editalId) {
       throw new Error(errorData.erro || `Erro ao alternar favorito: ${res.status} ${res.statusText}`);
     }
 
-    const data = await res.json();
     // O backend deve retornar a lista atualizada de favoritos do usuário
     return res.status || []; // Assumindo que o backend retorna { mensagem: '...', favoritos: [...] }
   } catch (err) {
@@ -201,7 +200,6 @@ export async function toggleNotificacoesEdital(editalId) {
       throw new Error(errorData.erro || `Erro ao alternar notificação: ${res.status} ${res.statusText}`);
     }
 
-    const data = await res.json();
     // O backend deve retornar a lista atualizada de notificações do usuário
     return res.status || []; // Assumindo que o backend retorna { mensagem: '...', notificações: [...] }
   } catch (err) {
