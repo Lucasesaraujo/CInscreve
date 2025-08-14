@@ -9,152 +9,126 @@ import Botao from '../components/Botao'
 import Tipografia from '../components/Tipografia'
 import { Heart, Bell, FileText } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getEditalById, validarEdital, denunciarEdital, toggleFavoritoEdital, toggleNotificacoesEdital } from '../services/apiEditais'
+import { getEditalById, validarEdital, denunciarEdital } from '../services/apiEditais'
 import { getUserData } from '../services/apiUser'
+import { useEdital } from '../contexts/EditalContext'
 
 const EditalEspecifico = () => {
-  const { id } = useParams();
-
+  const { id } = useParams()
+  const { isFavorito, toggleFavorito } = useEdital()
   const [edital, setEdital] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [usuarioLogado, setUsuarioLogado] = useState(null)
-  const [favorito, setFavorito] = useState(false)
-  const [notificacao, setNotificacao] = useState(false)
   const [jaValidou, setJaValidou] = useState(false)
   const [jaDenunciou, setJaDenunciou] = useState(false)
   const [podeValidar, setPodeValidar] = useState(true)
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchEditalAndUser = async () => {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
       try {
-        const userData = await getUserData();
-        setUsuarioLogado(userData?.usuario);
+        const userData = await getUserData()
+        setUsuarioLogado(userData?.usuario)
 
         if (!id) {
-          setError('ID do edital não fornecido na URL.');
-          setLoading(false);
-          return;
+          setError('ID do edital não fornecido na URL.')
+          setLoading(false)
+          return
         }
 
-        const fetchedEdital = await getEditalById(id);
-        setEdital(fetchedEdital);
+        const fetchedEdital = await getEditalById(id)
+        setEdital(fetchedEdital)
 
         if (userData?.usuario && fetchedEdital) {
-          const usuarioId = userData.usuario.id;
+          const usuarioId = userData.usuario.id
 
           const usuarioJaValidou = fetchedEdital.validadoPor?.some(
             uid => uid._id?.toString() === usuarioId.toString()
-          ) || false;
-          setJaValidou(usuarioJaValidou);
+          ) || false
+          setJaValidou(usuarioJaValidou)
 
           const usuarioJaDenunciou = fetchedEdital.denunciadoPor?.some(
             uid => uid._id?.toString() === usuarioId.toString()
-          ) || false;
-          setJaDenunciou(usuarioJaDenunciou);
+          ) || false
+          setJaDenunciou(usuarioJaDenunciou)
 
           setPodeValidar(
             !(fetchedEdital.sugeridoPor?._id?.toString() === usuarioId.toString() || usuarioJaValidou || usuarioJaDenunciou)
-          );
-
-          setFavorito(fetchedEdital.favoritadoPor?.some(
-            uid => uid.toString() === usuarioId.toString()
-          ));
+          )
         }
 
       } catch (err) {
-        console.error("Erro ao carregar edital específico:", err);
-        setError(err.message || 'Erro ao carregar o edital.');
+        console.error("Erro ao carregar edital específico:", err)
+        setError(err.message || 'Erro ao carregar o edital.')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchEditalAndUser();
-  }, [id]);
+    fetchEditalAndUser()
+  }, [id])
 
   const handleToggleFavorito = async () => {
     if (!usuarioLogado) {
-      alert('Você precisa estar logado para favoritar/desfavoritar um edital!');
+      alert('Você precisa estar logado para favoritar/desfavoritar um edital!')
       navigate('/login')
-      return;
+      return
     }
 
     try {
-      const statusReq = await toggleFavoritoEdital(edital._id);
-      if (statusReq == 200) {
-        setFavorito(!favorito)
-      }
+      await toggleFavorito(edital._id)
     } catch (err) {
-      console.error("Erro ao alternar favorito:", err);
-      alert(err.message || 'Erro ao favoritar/desfavoritar edital.');
+      console.error("Erro ao alternar favorito:", err)
+      alert(err.message || 'Erro ao favoritar/desfavoritar edital.')
     }
-  };
-
-  const handleToggleNotificacao = async () => {
-    if (!usuarioLogado) {
-      alert('Você precisa estar logado para ativar/desativar notificações de um edital!');
-      navigate('/login')
-      return;
-    }
-
-    try {
-      const statusReq = await toggleNotificacoesEdital(edital._id);
-      if (statusReq == 200) {
-        setNotificacao(!notificacao)
-      }
-    } catch (err) {
-      console.error("Erro ao alternar notificação:", err);
-      alert(err.message || 'Erro ao ativar/desativar notificações do edital.');
-    }
-  };
+  }
 
   const handleValidarEdital = async () => {
-    if (!usuarioLogado) return alert('Você precisa estar logado para validar!');
-    if (!podeValidar) return alert('Você não pode validar este edital.');
+    if (!usuarioLogado) return alert('Você precisa estar logado para validar!')
+    if (!podeValidar) return alert('Você não pode validar este edital.')
 
     try {
-      await validarEdital(edital._id);
+      await validarEdital(edital._id)
       setEdital(prev => ({
         ...prev,
         validadoPor: [...prev.validadoPor, { _id: usuarioLogado.id }],
         validacoesCount: (prev.validacoesCount || 0) + 1
-      }));
-      setJaValidou(true);
-      setPodeValidar(false);
+      }))
+      setJaValidou(true)
+      setPodeValidar(false)
     } catch (err) {
-      console.error("Erro ao validar edital:", err);
-      alert(err.message || 'Erro ao validar edital.');
+      console.error("Erro ao validar edital:", err)
+      alert(err.message || 'Erro ao validar edital.')
     }
-  };
+  }
 
   const handleDenunciarEdital = async () => {
-    if (!usuarioLogado) return alert('Você precisa estar logado para denunciar!');
+    if (!usuarioLogado) return alert('Você precisa estar logado para denunciar!')
 
     try {
-      await denunciarEdital(edital._id);
+      await denunciarEdital(edital._id)
       setEdital(prev => ({
         ...prev,
         denunciadoPor: [...prev.denunciadoPor, { _id: usuarioLogado.id }]
-      }));
-      setJaDenunciou(true);
-      setPodeValidar(false);
+      }))
+      setJaDenunciou(true)
+      setPodeValidar(false)
     } catch (err) {
-      console.error("Erro ao denunciar edital:", err);
-      alert(err.message || 'Erro ao denunciar edital.');
+      console.error("Erro ao denunciar edital:", err)
+      alert(err.message || 'Erro ao denunciar edital.')
     }
-  };
+  }
 
   const handleInscrever = () => {
     if (edital.link) {
-      window.open(edital.link, '_blank');
+      window.open(edital.link, '_blank')
     } else {
-      alert('Link de inscrição não disponível para este edital.');
+      alert('Link de inscrição não disponível para este edital.')
     }
-  };
+  }
 
   if (loading) {
     return <div className="flex justify-center items-center min-h-screen">Carregando edital...</div>
@@ -165,14 +139,14 @@ const EditalEspecifico = () => {
   }
 
   if (!edital) {
-    return <div className="flex justify-center items-center min-h-screen text-gray-600">Edital não encontrado.</div>;
+    return <div className="flex justify-center items-center min-h-screen text-gray-600">Edital não encontrado.</div>
   }
 
   const imagemDoEdital = edital.imagem && edital.imagem.length > 0
     ? edital.imagem[0].startsWith('http')
       ? edital.imagem[0]
       : `http://localhost:3000${edital.imagem[0]}`
-    : 'https://via.placeholder.com/1152x250?text=Imagem+Padrao+do+Edital';
+    : 'https://via.placeholder.com/1152x250?text=Imagem+Padrao+do+Edital'
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -203,7 +177,7 @@ const EditalEspecifico = () => {
               </div>
               <Botao
                 variante="azul-medio"
-                className="!w-48 h-full cursor-pointer"
+                className="!w-48 h-full cursor-pointer mt-4"
                 onClick={handleInscrever}
                 disabled={!(edital.link && (edital.validado || jaValidou))}
               >
@@ -236,11 +210,11 @@ const EditalEspecifico = () => {
                     </Botao>
                   </>
                 ) : jaValidou ? (
-                  <span className="text-green-600 font-semibold mt-2">
+                  <span className="text-green-600 font-semibold mt-6">
                     Você validou este edital!
                   </span>
                 ) : (
-                  <span className="text-red-600 font-semibold mt-2">
+                  <span className="text-red-600 font-semibold mt-6">
                     Você denunciou este edital!
                   </span>
                 )}
@@ -264,16 +238,8 @@ const EditalEspecifico = () => {
                 className="flex flex-col items-center gap-2 text-gray-700 hover:text-red-500 transition-colors cursor-pointer"
                 disabled={!usuarioLogado}
               >
-                <Heart className={`w-7 h-7 ${favorito ? 'text-red-500 fill-current' : ''}`} />
-                <span className="text-sm font-medium">{favorito ? 'Favorito' : 'Favoritar'}</span>
-              </button>
-              <button
-                onClick={handleToggleNotificacao}
-                className="flex flex-col items-center gap-2 text-gray-700 hover:text-blue-500 transition-colors cursor-pointer"
-                disabled={!usuarioLogado}
-              >
-                <Bell className={`w-7 h-7 ${notificacao ? 'text-blue-500 fill-current' : ''}`} />
-                <span className="text-sm font-medium">{notificacao ? 'Notificações Ativas' : 'Notificar'}</span>
+                <Heart className={`w-7 h-7 ${isFavorito(edital._id) ? 'text-red-500 fill-current' : ''}`} />
+                <span className="text-sm font-medium">{isFavorito(edital._id) ? 'Favorito' : 'Favoritar'}</span>
               </button>
             </div>
 
