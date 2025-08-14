@@ -21,7 +21,33 @@ async function loginService(email, password, userAgent, ip) {
 
         const usuarioLocal = await User.findOneAndUpdate(
             { email: dadosUsuarioExterno.user.email },
-            { $set: updateFields },
+            { 
+                $set: {
+                    name: dadosUsuarioExterno.user.name,
+                    email: dadosUsuarioExterno.user.email,
+                    // qualquer outro campo que você queira salvar diretamente no usuário
+                    ngo: {
+                        id: dadosUsuarioExterno.ngo.id,
+                        name: dadosUsuarioExterno.ngo.name,
+                        description: dadosUsuarioExterno.ngo.description,
+                        pix: dadosUsuarioExterno.ngo.pix,
+                        is_formalized: dadosUsuarioExterno.ngo.is_formalized,
+                        start_year: dadosUsuarioExterno.ngo.start_year,
+                        contact_phone: dadosUsuarioExterno.ngo.contact_phone,
+                        instagram_link: dadosUsuarioExterno.ngo.instagram_link,
+                        x_link: dadosUsuarioExterno.ngo.x_link,
+                        facebook_link: dadosUsuarioExterno.ngo.facebook_link,
+                        pix_qr_code_link: dadosUsuarioExterno.ngo.pix_qr_code_link,
+                        site: dadosUsuarioExterno.ngo.site,
+                        gallery_images_url: dadosUsuarioExterno.ngo.gallery_images_url,
+                        cover_photo_url: dadosUsuarioExterno.ngo.cover_photo_url,
+                        logo_photo_url: dadosUsuarioExterno.ngo.logo_photo_url,
+                        skills: dadosUsuarioExterno.ngo.skills,
+                        causes: dadosUsuarioExterno.ngo.causes,
+                        sustainable_development_goals: dadosUsuarioExterno.ngo.sustainable_development_goals
+                    }
+                }
+            },
             { upsert: true, new: true }
         );
 
@@ -56,9 +82,25 @@ async function loginService(email, password, userAgent, ip) {
 }
 
 async function getUserService(userPayload) {
-    logger.info(`Dados do usuário logado solicitados para ID: ${userPayload.id}`);
-    return userPayload;
+  try {
+    logger.info(`Buscando dados completos do usuário logado: ID ${userPayload.id}`);
+
+    // Busca o usuário pelo email (ou id se você preferir)
+    const usuario = await User.findOne({ email: userPayload.email });
+
+    if (!usuario) {
+      throw new Error('Usuário não encontrado no banco de dados');
+    }
+
+    // Retorna todos os dados do usuário
+    return usuario;
+  } catch (err) {
+    logger.error(`Erro ao buscar usuário: ${err.message}`);
+    throw err;
+  }
 }
+
+module.exports = getUserService;
 
 async function logoutService(accessToken) {
     try {
