@@ -28,14 +28,15 @@ export default function Botao({
     texto: 'text-black hover:text-zinc-700 w-40',
     'card-simples': 'bg-[#56b5fd] text-white w-32 h-2 !rounded-xl',
     'card-detalhado': 'bg-[#56b5fd] text-white w-32 h-10',
+    'vermelho': 'bg-red-600 text-white hover:bg-red-700 w-40',
+    'cinza': 'bg-gray-200 text-gray-800 hover:bg-gray-300 w-40',
     
-
     // botoes de sim e nao 
     sim: 'bg-green-600 text-white hover:bg-green-700 flex-col text-center w-16 h-16 !p-2 !gap-0',
     nao: 'bg-red-600 text-white hover:bg-red-700 flex-col text-center w-16 h-16 !p-2 !gap-0',
 
     // botao de perfil e login
-    perfil: 'bg-gray-200 hover:bg-gray-300 rounded-full w-16 h-14 !flex !justify-center !items-center !p-0 !gap-0',
+    perfil: 'bg-gray-200 hover:bg-gray-300 rounded-full w-16 h-14 flex justify-center items-center p-0 gap-0',
     login: 'bg-[#108cf0] text-white hover:brightness-90 w-24 h-12'
   }
 
