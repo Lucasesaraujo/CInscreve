@@ -163,12 +163,12 @@ const Usuario = () => {
               titulo=""
               cards={favoritos.map((edital) => ({
                 key: edital.id,
-                variante: 'detalhado',
+                variante: 'simples',
                 titulo: edital.nome,
+                instituicao: edital.instituicao,
                 descricao: edital.descricao,
-                favoritoInicial: edital.favorito,
-                notificacaoInicial: edital.notificacao,
-                area: edital.area || 'Outros',
+                imagem: edital.imagem,
+                area: edital.categoria || 'Outros',
                 _id: edital._id || 'Erro',
                 onToggleFavorito: () => toggleFavorito(edital.id),
                 onToggleNotificacao: () => toggleNotificacao(edital.id),
@@ -212,11 +212,13 @@ const Usuario = () => {
               titulo=""
               cards={sugeridos.map((edital) => ({
                 key: edital.id,
-                variante: 'detalhado',
+                variante: 'simples',
                 titulo: edital.nome,
+                instituicao: edital.instituicao,
                 descricao: edital.descricao,
-                area: edital.area || 'Outros',
-                _id: edital._id || 'Erro'
+                imagem: edital.imagem,
+                area: edital.categoria || 'Outros',
+                _id: edital._id || 'Erro',
               }))}
             />
           </div>
