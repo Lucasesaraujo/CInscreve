@@ -4,7 +4,7 @@ import {
   getEditaisDestaque,
   getEditaisNaoValidados
 } from '../services/apiEditais';
-import { useLocation } from 'react-router-dom'; // IMPORTADO AGORA
+import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Input from '../components/Input';
@@ -14,11 +14,11 @@ import Card from '../components/Card';
 import Carrossel from '../components/Carrossel';
 import { Search, ChevronDown } from 'lucide-react';
 import Fundo from '../assets/base.png';
-import Logo from '../assets/editais2.png';
+import Logo from '../assets/editais.png';
 
 export default function Edital() {
-  const location = useLocation(); // PEGA O TIPO DA NAVEGAÇÃO
-  const tipoRecebido = location.state?.tipo || ''; // TIPO VINDO DO BOTÃO "VER MAIS"
+  const location = useLocation();
+  const tipoRecebido = location.state?.tipo || '';
 
   const [termoBusca, setTermoBuscado] = useState('');
   const [categoriaSelecionada, setcategoriaSelecionada] = useState('');
@@ -97,7 +97,6 @@ export default function Edital() {
     );
   }, []);
 
-  // useEffect: dispara busca automática se veio de "Ver mais"
   useEffect(() => {
     if (!tipoRecebido) return;
 
@@ -246,14 +245,16 @@ export default function Edital() {
           </div>
 
           <div className="absolute top-0 right-0 bottom-0 left-auto w-full max-w-[700px] z-0 overflow-hidden">
-            <img
-              src={Logo}
-              alt="imagem ilustrativa"
-              className="h-[384px] w-full object-cover"
-            />
+            <div className="relative h-full w-full">
+              <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#f0f7fd] via-[#f0f7fde6] to-transparent z-10 pointer-events-none" />
+              <img
+                src={Logo}
+                alt="imagem ilustrativa"
+                className="h-[384px] w-full object-cover object-left"
+              />
+            </div>
           </div>
         </div>
-        <div className="absolute top-0 bottom-0 left-[51%] w-24 bg-gradient-to-r from-[#f0f7fd] to-transparent z-20 pointer-events-none" />
       </section>
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -266,14 +267,14 @@ export default function Edital() {
               {!tipoRecebido && 'Editais encontrados'}
             </Tipografia>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-16 mt-10 max-w-6xl pl-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-16 mt-10 w-full pl-16">
               {editaisFiltradosEBuscados.slice(0, quantidadeRenderizada).map((edital, index) => (
                 <Card key={index} {...edital} />
               ))}
             </div>
 
             {editaisFiltradosEBuscados.length > quantidadeRenderizada && (
-              <div className="flex justify-center mt-16 mb-0 ">
+              <div className="flex justify-center mt-16 mb-0">
                 <Botao className='cursor-pointer'
                   variante="azul-escuro"
                   onClick={() => setQuantidadeRenderizada(quantidadeRenderizada + 9)}
@@ -285,20 +286,19 @@ export default function Edital() {
           </section>
         ) : (
           <>
-            <div className="mb-10">
+            <div className="mb-10 w-full">
               <Carrossel titulo="Editais em Destaque" cards={cardsDestaque} tipo="destaque" />
             </div>
-            <div className="mb-10">
+            <div className="mb-10 w-full">
               <Carrossel titulo="Editais Validados" cards={cardsValidados} tipo="validados" />
             </div>
-            <div className="mb-0">
+            <div className="mb-0 w-full">
               <Carrossel titulo="Editais esperando validação" cards={cardsNaoValidados} tipo="nao-validados" />
             </div>
           </>
         )}
       </main>
 
-      {/* Rodapé */}
       <section className="bg-[#f0f7fd] mt-24">
         <Footer />
       </section>
