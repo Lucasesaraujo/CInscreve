@@ -89,7 +89,7 @@ export default function Home() {
                         </div>
                         <div className="flex justify-center gap-8">
                             <Funcionalidade icone="coracao" titulo="Favorite" descricao="Salve os editais mais relevantes pra acessar depois." />
-                            <Funcionalidade icone="notificacao" titulo="Notifique-se" descricao="Ative alertas para não perder prazos importantes." />
+                            <Funcionalidade icone="pasta" titulo="Explore" descricao="Busque editais por área de atuação da sua ONG." />
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Search, Heart, Bell, Users, Pencil } from 'lucide-react'
+import { Search, Heart, Bell, Users, Pencil, Folder} from 'lucide-react'
 import Tipografia from './Tipografia'
 
 // Ícones padrão com tamanho base (pode ser sobrescrito)
@@ -8,7 +8,8 @@ const icones = {
   coracao: <Heart className="w-24 h-24 text-zinc-800" />,
   notificacao: <Bell className="w-24 h-24 text-zinc-800" />,
   pessoas: <Users className="w-24 h-24 text-zinc-800" />,
-  inscrever: <Pencil className="w-24 h-24 text-zinc-800" />
+  inscrever: <Pencil className="w-24 h-24 text-zinc-800" />,
+  pasta: <Folder className="w-24 h-24 text-zinc-800" />
 }
 
 export default function Funcionalidade({

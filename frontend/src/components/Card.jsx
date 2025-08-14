@@ -12,9 +12,7 @@ export default function Card({
   imagem,
   area = 'label',
   favoritoInicial = false,
-  notificacaoInicial = false,
   onToggleFavorito,
-  onToggleNotificacao,
   _id
 }) {
   const base = 'bg-white rounded-xl shadow border flex flex-col justify-between'
@@ -26,7 +24,6 @@ export default function Card({
 
   // Usa os valores vindos do pai para o estado
   const favorito = favoritoInicial;
-  const notificar = notificacaoInicial;
   const navigate = useNavigate();
 
   if (variante === 'detalhado') {
@@ -56,7 +53,7 @@ export default function Card({
         <div onClick={() => navigate(`/editais/${_id}`)} className="flex items-center gap-28 mt-4">
           <Botao className='cursor-pointer' variante="card-detalhado">Conhecer</Botao>
 
-          <div className="flex items-center gap-6 mt-2">
+          <div className="flex items-center gap-6 mt-2 ml-14">
             {/* botão de favoritar */}
             <button onClick={onToggleFavorito} aria-label="Favoritar" className='cursor-pointer'>
               <Heart
@@ -65,13 +62,6 @@ export default function Card({
               />
             </button>
 
-            {/* botão de notificar */}
-            <button onClick={onToggleNotificacao} aria-label="Notificar" className='cursor-pointer'>
-              <Bell
-                className={`w-5 h-5 ${notificar ? 'text-yellow-500' : 'text-zinc-700 hover:text-yellow-500'}`}
-                fill={notificar ? 'currentColor' : 'none'}
-              />
-            </button>
           </div>
         </div>
       </div>
