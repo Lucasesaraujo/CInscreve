@@ -1,10 +1,9 @@
 const jwt = require('jsonwebtoken');
 
-// FUNÇÃO PARA GERAR OS TOKENS DE ACESSO E REFRESH
 const gerarTokens = (dadosUsuario) => {
   const payload = {
-    id: dadosUsuario.ngo.id,
-    email: dadosUsuario.user.email,
+    id: dadosUsuario.id,     
+    email: dadosUsuario.email 
   };
 
   const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });

@@ -1,21 +1,12 @@
-const express = require('express');
-const cors = require('cors');
-const editalRoutes = require('./routes/editalRoutes');
-const userRoutes = require('./routes/userRoutes');
-const authRoutes = require('./routes/authRoutes');
+// index.js
+const app = require('./app');
 const connectDB = require('./config/database');
-require('dotenv').config();
+const logger = require('./config/logger');
 
-const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000; 
+
 connectDB();
 
-app.use(cors());
-app.use(express.json());
-app.use('/editais', editalRoutes);  
-app.use('/user', userRoutes);
-app.use('/api/auth', authRoutes);
-
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0',() => {
+    logger.info(`Servidor rodando em http://localhost:${PORT}`);
 });

@@ -5,160 +5,227 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Botao from '../components/Botao'
 import Tipografia from '../components/Tipografia'
-import { Heart, Bell, FileText } from 'lucide-react'
-
-// Simula a busca de dados de um edital específico na API
-const mockFetchEditalEspecifico = (id) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        id: id,
-        titulo: 'Edital nº 05/2025 – Apoio a Projetos Culturais Municipais',
-        instituicao: 'Prefeitura do Recife',
-        inscricoes: {
-          inicio: '22/05/2025 09:00',
-          fim: '20/06/2025 18:00',
-        },
-        descricao:
-          'Este edital tem como objetivo selecionar e apoiar financeiramente projetos culturais que promovam a inclusão social por meio da arte em comunidades urbanas da cidade de São Paulo. A iniciativa visa fortalecer agentes culturais locais, incentivar a diversidade de expressões artísticas e ampliar o acesso da população à cultura. \n\n Serão selecionadas propostas de ONGs, coletivos e artistas independentes que atuem com teatro, música, dança, literatura, audiovisual ou outras linguagens artísticas. Os projetos devem ter foco em impacto social, participação comunitária e desenvolvimento cultural local. \n\n Os valores de apoio variam entre R$ 10 mil e R$ 50 mil, com recursos provenientes do Fundo Municipal de Cultura.',
-        anexos: [
-          { nome: 'Edital nº 05/2025 - MEJPE', url: '#' },
-          { nome: 'Edital nº 05/2025 - MEJPE', url: '#' },
-          { nome: 'Edital nº 05/2025 - MEJPE', url: '#' },
-          { nome: 'Edital nº 05/2025 - MEJPE', url: '#' },
-          { nome: 'Edital nº 05/2025 - MEJPE', url: '#' },
-        ],
-        // URL da imagem do banner
-        imagemUrl: 'https://via.placeholder.com/1152x250/cccccc/808080?text=Imagem+do+Edital',
-      })
-    }, 1000)
-  })
-}
+import { Heart, FileText } from 'lucide-react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { getEditalById, validarEdital, denunciarEdital } from '../services/apiEditais'
+import { useEdital } from '../contexts/EditalContext'
+import { useAuth } from '../contexts/AuthContext'
+import AlertaErro from '../components/AlertaErro'
 
 const EditalEspecifico = () => {
-  // Estados para gerenciar os dados, carregamento, erros e interações do usuário
+  const { id } = useParams()
+  const { isFavorito, toggleFavorito } = useEdital()
+  const { usuario, isAutenticado } = useAuth()
   const [edital, setEdital] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [favorito, setFavorito] = useState(false)
-  const [notificacao, setNotificacao] = useState(false)
+  const [jaValidou, setJaValidou] = useState(false)
+  const [jaDenunciou, setJaDenunciou] = useState(false)
+  const [podeValidar, setPodeValidar] = useState(true)
+  const [alertaErro, setAlertaErro] = useState('')
+  const navigate = useNavigate()
 
-  // Efeito para buscar os dados do edital ao carregar a página
   useEffect(() => {
-    setLoading(true)
-    // O 'id' seria dinâmico, vindo da URL (ex: /editais/123)
-    mockFetchEditalEspecifico('05-2025')
-      .then((data) => {
-        setEdital(data)
-        setError(null)
-      })
-      .catch(() => setError('Erro ao carregar o edital.'))
-      .finally(() => setLoading(false))
-  }, [])
+    const fetchEdital = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        if (!id) {
+          setError('ID do edital não fornecido na URL.')
+          setLoading(false)
+          return
+        }
 
-  // Renderização condicional enquanto os dados são carregados ou se ocorrer um erro
-  if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Carregando edital...</div>
+        const fetchedEdital = await getEditalById(id)
+        setEdital(fetchedEdital)
+
+        if (isAutenticado && usuario?.id) {
+          const usuarioId = usuario.id
+
+          const usuarioJaValidou = fetchedEdital.validadoPor?.some(
+            u => u._id?.toString() === usuarioId.toString()
+          ) || false
+          setJaValidou(usuarioJaValidou)
+
+          const usuarioJaDenunciou = fetchedEdital.denunciadoPor?.some(
+            u => u._id?.toString() === usuarioId.toString()
+          ) || false
+          setJaDenunciou(usuarioJaDenunciou)
+
+          setPodeValidar(
+            !(fetchedEdital.sugeridoPor?._id?.toString() === usuarioId.toString() ||
+              usuarioJaValidou ||
+              usuarioJaDenunciou)
+          )
+        }
+      } catch (err) {
+        console.error("Erro ao carregar edital específico:", err)
+        setError(err.message || 'Erro ao carregar o edital.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchEdital()
+  }, [id, isAutenticado, usuario])
+
+  const redirecionarLogin = () => {
+    setAlertaErro('Você precisa estar logado para realizar esta ação!')
+    setTimeout(() => {
+      navigate('/login')
+    }, 2000)
   }
 
-  if (error) {
-    return <div className="flex justify-center items-center min-h-screen text-red-600">{error}</div>
+  const handleToggleFavorito = async () => {
+    if (!isAutenticado) return redirecionarLogin()
+    try {
+      await toggleFavorito(edital._id)
+    } catch (err) {
+      console.error("Erro ao alternar favorito:", err)
+      setAlertaErro(err.message || 'Erro ao favoritar/desfavoritar edital.')
+    }
   }
+
+  const handleValidarEdital = async () => {
+    if (!isAutenticado) return redirecionarLogin()
+    if (!podeValidar) return setAlertaErro('Você não pode validar este edital.')
+
+    try {
+      await validarEdital(edital._id)
+      setEdital(prev => ({
+        ...prev,
+        validadoPor: [...prev.validadoPor, { _id: usuario.id }],
+        validacoesCount: (prev.validacoesCount || 0) + 1
+      }))
+      setJaValidou(true)
+      setPodeValidar(false)
+    } catch (err) {
+      console.error("Erro ao validar edital:", err)
+      setAlertaErro(err.message || 'Erro ao validar edital.')
+    }
+  }
+
+  const handleDenunciarEdital = async () => {
+    if (!isAutenticado) return redirecionarLogin()
+    try {
+      await denunciarEdital(edital._id)
+      setEdital(prev => ({
+        ...prev,
+        denunciadoPor: [...prev.denunciadoPor, { _id: usuario.id }]
+      }))
+      setJaDenunciou(true)
+      setPodeValidar(false)
+    } catch (err) {
+      console.error("Erro ao denunciar edital:", err)
+      setAlertaErro(err.message || 'Erro ao denunciar edital.')
+    }
+  }
+
+  const handleInscrever = () => {
+    if (!isAutenticado) return redirecionarLogin()
+    if (edital.link) {
+      window.open(edital.link, '_blank')
+    } else {
+      setAlertaErro('Link de inscrição não disponível para este edital.')
+    }
+  }
+
+  if (loading) return <div className="flex justify-center items-center min-h-screen">Carregando edital...</div>
+  if (error) return <div className="flex justify-center items-center min-h-screen text-red-600">{error}</div>
+  if (!edital) return <div className="flex justify-center items-center min-h-screen text-gray-600">Edital não encontrado.</div>
+
+  const imagemDoEdital = edital.imagem && edital.imagem.length > 0
+    ? edital.imagem[0].startsWith('http') ? edital.imagem[0] : `http://localhost:3000${edital.imagem[0]}`
+    : 'https://via.placeholder.com/1152x250?text=Imagem+Padrao+do+Edital'
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
+      {/* Alerta de erro */}
+      {alertaErro && <AlertaErro mensagem={alertaErro} onClose={() => setAlertaErro('')} />}
 
       <main className="flex-1 max-w-6xl mx-auto py-10 px-4">
-        {/* Banner de Imagem do Edital */}
         <div className="w-full h-64 bg-gray-200 mb-0 shadow-md">
-            <img 
-              src={edital.imagemUrl} 
-              alt={`Banner do ${edital.titulo}`} 
-              className="w-full h-full object-cover"
-            />
+          <img src={imagemDoEdital} alt={`Banner do ${edital.nome}`} className="w-full h-full object-cover" />
         </div>
 
-        {/* Caixa com o Título do Edital */}
         <div className="w-full bg-white border-x border-b border-gray-300 p-4 text-center mb-8 shadow-sm">
-            <Tipografia tipo="subtitulo" className="text-gray-800 font-semibold">
-                {edital.titulo}
-            </Tipografia>
+          <Tipografia tipo="subtitulo" className="text-gray-800 font-semibold">{edital.nome}</Tipografia>
         </div>
 
-        {/* Container principal com layout de 2 colunas */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Coluna da esquerda (Conteúdo do edital) */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Seção de Inscrição e Validação */}
             <div className="flex flex-wrap items-start justify-between gap-6">
               <div className="border border-gray-300 p-4 flex-grow">
                 <p className="text-sm font-semibold text-gray-800">Inscrições de:</p>
                 <p className="text-sm text-gray-600">
-                  {edital.inscricoes.inicio} até {edital.inscricoes.fim}
+                  {new Date(edital.periodoInscricao.inicio).toLocaleDateString()} {new Date(edital.periodoInscricao.inicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} até {new Date(edital.periodoInscricao.fim).toLocaleDateString()} {new Date(edital.periodoInscricao.fim).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
-                <p className="text-xs text-gray-500">GMT-03 (Horário Padrão de Brasília)</p>
+                <p className="text-xs text-gray-500">Horário de Brasília</p>
               </div>
-              <Botao variante="azul-medio" className="!w-48 h-full">Inscreva-se</Botao>
-              
-              <div className="flex items-center gap-4">
-                  <p className="font-semibold text-sm">Este edital é confiável?</p>
-                  <div className="flex gap-2">
-                    <Botao variante="sim">Sim</Botao>
-                    <Botao variante="nao">Não</Botao>
-                  </div>
+
+              <Botao
+                variante="azul-medio"
+                className="!w-48 h-full cursor-pointer mt-4"
+                onClick={handleInscrever}
+                disabled={!(edital.link && (edital.validado || jaValidou))}
+              >
+                Inscreva-se
+              </Botao>
+
+              <div className="flex gap-2 items-center flex-wrap">
+                {!(jaValidou || jaDenunciou) ? (
+                  <>
+                    <Tipografia tipo = 'texto' className="font-semibold">
+                      Este edital é confiável?
+                    </Tipografia>
+
+                    <Botao className="cursor-pointer" variante="sim" onClick={handleValidarEdital}>Sim</Botao>
+                    <Botao className="cursor-pointer" variante="nao" onClick={handleDenunciarEdital}>Não</Botao>
+                  </>
+                ) : jaValidou ? (
+                  <span className="text-green-600 font-semibold mt-6">Você validou este edital!</span>
+                ) : (
+                  <span className="text-red-600 font-semibold mt-6">Você denunciou este edital!</span>
+                )}
               </div>
             </div>
 
-            {/* Seção Sobre */}
             <section>
-              <Tipografia tipo="subtitulo" className="border-b-2 border-blue-600 pb-2 mb-4">
-                Sobre
-              </Tipografia>
-              <Tipografia tipo="texto" className="text-gray-700 whitespace-pre-line">
-                {edital.descricao}
-              </Tipografia>
+              <Tipografia tipo="subtitulo" className="border-b-2 border-blue-600 pb-2 mb-4">Sobre</Tipografia>
+              <Tipografia tipo="texto" className="text-gray-700 whitespace-pre-line">{edital.descricao}</Tipografia>
             </section>
           </div>
 
-          {/* Coluna da direita (Ações e Anexos) */}
           <div className="space-y-6">
-            {/* Ações de Favoritar e Notificar */}
             <div className="flex items-center justify-around bg-white border border-gray-200 p-4 rounded-lg shadow-sm">
-                <button 
-                  onClick={() => setFavorito(!favorito)} 
-                  className="flex flex-col items-center gap-2 text-gray-700 hover:text-red-500 transition-colors"
-                >
-                  <Heart className={`w-7 h-7 ${favorito ? 'text-red-500 fill-current' : ''}`} />
-                  <span className="text-sm font-medium">{favorito ? 'Favorito' : 'Favoritar'}</span>
-                </button>
-                <button 
-                  onClick={() => setNotificacao(!notificacao)} 
-                  className="flex flex-col items-center gap-2 text-gray-700 hover:text-blue-500 transition-colors"
-                >
-                  <Bell className={`w-7 h-7 ${notificacao ? 'text-blue-500 fill-current' : ''}`} />
-                  <span className="text-sm font-medium">{notificacao ? 'Notificações Ativas' : 'Notificar'}</span>
-                </button>
+              <button
+                onClick={handleToggleFavorito}
+                className="flex flex-col items-center gap-2 text-gray-700 hover:text-red-500 transition-colors cursor-pointer"
+              >
+                <Heart className={`w-7 h-7 ${isFavorito(edital._id) ? 'text-red-500 fill-current' : ''}`} />
+                <span className="text-sm font-medium">{isFavorito(edital._id) ? 'Favorito' : 'Favoritar'}</span>
+              </button>
             </div>
-            
-            {/* Box da Instituição */}
+
             <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm text-center">
-              <Tipografia tipo="texto" className="font-semibold">{edital.instituicao}</Tipografia>
+              <Tipografia tipo="texto" className="font-semibold">{edital.organizacao}</Tipografia>
             </div>
-            
-            {/* Box de Anexos */}
+
             <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm">
               <Tipografia tipo="texto" className="font-bold mb-3">Anexos</Tipografia>
               <ul className="space-y-2">
-                {edital.anexos.map((anexo, index) => (
-                  <li key={index}>
-                    <a href={anexo.url} className="flex items-center gap-2 p-2 text-sm text-blue-700 hover:bg-gray-100 rounded-md">
-                      <FileText className="w-5 h-5 flex-shrink-0" />
-                      <span>{anexo.nome}</span>
-                    </a>
-                  </li>
-                ))}
+                {edital.anexos && edital.anexos.length > 0 ? (
+                  edital.anexos.map((anexoUrl, index) => (
+                    <li key={index}>
+                      <a href={anexoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-2 text-sm text-blue-700 hover:bg-gray-100 rounded-md">
+                        <FileText className="w-5 h-5 flex-shrink-0" />
+                        <span>{`Anexo ${index + 1}`}</span>
+                      </a>
+                    </li>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-sm">Nenhum anexo disponível.</p>
+                )}
               </ul>
             </div>
           </div>

@@ -1,54 +1,63 @@
-const Usuario = require('../models/user');
+// backend/controllers/userController.js
+
+const { listarFavoritosService, listarNotificacoesService, toggleFavoritoService, toggleNotificacaoService, listarSugeridosService } = require('../services/userServices'); // Importe as funções de serviço com o sufixo 'Service'
+const logger = require('../config/logger');
 
 // GET - Controller para listar os editais favoritos do usuário logado
-const listarFavoritos = async (req, res) => {
-  const userEmail = req.usuario.email;
-
+async function listarFavoritos(req, res, next) {
   try {
-    const usuario = await Usuario.findOne({ email: userEmail }).populate('favoritos');
-
-    if (!usuario) return res.status(404).json({ erro: 'Usuário não encontrado' });
-
-    res.json({ favoritos: usuario.favoritos });
+    const favoritos = await listarFavoritosService(req.usuario.id); // Chama a função de serviço com o sufixo
+    res.json({ favoritos });
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao buscar favoritos.' });
+    next(error);
   }
-};
+}
+
+// GET - Controller para listar os editais para notificação do usuário logado
+async function listarNotificacoes(req, res, next) {
+  try {
+    const notificacoes = await listarNotificacoesService(req.usuario.id); // Chama a função de serviço com o sufixo
+    res.json({ notificacoes });
+  } catch (error) {
+    next(error);
+  }
+}
+
 
 // PATCH - Controller para favoritar ou desfavoritar o edital do usuário
-const toggleFavorito = async (req, res) => {
-  const userEmail = req.usuario.email;
-  const editalId = req.params.id;
-
+async function toggleFavorito(req, res, next) {
   try {
-    const usuario = await Usuario.findOne({ email: userEmail });
-
-    if (!usuario) return res.status(404).json({ erro: 'Usuário não encontrado' });
-
-    const jaFavoritado = usuario.favoritos.includes(editalId);
-
-    let mensagem = '';
-
-    if (jaFavoritado) {
-      usuario.favoritos.pull(editalId);
-      mensagem = 'Edital removido dos favoritos';
-    } else {
-      usuario.favoritos.push(editalId);
-      mensagem = 'Edital adicionado aos favoritos';
-    }
-
-    await usuario.save();
-
-    const favoritosPopulados = await Usuario.findById(usuario._id).populate('favoritos');
-
-    res.json({ mensagem, favoritos: favoritosPopulados.favoritos });
+    const { mensagem, favoritos } = await toggleFavoritoService(req.usuario.id, req.params.id); // Chama a função de serviço com o sufixo
+    res.json({ mensagem, favoritos });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: 'Erro ao alternar favorito' });
+    next(error);
   }
-};
+}
+
+// PATCH - Controller para ativar ou desativar notificações do edital do usuário
+async function toggleNotificacao(req, res, next) {
+  try {
+    const { mensagem, notificacoes } = await toggleNotificacaoService(req.usuario.id, req.params.id); // Chama a função de serviço com o sufixo
+    res.json({ mensagem, notificacoes });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// GET - Controller para listar editais sugeridos pelo usuário logado
+async function listarSugeridos(req, res, next) {
+  try {
+    const editaisSugeridos = await listarSugeridosService(req.usuario.id); // Chama a função de serviço com o sufixo
+    res.status(200).json({ sugeridos: editaisSugeridos });
+  } catch (error) {
+    next(error);
+  }
+}
 
 module.exports = {
-  listarFavoritos,
-  toggleFavorito
+    listarFavoritos,
+    toggleFavorito,
+    listarSugeridos,
+    listarNotificacoes,
+    toggleNotificacao
 };

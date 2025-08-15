@@ -1,0 +1,44 @@
+# .github/workflows/ci.yml
+
+name: CI Pipeline for Cinscreve
+
+on:
+  push:
+    branches:
+      - main # O workflow será executado a cada 'push' no branch 'main'
+
+jobs:
+  ci:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Use a versão do Node.js que você utiliza no projeto
+          cache: 'npm' # Habilita o cache de dependências do npm
+
+      - name: Install Frontend Dependencies
+        run: cd frontend && npm install
+
+      - name: Run Frontend Lint and Tests (se houver)
+        run: cd frontend && npm run test # Se você tiver testes e lint configurados no frontend
+
+      - name: Build Frontend
+        run: cd frontend && npm run build
+
+      - name: Install Backend Dependencies
+        run: cd backend && npm install
+
+      - name: Run Backend Tests
+        run: cd backend && npm test
+
+      - name: Archive Frontend Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: frontend/dist # Salva a pasta de build para um futuro download

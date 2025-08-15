@@ -30,7 +30,7 @@ export default function Tipografia({ children, tipo = 'titulo', className = '' }
 
   return <p className={classes}>{children}</p>
 }
-
+ 
 /*
 comandos importantes:
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
