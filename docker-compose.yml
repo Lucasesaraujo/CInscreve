@@ -6,7 +6,7 @@ services:
     container_name: backend_cinscreve
     restart: unless-stopped
     ports:
-      - "3000:3000" # altere para a porta real do backend
+      - "3002:3002" # altere para a porta real do backend
     env_file:
       - ./backend/.env
     volumes:

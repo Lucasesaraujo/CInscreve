@@ -60,7 +60,7 @@ beforeAll(async () => {
         expiraEm: new Date(Date.now() + 1000 * 60 * 60) // Token expira em 1 hora a partir de agora
     });
 
-}, 30000); // Timeout para beforeAll
+}, 30020); // Timeout para beforeAll
 
 // Limpa os dados APÓS CADA TESTE, mas mantém a conexão ativa
 afterEach(async () => {
@@ -74,7 +74,7 @@ afterAll(async () => {
     await User.deleteMany({});
     await Token.deleteMany({});
     await mongoose.disconnect();
-}, 30000); // Timeout para afterAll
+}, 30020); // Timeout para afterAll
 
 describe('POST /editais', () => {
     it('should create a new edital successfully when authenticated', async () => {

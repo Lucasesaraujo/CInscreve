@@ -56,7 +56,7 @@ beforeAll(async () => {
         expiraEm: new Date(Date.now() + 1000 * 60 * 60)
     });
 
-}, 30000); // Aumenta o timeout para a conexão inicial do DB
+}, 30020); // Aumenta o timeout para a conexão inicial do DB
 
 beforeEach(async () => {
     // Limpa APENAS os editais antes de CADA TESTE para garantir que cada um comece com um estado fresco
@@ -83,7 +83,7 @@ afterAll(async () => {
     await Token.deleteMany({});
     await Edital.deleteMany({});
     await mongoose.disconnect();
-}, 30000); // Aumenta o timeout para a desconexão
+}, 30020); // Aumenta o timeout para a desconexão
 
 // =========================================================================
 // TESTES DA ROTA DELETE /editais/:id (DELETAR)

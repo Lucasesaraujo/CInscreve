@@ -11,7 +11,7 @@ import Fundo from '../assets/base.png'
 import Botao from '../components/Botao'
 import { useNavigate } from 'react-router-dom'
 
-const USER_BASE_URL = 'http://localhost:3000/user' // ajustar se necessário
+const USER_BASE_URL = 'http://localhost:3002/user' // ajustar se necessário
 
 async function getEditaisFavoritosDoUsuario() {
   try {
