@@ -10,7 +10,7 @@ export default function AlertaErro({
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
-    }, 5000);
+    }, 5002);
 
     return () => clearTimeout(timer);
   }, [onClose]);
