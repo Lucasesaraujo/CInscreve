@@ -66,7 +66,7 @@ beforeAll(async () => {
     sugeridorUser = resultSugeridor.user;
     accessTokenSugeridor = resultSugeridor.accessToken;
 
-}, 30020); // Aumenta o timeout para a conexão e criação de usuários/tokens
+}, 30000); // Aumenta o timeout para a conexão e criação de usuários/tokens
 
 beforeEach(async () => {
     // Limpa apenas os editais antes de CADA TESTE para garantir um estado fresco
@@ -94,7 +94,7 @@ afterAll(async () => {
     await Token.deleteMany({});
     await Edital.deleteMany({});
     await mongoose.disconnect();
-}, 30020);
+}, 30000);
 
 // =========================================================================
 // TESTES DA ROTA POST /editais/:id/validar

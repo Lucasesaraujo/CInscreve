@@ -50,7 +50,7 @@ beforeAll(async () => {
     if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
         throw new Error('JWT_SECRET ou JWT_REFRESH_SECRET não estão definidos. Verifique seu arquivo .env');
     }
-}, 30020); // Aumenta o timeout para a conexão inicial do DB
+}, 30000); // Aumenta o timeout para a conexão inicial do DB
 
 // Limpa e configura o ambiente ANTES DE CADA TESTE (para isolar os testes de sessão)
 beforeEach(async () => {
@@ -77,7 +77,7 @@ afterAll(async () => {
     await Token.deleteMany({});
     await Edital.deleteMany({});
     await mongoose.disconnect();
-}, 30020);
+}, 30000);
 
 // =========================================================================
 // TESTE DE SESSÃO DO USUÁRIO

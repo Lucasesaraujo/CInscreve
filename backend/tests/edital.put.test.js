@@ -46,7 +46,7 @@ beforeAll(async () => {
         expiraEm: new Date(Date.now() + 1000 * 60 * 60)
     });
 
-}, 30020);
+}, 30000);
 
 beforeEach(async () => {
     await Edital.deleteMany({});
@@ -70,7 +70,7 @@ afterAll(async () => {
     await Token.deleteMany({});
     await Edital.deleteMany({});
     await mongoose.disconnect();
-}, 30020);
+}, 30000);
 
 describe('PUT /editais/:id', () => {
     it('should update an edital successfully when authenticated', async () => {
