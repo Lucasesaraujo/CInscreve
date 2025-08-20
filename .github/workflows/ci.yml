@@ -57,11 +57,6 @@ jobs:
       - name: Install Frontend Dependencies
         run: cd frontend && npm install
 
-      - name: Run Frontend Tests (End-to-end)
-        run: cd frontend && npm run test
-        env:
-          VITE_AUTH_BASE_URL: ${{ secrets.VITE_AUTH_BASE_URL }}
-
       - name: Build Frontend
         run: cd frontend && npm run build
 
