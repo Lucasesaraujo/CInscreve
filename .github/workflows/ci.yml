@@ -14,22 +14,32 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4 # Atualizado para v4
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4 # Atualizado para v4
+      # --- Etapas para o Frontend ---
+      - name: Setup Node.js (Frontend)
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
 
       - name: Install Frontend Dependencies
         run: cd frontend && npm install
 
-      - name: Run Frontend Lint and Tests (se houver)
+      - name: Run Frontend Lint and Tests
         run: cd frontend && npm run test
 
       - name: Build Frontend
         run: cd frontend && npm run build
+
+      # --- Etapas para o Backend ---
+      - name: Setup Node.js (Backend)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'backend/package-lock.json' # Caminho para o backend
 
       - name: Install Backend Dependencies
         run: cd backend && npm install
@@ -38,7 +48,7 @@ jobs:
         run: cd backend && npm test
 
       - name: Archive Frontend Build Artifact
-        uses: actions/upload-artifact@v4 # 👈 Mude de v3 para v4 aqui
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-build
           path: frontend/dist
