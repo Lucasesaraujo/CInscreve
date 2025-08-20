@@ -30,7 +30,9 @@ beforeAll(async () => {
     // 1. Cria um usuário de teste
     testUser = await User.create({
         email: 'delete_test_user@example.com',
-        // Adicione outros campos se o seu modelo User os exigir
+        // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo'
+        name: 'Test User Delete',
+        ngo: 'Test NGO'
     });
 
     // 2. Gera um accessToken para este usuário
@@ -72,8 +74,10 @@ beforeEach(async () => {
         },
         descricao: 'Descrição do edital para teste de exclusão.',
         link: 'https://original-delete.com',
-        sugeridoPor: testUser._id, // O edital é sugerido pelo usuário de teste
-        validado: false
+        sugeridoPor: testUser._id,
+        validado: false,
+        // CORREÇÃO: Adicionando o campo obrigatório 'categoria'
+        categoria: 'Educação'
     });
 });
 

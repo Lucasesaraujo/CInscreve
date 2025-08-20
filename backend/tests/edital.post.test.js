@@ -20,8 +20,8 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 // Garante que o banco de dados de teste esteja limpo e o usuário/token sejam configurados antes de cada teste
 beforeAll(async () => {
     // Conecta ao banco de dados de teste
-    // Aumentei o timeout para 30 segundos, pois a conexão pode demorar.
-    await mongoose.connect(process.env.MONGO_URI);
+    // CORREÇÃO: Usando MONGO_URI_TEST para o ambiente de teste
+    await mongoose.connect(process.env.MONGO_URI_TEST);
 
     // 1. Limpa coleções de teste para garantir um estado limpo
     await User.deleteMany({});
@@ -31,7 +31,9 @@ beforeAll(async () => {
     // 2. Cria um usuário de teste no banco de dados
     testUser = await User.create({
         email: 'testuser@example.com',
-        // Adicione outros campos se o seu modelo User os exigir (por exemplo, nome)
+        // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo'
+        name: 'Test User Post',
+        ngo: 'Test NGO'
     });
 
     // 3. Gera um accessToken e refreshToken para este usuário.
@@ -86,7 +88,9 @@ describe('POST /editais', () => {
                 fim: '2025-08-31T23:59:59Z'
             },
             descricao: 'Apoio a projetos culturais.',
-            link: 'https://example.com/edital'
+            link: 'https://example.com/edital',
+            // CORREÇÃO: Adicionando o campo obrigatório 'categoria'
+            categoria: 'Cultura' 
         };
 
         const response = await request(app)
@@ -109,7 +113,9 @@ describe('POST /editais', () => {
             periodoInscricao: {
                 inicio: '2025-08-01T00:00:00Z',
                 fim: '2025-08-31T23:59:59Z'
-            }
+            },
+            // CORREÇÃO: Adicionando o campo obrigatório 'categoria'
+            categoria: 'Social'
         };
 
         const response = await request(app)
@@ -127,7 +133,9 @@ describe('POST /editais', () => {
             periodoInscricao: {
                 inicio: '2025-08-01T00:00:00Z',
                 fim: '2025-08-31T23:59:59Z'
-            }
+            },
+            // CORREÇÃO: Adicionando o campo obrigatório 'categoria'
+            categoria: 'Meio Ambiente'
         };
 
         const response = await request(app)
@@ -150,7 +158,9 @@ describe('POST /editais', () => {
             periodoInscricao: {
                 inicio: '2025-08-31T00:00:00Z',
                 fim: '2025-08-01T23:59:59Z' // Fim antes do início
-            }
+            },
+            // CORREÇÃO: Adicionando o campo obrigatório 'categoria'
+            categoria: 'Direitos Humanos'
         };
 
         const response = await request(app)
