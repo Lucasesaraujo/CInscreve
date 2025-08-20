@@ -20,10 +20,11 @@ async function createUserAndToken(email, device = 'jest-post-agent') {
     // 2. Cria um usuário de teste no banco de dados
     const user = await User.create({
         email: email,
-        // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo' como um objeto
+        // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo' como um objeto com 'id'
         name: 'Test User Post',
         ngo: {
-            name: 'Test NGO'
+            name: 'Test NGO',
+            id: new mongoose.Types.ObjectId()
         }
     });
 
