@@ -19,7 +19,12 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
 // Função auxiliar para criar usuário e token (reutilizada de testes anteriores)
 async function createUserAndToken(emailPrefix, device = 'jest-session-agent') {
-    const user = await User.create({ email: `${emailPrefix}@example.com` });
+    // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo'
+    const user = await User.create({ 
+        email: `${emailPrefix}@example.com`,
+        name: `User ${emailPrefix}`,
+        ngo: `NGO ${emailPrefix}`
+    });
 
     const payload = {
         id: user._id.toString(),
@@ -96,7 +101,9 @@ describe('User Session Flow', () => {
                 fim: '2025-07-31T23:59:59Z'
             },
             descricao: 'Este é um edital criado dentro de um fluxo de sessão.',
-            link: 'https://sessao.com/edital'
+            link: 'https://sessao.com/edital',
+            // CORREÇÃO: Adicionando o campo obrigatório 'categoria'
+            categoria: 'Cultura'
         };
 
         const createEditalResponse = await request(app)
@@ -121,7 +128,7 @@ describe('User Session Flow', () => {
         expect(favoriteEditalResponse.status).toBe(200);
         expect(favoriteEditalResponse.body).toHaveProperty('mensagem', 'Edital adicionado aos favoritos');
         expect(favoriteEditalResponse.body.favoritos).toHaveLength(1);
-        expect(favoriteEditalResponse.body.favoritos[0]._id.toString()).toBe(createdEditalId.toString());
+        expect(favoriteEditalResponse.body.favoritos[0].toString()).toBe(createdEditalId.toString());
 
 
         // --- 3. Verificar Editais Favoritados (GET /user/favoritos) ---
@@ -177,7 +184,9 @@ describe('User Session Flow', () => {
             organizacao: 'Org de Toggle',
             periodoInscricao: { inicio: '2025-01-01T00:00:00Z', fim: '2025-01-31T23:59:59Z' },
             descricao: 'Teste de toggle múltiplo.',
-            link: 'https://toggle.com'
+            link: 'https://toggle.com',
+            // CORREÇÃO: Adicionando o campo obrigatório 'categoria'
+            categoria: 'Esportes'
         };
 
         const createEditalResponse = await request(app)

@@ -18,7 +18,12 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
 // Função auxiliar para criar usuário e token
 async function createUserAndToken(emailPrefix, device = 'jest-agent') {
-    const user = await User.create({ email: `${emailPrefix}@example.com` });
+    // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo'
+    const user = await User.create({ 
+        email: `${emailPrefix}@example.com`,
+        name: `Name ${emailPrefix}`,
+        ngo: `NGO ${emailPrefix}`
+    });
 
     const payload = {
         id: user._id.toString(),
@@ -84,7 +89,9 @@ beforeEach(async () => {
         link: 'https://validar.com',
         sugeridoPor: sugeridorUser._id, // Este usuário sugeriu o edital
         validado: false, // Inicialmente não validado
-        validacoes: [] // Nenhuma validação ainda
+        validacoes: [], // Nenhuma validação ainda
+        // CORREÇÃO: Adicionando o campo obrigatório 'categoria'
+        categoria: 'Tecnologia'
     });
 });
 

@@ -5,7 +5,8 @@ const Edital = require('../models/edital');
 require('dotenv').config();
 
 beforeAll(async () => {
-  await mongoose.connect(process.env.MONGO_URI);
+  // CORREÇÃO: Usando MONGO_URI_TEST para o ambiente de teste
+  await mongoose.connect(process.env.MONGO_URI_TEST); 
 }, 20000);
 
 afterEach(async () => {
@@ -27,7 +28,9 @@ describe('GET /editais', () => {
         fim: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
       },
       descricao: 'Teste de listagem de editais',
-      link: 'https://teste.com'
+      link: 'https://teste.com',
+      // CORREÇÃO: Adicionando o campo obrigatório 'categoria'
+      categoria: 'Educação' 
     });
 
     const response = await request(app).get('/editais');
