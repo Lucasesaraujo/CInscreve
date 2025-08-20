@@ -29,6 +29,13 @@ jobs:
 
       - name: Run Backend Tests
         run: cd backend && npm test
+        # Injetando secrets para os testes do backend
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+          MONGO_URI_TEST: ${{ secrets.MONGO_URI_TEST }}
+          EXTERNAL_AUTH_API_URL: ${{ secrets.EXTERNAL_AUTH_API_URL }}
 
       # --- Etapas para o Frontend ---
       - name: Setup Node.js (Frontend)
@@ -43,6 +50,9 @@ jobs:
 
       - name: Run Frontend Lint and Tests
         run: cd frontend && npm run test
+        # Injetando secrets para os testes do frontend
+        env:
+          VITE_AUTH_BASE_URL: ${{ secrets.VITE_AUTH_BASE_URL }}
 
       - name: Build Frontend
         run: cd frontend && npm run build
