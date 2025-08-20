@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import Card from '../components/Card';
 import { describe, test, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
+import { AuthProvider } from '../contexts/AuthContext';
 
 const editalExemplo = {
     titulo: 'Programa Jovens Talentos',
@@ -17,6 +18,7 @@ describe('Componente: Card', () => {
     // Teste 0: Variante simples
     test('deve renderizar o card simples com os dados principais', () => {
         render(
+            <AuthProvider>
             <MemoryRouter>
                 <Card
                     variante="simples"
@@ -27,6 +29,7 @@ describe('Componente: Card', () => {
                     _id="12345"
                 />
             </MemoryRouter>
+            </AuthProvider>
         );
 
         expect(screen.getByText(/programa jovens talentos/i)).toBeInTheDocument();
@@ -58,9 +61,11 @@ describe('Componente: Card', () => {
     test('deve chamar a função onToggleFavorito ao clicar em "Favoritar"', () => {
         const toggleFavorito = vi.fn();
         render(
+            <AuthProvider>
             <MemoryRouter>
                 <Card variante="detalhado" edital={editalExemplo} onToggleFavorito={toggleFavorito} />
             </MemoryRouter>
+            </AuthProvider>
         );
 
         fireEvent.click(screen.getByLabelText(/favoritar/i));
@@ -71,9 +76,11 @@ describe('Componente: Card', () => {
     test('deve chamar a função onToggleNotificacao ao clicar em "Notificar"', () => {
         const toggleNotificar = vi.fn();
         render(
+            <AuthProvider>
             <MemoryRouter>
                 <Card variante="detalhado" edital={editalExemplo} onToggleNotificacao={toggleNotificar} />
             </MemoryRouter>
+            </AuthProvider>
         );
 
         fireEvent.click(screen.getByLabelText(/notificar/i));
@@ -83,6 +90,7 @@ describe('Componente: Card', () => {
     // Teste 4: Renderizar card favorito inicialmente
     test('deve exibir ícone de coração preenchido quando o edital está favoritado', () => {
         render(
+            <AuthProvider>
             <MemoryRouter>
                 <Card
                     variante="detalhado"
@@ -90,6 +98,7 @@ describe('Componente: Card', () => {
                     favoritoInicial={true}
                 />
             </MemoryRouter>
+            </AuthProvider>
         );
         const iconeFavorito = screen.getByLabelText(/favoritar/i).querySelector('svg');
         expect(iconeFavorito).toHaveClass('text-red-500');

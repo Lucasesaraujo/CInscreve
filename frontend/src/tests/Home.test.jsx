@@ -3,6 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import Home from '../pages/Home';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { AuthProvider } from '../contexts/AuthContext';
+
 // Mock do useNavigate
 vi.mock('react-router-dom', async () => {
     const actual = await vi.importActual('react-router-dom');
@@ -34,9 +36,11 @@ vi.mock('../services/apiEditais', () => ({
 describe('Página: Home', () => {
     beforeEach(() => {
         render(
+            <AuthProvider>
             <MemoryRouter initialEntries={['/']}>
                 <Home />
             </MemoryRouter>
+            </AuthProvider>
         );
     });
 

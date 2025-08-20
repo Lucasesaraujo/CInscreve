@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import Carrossel from '../components/Carrossel';
 import { describe, test, expect } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
+import { AuthProvider } from '../contexts/AuthContext';
 
 const listaEditais = [
     {
@@ -27,9 +28,11 @@ describe('Componente: Carrossel', () => {
     // Teste 0: Título + lista de Cards
     test('deve renderizar o título e o número correto de Cards', () => {
         render(
+            <AuthProvider>
             <MemoryRouter>
                 <Carrossel titulo="Meus Editais" cards={listaEditais} />
             </MemoryRouter>
+            </AuthProvider>
         );
 
         expect(screen.getByText(/meus editais/i)).toBeInTheDocument();
@@ -43,9 +46,11 @@ describe('Componente: Carrossel', () => {
     // Teste 1: Lista de cards vazia
     test('deve exibir apenas o título quando a lista está vazia', () => {
         render(
+            <AuthProvider>
             <MemoryRouter>
                 <Carrossel titulo="Nenhum edital disponível" editais={[]} />
             </MemoryRouter>
+            </AuthProvider>
         );
 
         expect(screen.getByText(/nenhum edital disponível/i)).toBeInTheDocument();
@@ -57,9 +62,11 @@ describe('Componente: Carrossel', () => {
     // Teste 2: Botões de navegação
     test('deve renderizar os botões "Anterior" e "Próximo"', () => {
         render(
+            <AuthProvider>
             <MemoryRouter>
                 <Carrossel titulo="Carrossel de Teste" editais={listaEditais} />
             </MemoryRouter>
+            </AuthProvider>
         );
 
         expect(screen.getByLabelText(/anterior/i)).toBeInTheDocument();
