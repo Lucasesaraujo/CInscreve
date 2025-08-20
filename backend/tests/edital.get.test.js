@@ -23,7 +23,7 @@ async function createUserAndToken(email, device = 'jest-get-agent') {
         name: 'Test User Get',
         ngo: {
             name: 'Test NGO',
-            id: new mongoose.Types.ObjectId()
+            id: 123
         }
     });
 

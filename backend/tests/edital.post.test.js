@@ -24,7 +24,7 @@ async function createUserAndToken(email, device = 'jest-post-agent') {
         name: 'Test User Post',
         ngo: {
             name: 'Test NGO',
-            id: new mongoose.Types.ObjectId()
+            id: 123
         }
     });
 
