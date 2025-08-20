@@ -1,6 +1,6 @@
 //import { useAuth } from "../contexts/AuthContext";
 
-const URL = "http://localhost:3000";
+const URL = "http://localhost:3002";
 const BASE_URL = `${URL}/editais`;
 //const {logout} = useAuth();
 

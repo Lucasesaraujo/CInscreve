@@ -13,6 +13,6 @@ RUN npm install
 COPY . .
 
 # Expõe a porta usada pelo Nginx
-EXPOSE 5173
+EXPOSE 5002
 
 CMD ["npm", "start"]

@@ -104,11 +104,11 @@ async function criarEditalService(dados, idUsuario) {
 
   if ((!dados.imagem || dados.imagem.length === 0) && dados.categoria) {
     const fileName = defaultImages[dados.categoria] || defaultImages['Outros'];
-    const imagePath = `http://localhost:3000/assets/default_covers/${fileName}`;
+    const imagePath = `http://localhost:3002/assets/default_covers/${fileName}`;
     dados.imagem = [imagePath];
   } else if (!dados.imagem || dados.imagem.length === 0) {
     // Se o usuário não forneceu categoria, mas a imagem está vazia
-    const imagePath = `http://localhost:3000/assets/default_covers/${defaultImages['Outros']}`;
+    const imagePath = `http://localhost:3002/assets/default_covers/${defaultImages['Outros']}`;
     dados.imagem = [imagePath];
   }
 

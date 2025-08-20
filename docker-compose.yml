@@ -6,7 +6,7 @@ services:
     container_name: backend_cinscreve
     restart: unless-stopped
     ports:
-      - "3000:3000" # altere para a porta real do backend
+      - "3002:3002" # altere para a porta real do backend
     env_file:
       - ./backend/.env
     volumes:
@@ -21,11 +21,11 @@ services:
     container_name: frontend_cinscreve
     restart: unless-stopped
     ports:
-      - "5173:5173"
+      - "5002:5002"
     depends_on:
       - backend
     environment:
-      - VITE_API_URL=http://backend:5000 # use o nome do serviço para acessar o backend
+      - VITE_API_URL=http://backend:5002 # use o nome do serviço para acessar o backend
     networks:
       - cinscreve-network
 

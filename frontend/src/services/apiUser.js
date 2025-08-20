@@ -1,4 +1,4 @@
-const URL = "http://localhost:3000";
+const URL = "http://localhost:3002";
 const BASE_URL = `${URL}/api/auth`;
 
 // Função para buscar os dados do usuário logado

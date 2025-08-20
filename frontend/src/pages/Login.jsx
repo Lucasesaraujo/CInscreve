@@ -21,7 +21,7 @@ export default function Login() {
     setCarregando(true);
 
     try {
-      const resposta = await fetch('http://localhost:3000/api/auth/login', {
+      const resposta = await fetch('http://localhost:3002/api/auth/login', {
         method: 'POST',
         credentials: 'include',
         headers: {

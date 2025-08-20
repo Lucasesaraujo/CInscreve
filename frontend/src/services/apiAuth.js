@@ -1,5 +1,5 @@
 // URL base do backend
-const URL = "http://localhost:3000";
+const URL = "http://localhost:3002";
 const BASE_URL = `${URL}/api/auth`;
 
 // Permite sobrescrever a URL via variável de ambiente
