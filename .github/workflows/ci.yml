@@ -5,7 +5,7 @@ name: CI Pipeline for Cinscreve
 on:
   push:
     branches:
-      - main # O workflow será executado a cada 'push' no branch 'main'
+      - main
 
 jobs:
   ci:
@@ -14,19 +14,19 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Atualizado para v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4 # Atualizado para v4
         with:
-          node-version: '18' # Use a versão do Node.js que você utiliza no projeto
-          cache: 'npm' # Habilita o cache de dependências do npm
+          node-version: '18'
+          cache: 'npm'
 
       - name: Install Frontend Dependencies
         run: cd frontend && npm install
 
       - name: Run Frontend Lint and Tests (se houver)
-        run: cd frontend && npm run test # Se você tiver testes e lint configurados no frontend
+        run: cd frontend && npm run test
 
       - name: Build Frontend
         run: cd frontend && npm run build
@@ -38,7 +38,7 @@ jobs:
         run: cd backend && npm test
 
       - name: Archive Frontend Build Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # 👈 Mude de v3 para v4 aqui
         with:
           name: frontend-build
-          path: frontend/dist # Salva a pasta de build para um futuro download
+          path: frontend/dist
