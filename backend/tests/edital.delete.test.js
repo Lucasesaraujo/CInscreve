@@ -23,7 +23,7 @@ async function createUserAndToken(emailPrefix, device = 'jest-delete-agent') {
         name: `Test User ${emailPrefix}`,
         ngo: {
             name: `Test NGO ${emailPrefix}`,
-            id: new mongoose.Types.ObjectId()
+            id: 123
         }
     });
 
