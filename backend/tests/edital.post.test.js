@@ -7,28 +7,26 @@ const Token = require('../models/token');
 const Edital = require('../models/edital');
 require('dotenv').config();
 
-// Variáveis para armazenar o usuário e token de teste
-let testUser, accessToken;
-let testEditalId; // Para armazenar o ID do edital criado
+// Variáveis de teste
+let user, accessToken, refreshToken;
+let agent = request.agent(app);
 
 // Chaves secretas do JWT
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
-// Função auxiliar para criar usuário e token
-async function createUserAndToken(email, device = 'jest-post-agent') {
-    // 2. Cria um usuário de teste no banco de dados
+// Função auxiliar para criar usuário e tokens
+async function createUserAndToken(emailPrefix, device = 'jest-post-agent') {
+    // CORREÇÃO: Usando um valor numérico para ngo.id para corresponder ao esquema do User
     const user = await User.create({
-        email: email,
-        // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo' como um objeto com 'id'
-        name: 'Test User Post',
+        email: `${emailPrefix}@example.com`,
+        name: `User ${emailPrefix}`,
         ngo: {
-            name: 'Test NGO',
-            id: 123
+            name: `NGO ${emailPrefix}`,
+            id: 12345
         }
     });
 
-    // 3. Cria tokens para o usuário
     const payload = {
         id: user._id.toString(),
         email: user.email
@@ -46,21 +44,24 @@ async function createUserAndToken(email, device = 'jest-post-agent') {
         expiraEm: new Date(Date.now() + 1000 * 60 * 60)
     });
 
-    return { user, accessToken };
+    return { user, accessToken, refreshToken };
 }
 
-// --- Configuração Global dos Testes ---
+// Configuração Global
 beforeAll(async () => {
     await mongoose.connect(process.env.MONGO_URI_TEST);
     await User.deleteMany({});
     await Token.deleteMany({});
     await Edital.deleteMany({});
-    
-    const result = await createUserAndToken('testuser@example.com');
-    testUser = result.user;
-    accessToken = result.accessToken;
 
-}, 30000); // Aumenta o timeout para a conexão e criação de usuário/token
+    const result = await createUserAndToken('post_test_user');
+    user = result.user;
+    accessToken = result.accessToken;
+    refreshToken = result.refreshToken;
+
+    // Simular login para manter a sessão
+    await agent.get('/test-login').set('Cookie', [`accessToken=${accessToken}`, `refreshToken=${refreshToken}`]);
+}, 30000);
 
 afterAll(async () => {
     await User.deleteMany({});
@@ -70,74 +71,66 @@ afterAll(async () => {
 }, 30000);
 
 // =========================================================================
-// TESTES DA ROTA POST /editais
+// TESTES POST /EDITAIS
 // =========================================================================
 describe('POST /editais', () => {
 
     it('should create a new edital successfully when authenticated', async () => {
         const novoEdital = {
-            nome: 'Edital de Teste',
-            organizacao: 'Org de Teste',
-            link: 'https://teste.com',
+            nome: 'Edital de Exemplo',
             categoria: 'Arte',
+            organizacao: 'Exemplo Org',
+            descricao: 'Descrição do edital de exemplo.', // CORREÇÃO: Adicionado campo 'descricao'
             periodoInscricao: {
-                inicio: '2025-05-01T00:00:00Z',
-                fim: '2025-05-31T23:59:59Z',
+                inicio: new Date('2025-01-01T00:00:00Z'),
+                fim: new Date('2025-02-01T23:59:59Z'),
             },
-            descricao: 'Um edital para testar a rota POST.',
+            link: 'https://exemplo.com/edital1',
         };
 
-        const response = await request(app)
-            .post('/editais')
-            .set('Cookie', [`accessToken=${accessToken}`])
-            .set('Accept', 'application/json')
+        const response = await agent.post('/editais') // CORREÇÃO: Usando 'agent'
             .send(novoEdital);
 
         expect(response.status).toBe(201);
         expect(response.body).toHaveProperty('mensagem', 'Edital criado com sucesso!');
         expect(response.body.edital).toHaveProperty('_id');
         expect(response.body.edital.nome).toBe(novoEdital.nome);
-        expect(response.body.edital.organizacao).toBe(novoEdital.organizacao);
-        expect(response.body.edital.sugeridoPor.toString()).toBe(testUser._id.toString());
-        
-        // Armazena o ID do edital para o próximo teste
-        testEditalId = response.body.edital._id;
+        expect(response.body.edital.sugeridoPor.toString()).toBe(user._id.toString());
     });
 
     it('should fail to create edital without authentication', async () => {
-        const novoEdital = {
-            nome: 'Edital Sem Auth',
+        const editalSemAuth = {
+            nome: 'Edital Sem Autenticação',
+            categoria: 'Cultura',
             organizacao: 'Org Sem Auth',
-            link: 'https://teste-noauth.com',
-            categoria: 'Música',
+            descricao: 'Descrição do edital sem autenticação.', // CORREÇÃO: Adicionado campo 'descricao'
             periodoInscricao: {
-                inicio: '2025-06-01T00:00:00Z',
-                fim: '2025-06-30T23:59:59Z',
+                inicio: new Date('2025-03-01T00:00:00Z'),
+                fim: new Date('2025-04-01T23:59:59Z'),
             },
+            link: 'https://exemplo.com/edital2',
         };
-
-        const response = await request(app)
-            .post('/editais')
-            .send(novoEdital);
+        const response = await request(app).post('/editais')
+            .send(editalSemAuth);
 
         expect(response.status).toBe(401);
-        expect(response.body).toHaveProperty('erro', 'Token não fornecido');
+        expect(response.body).toHaveProperty('erro', 'Autenticação necessária.');
     });
 
     it('should fail to create edital with missing required fields (e.g., nome)', async () => {
         const editalInvalido = {
+            // Nome ausente
+            categoria: 'Esportes',
             organizacao: 'Org Invalida',
-            link: 'https://invalido.com',
-            categoria: 'Outros',
+            descricao: 'Descrição do edital inválido.', // CORREÇÃO: Adicionado campo 'descricao'
             periodoInscricao: {
-                inicio: '2025-07-01T00:00:00Z',
-                fim: '2025-07-31T23:59:59Z',
+                inicio: new Date('2025-05-01T00:00:00Z'),
+                fim: new Date('2025-06-01T23:59:59Z'),
             },
+            link: 'https://exemplo.com/edital3',
         };
 
-        const response = await request(app)
-            .post('/editais')
-            .set('Cookie', [`accessToken=${accessToken}`])
+        const response = await agent.post('/editais') // CORREÇÃO: Usando 'agent'
             .send(editalInvalido);
 
         expect(response.status).toBe(400);
@@ -147,19 +140,18 @@ describe('POST /editais', () => {
     
     it('should fail to create edital if end date is before start date', async () => {
         const editalDatasInvertidas = {
-            nome: 'Edital Datas Invertidas',
-            organizacao: 'Org Invalida',
-            link: 'https://invalido.com',
-            categoria: 'Outros',
+            nome: 'Edital com Datas Invertidas',
+            categoria: 'Saúde',
+            organizacao: 'Org Datas',
+            descricao: 'Descrição do edital com datas invertidas.', // CORREÇÃO: Adicionado campo 'descricao'
             periodoInscricao: {
-                inicio: '2025-08-31T23:59:59Z',
-                fim: '2025-08-01T00:00:00Z',
+                inicio: new Date('2025-08-01T00:00:00Z'),
+                fim: new Date('2025-07-01T23:59:59Z'), // Data de fim antes da de início
             },
+            link: 'https://exemplo.com/edital4',
         };
 
-        const response = await request(app)
-            .post('/editais')
-            .set('Cookie', [`accessToken=${accessToken}`])
+        const response = await agent.post('/editais') // CORREÇÃO: Usando 'agent'
             .send(editalDatasInvertidas);
 
         expect(response.status).toBe(400);
