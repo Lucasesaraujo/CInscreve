@@ -16,6 +16,20 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # --- Etapas para o Backend ---
+      - name: Setup Node.js (Backend)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'backend/package-lock.json'
+
+      - name: Install Backend Dependencies
+        run: cd backend && npm install
+
+      - name: Run Backend Tests
+        run: cd backend && npm test
+
       # --- Etapas para o Frontend ---
       - name: Setup Node.js (Frontend)
         uses: actions/setup-node@v4
@@ -32,20 +46,6 @@ jobs:
 
       - name: Build Frontend
         run: cd frontend && npm run build
-
-      # --- Etapas para o Backend ---
-      - name: Setup Node.js (Backend)
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: 'backend/package-lock.json' # Caminho para o backend
-
-      - name: Install Backend Dependencies
-        run: cd backend && npm install
-
-      - name: Run Backend Tests
-        run: cd backend && npm test
 
       - name: Archive Frontend Build Artifact
         uses: actions/upload-artifact@v4
