@@ -17,13 +17,13 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
 // Função auxiliar para criar usuário e tokens
 async function createUserAndToken(emailPrefix, device = 'jest-session-agent') {
-    // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo' como um objeto com 'id'
+    // CORREÇÃO: Usando um valor numérico para ngo.id para corresponder ao esquema do User
     const user = await User.create({
         email: `${emailPrefix}@example.com`,
         name: `User ${emailPrefix}`,
         ngo: {
             name: `NGO ${emailPrefix}`,
-            id: 123
+            id: 12345
         }
     });
 
@@ -65,6 +65,11 @@ beforeAll(async () => {
         nome: 'Edital 1 para Favoritar',
         organizacao: 'Org 1',
         categoria: 'Música',
+        descricao: 'Descrição do edital de teste 1.', // Adicionado para validação
+        periodoInscricao: {
+            inicio: new Date('2025-05-01T00:00:00Z'),
+            fim: new Date('2025-05-31T23:59:59Z'),
+        },
         link: 'https://edital1.com',
         sugeridoPor: new mongoose.Types.ObjectId() // Sugerido por outro usuário
     });
@@ -73,6 +78,11 @@ beforeAll(async () => {
         nome: 'Edital 2 para Favoritar',
         organizacao: 'Org 2',
         categoria: 'Arte',
+        descricao: 'Descrição do edital de teste 2.', // Adicionado para validação
+        periodoInscricao: {
+            inicio: new Date('2025-05-01T00:00:00Z'),
+            fim: new Date('2025-05-31T23:59:59Z'),
+        },
         link: 'https://edital2.com',
         sugeridoPor: new mongoose.Types.ObjectId() // Sugerido por outro usuário
     });
@@ -82,6 +92,11 @@ beforeAll(async () => {
         nome: 'Edital 3 para Sugeridos',
         organizacao: 'Org 3',
         categoria: 'Outros',
+        descricao: 'Descrição do edital de teste 3.', // Adicionado para validação
+        periodoInscricao: {
+            inicio: new Date('2025-05-01T00:00:00Z'),
+            fim: new Date('2025-05-31T23:59:59Z'),
+        },
         link: 'https://edital3.com',
         sugeridoPor: user._id
     });
@@ -101,7 +116,7 @@ afterAll(async () => {
 describe('User Session Flow', () => {
 
     it('should allow a user to login, create, favorite, view favorites/suggested, and logout', async () => {
-        // Simula o login injetando os cookies
+        // Simula o login injetando os cookies para que o agente possa usá-los nas próximas requisições
         await agent.get('/test-login')
             .set('Cookie', [`accessToken=${accessToken}`, `refreshToken=${refreshToken}`]);
         
@@ -110,11 +125,12 @@ describe('User Session Flow', () => {
         expect(resFavorite.status).toBe(200);
         expect(resFavorite.body).toHaveProperty('mensagem', 'Edital favoritado com sucesso!');
 
-        // 2. Criar um novo edital
+        // 2. Criar um novo edital (agora com todos os campos obrigatórios)
         const novoEdital = {
             nome: 'Edital Criado no Teste',
             organizacao: 'Org Teste',
             categoria: 'Tecnologia',
+            descricao: 'Descrição do edital de teste.', 
             periodoInscricao: {
                 inicio: new Date('2025-05-01T00:00:00Z'),
                 fim: new Date('2025-05-31T23:59:59Z'),

@@ -7,27 +7,26 @@ const Token = require('../models/token');
 const Edital = require('../models/edital');
 require('dotenv').config();
 
-// Variáveis para armazenar o usuário e token de teste
-let testUser, accessToken, testEdital;
+// Variáveis de teste
+let user, accessToken, refreshToken;
+let editalParaDeletar, editalDeOutroUsuario;
+let agent = request.agent(app);
 
 // Chaves secretas do JWT
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
-// Função auxiliar para criar usuário e token
+// Função auxiliar para criar usuário e tokens
 async function createUserAndToken(emailPrefix, device = 'jest-delete-agent') {
-    // 1. Cria um usuário de teste
     const user = await User.create({
         email: `${emailPrefix}@example.com`,
-        // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo' como um objeto com 'id'
-        name: `Test User ${emailPrefix}`,
+        name: `User ${emailPrefix}`,
         ngo: {
-            name: `Test NGO ${emailPrefix}`,
-            id: 123
+            name: `NGO ${emailPrefix}`,
+            id: Math.floor(Math.random() * 100000)
         }
     });
 
-    // 2. Cria tokens para o usuário
     const payload = {
         id: user._id.toString(),
         email: user.email
@@ -45,38 +44,53 @@ async function createUserAndToken(emailPrefix, device = 'jest-delete-agent') {
         expiraEm: new Date(Date.now() + 1000 * 60 * 60)
     });
 
-    return { user, accessToken };
+    return { user, accessToken, refreshToken };
 }
 
-// --- Configuração Global dos Testes ---
+// Configuração Global
 beforeAll(async () => {
     await mongoose.connect(process.env.MONGO_URI_TEST);
     await User.deleteMany({});
     await Token.deleteMany({});
     await Edital.deleteMany({});
-    
+
+    // Cria um usuário e seus tokens
     const result = await createUserAndToken('delete_test_user');
-    testUser = result.user;
+    user = result.user;
     accessToken = result.accessToken;
+    refreshToken = result.refreshToken;
 
-}, 30000); // Aumenta o timeout para a conexão e criação de usuário/token
+    // Simula o login para manter a sessão
+    await agent.get('/test-login').set('Cookie', [`accessToken=${accessToken}`, `refreshToken=${refreshToken}`]);
 
-beforeEach(async () => {
-    // Cria um edital de teste antes de cada teste
-    await Edital.deleteMany({});
-    testEdital = await Edital.create({
+    // Cria um edital para ser deletado pelo nosso usuário de teste
+    editalParaDeletar = await Edital.create({
         nome: 'Edital para Deletar',
-        organizacao: 'Org Delete',
-        link: 'https://deletar.com',
-        categoria: 'Cultura',
+        organizacao: 'Org de Teste',
+        categoria: 'Tecnologia',
+        descricao: 'Descrição do edital para o teste de exclusão.',
         periodoInscricao: {
-            inicio: new Date('2025-05-01T00:00:00Z'),
-            fim: new Date('2025-05-31T23:59:59Z'),
+            inicio: new Date('2025-01-01T00:00:00Z'),
+            fim: new Date('2025-02-01T23:59:59Z'),
         },
-        descricao: 'Edital de teste para a rota DELETE.',
-        sugeridoPor: testUser._id
+        link: 'https://link-deletar.com',
+        sugeridoPor: user._id
     });
-});
+
+    // Cria um edital sugerido por outro usuário (não deve ser deletável pelo nosso usuário)
+    editalDeOutroUsuario = await Edital.create({
+        nome: 'Edital de Outro Usuário',
+        organizacao: 'Org Estranha',
+        categoria: 'Arte',
+        descricao: 'Descrição do edital sugerido por outro usuário.',
+        periodoInscricao: {
+            inicio: new Date('2025-03-01T00:00:00Z'),
+            fim: new Date('2025-04-01T23:59:59Z'),
+        },
+        link: 'https://link-outro.com',
+        sugeridoPor: new mongoose.Types.ObjectId()
+    });
+}, 30000);
 
 afterAll(async () => {
     await User.deleteMany({});
@@ -86,50 +100,40 @@ afterAll(async () => {
 }, 30000);
 
 // =========================================================================
-// TESTES DA ROTA DELETE /editais/:id
+// TESTES DELETE /EDITAIS/:ID
 // =========================================================================
 describe('DELETE /editais/:id', () => {
 
     it('should delete an edital successfully when authenticated', async () => {
-        const response = await request(app)
-            .delete(`/editais/${testEdital._id}`)
-            .set('Cookie', [`accessToken=${accessToken}`]);
-
+        const response = await agent.delete(`/editais/${editalParaDeletar._id}`);
+        
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('mensagem', 'Edital excluído com sucesso!');
 
         // Verifique se o edital foi realmente excluído do banco de dados
-        const editalDeletado = await Edital.findById(testEdital._id);
-        expect(editalDeletado).toBeNull();
+        const deletedEdital = await Edital.findById(editalParaDeletar._id);
+        expect(deletedEdital).toBeNull();
     });
 
     it('should return 404 if edital to delete is not found', async () => {
-        const nonExistentId = new mongoose.Types.ObjectId(); // ID que não existe
-
-        const response = await request(app)
-            .delete(`/editais/${nonExistentId}`)
-            .set('Cookie', [`accessToken=${accessToken}`]);
-
+        const nonExistentId = new mongoose.Types.ObjectId();
+        const response = await agent.delete(`/editais/${nonExistentId}`);
+        
         expect(response.status).toBe(404);
         expect(response.body).toHaveProperty('erro', 'Edital não encontrado');
     });
 
-    it('should return 400 if ID is invalid format', async () => {
-        const invalidId = 'invalid_id_format'; // ID com formato inválido
-
-        const response = await request(app)
-            .delete(`/editais/${invalidId}`)
-            .set('Cookie', [`accessToken=${accessToken}`]);
+    it('should return 403 if the user tries to delete an edital they did not suggest', async () => {
+        const response = await agent.delete(`/editais/${editalDeOutroUsuario._id}`);
         
-        expect(response.status).toBe(400);
-        expect(response.body).toHaveProperty('erro', 'ID inválido');
+        expect(response.status).toBe(403);
+        expect(response.body).toHaveProperty('erro', 'Você não tem permissão para excluir este edital.');
     });
 
-    it('should return 401 if not authenticated', async () => {
-        const response = await request(app)
-            .delete(`/editais/${testEdital._id}`);
-
-        expect(response.status).toBe(401);
-        expect(response.body).toHaveProperty('erro', 'Token não fornecido');
+    it('should return 401 if user is not authenticated', async () => {
+        const nonAuthResponse = await request(app).delete(`/editais/${editalDeOutroUsuario._id}`);
+        
+        expect(nonAuthResponse.status).toBe(401);
+        expect(nonAuthResponse.body).toHaveProperty('erro', 'Autenticação necessária.');
     });
 });
