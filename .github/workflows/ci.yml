@@ -1,5 +1,4 @@
 # .github/workflows/ci.yml
-
 name: CI Pipeline for Cinscreve
 
 on:
@@ -27,15 +26,23 @@ jobs:
       - name: Install Backend Dependencies
         run: cd backend && npm install
 
-      - name: Run Backend Tests
+      - name: Run Backend Unit Tests
         run: cd backend && npm test
-        # Injetando secrets para os testes do backend
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
           MONGO_URI_TEST: ${{ secrets.MONGO_URI_TEST }}
           EXTERNAL_AUTH_API_URL: ${{ secrets.EXTERNAL_AUTH_API_URL }}
+
+      - name: Iniciar servidor backend
+        run: |
+          # Inicia o servidor em segundo plano e redireciona a saída para um arquivo de log
+          npm start &
+          # Espera um tempo para garantir que o servidor está totalmente operacional
+          # Ajuste este tempo se necessário
+          sleep 10
+        working-directory: ./backend
 
       # --- Etapas para o Frontend ---
       - name: Setup Node.js (Frontend)
@@ -48,9 +55,8 @@ jobs:
       - name: Install Frontend Dependencies
         run: cd frontend && npm install
 
-      - name: Run Frontend Lint and Tests
+      - name: Run Frontend Tests (End-to-end)
         run: cd frontend && npm run test
-        # Injetando secrets para os testes do frontend
         env:
           VITE_AUTH_BASE_URL: ${{ secrets.VITE_AUTH_BASE_URL }}
 
@@ -62,3 +68,10 @@ jobs:
         with:
           name: frontend-build
           path: frontend/dist
+
+      - name: Parar servidor backend
+        # Certifica-se de que o servidor é parado, mesmo se os testes falharem
+        if: always()
+        run: |
+          echo "Parando o servidor backend..."
+          kill $(lsof -t -i:3002) || true
