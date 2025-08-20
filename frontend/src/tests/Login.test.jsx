@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Login from '../pages/Login';
 import { MemoryRouter } from 'react-router-dom';
 import { vi, describe, test, expect } from 'vitest';
+import { AuthProvider } from '../contexts/AuthContext';
 
 // Mock do useNavigate
 vi.mock('react-router-dom', async () => {
@@ -21,9 +22,11 @@ describe('Página: Login', () => {
     beforeEach(() => {
         fetch.mockReset();
         render(
+            <AuthProvider>
             <MemoryRouter initialEntries={['/login']}>
                 <Login />
             </MemoryRouter>
+            </AuthProvider>
         );
     });
 
@@ -70,9 +73,11 @@ describe('Página: Login', () => {
         fetch.mockResolvedValueOnce({ ok: false });
 
         render(
+            <AuthProvider>
             <MemoryRouter initialEntries={['/login']}>
                 <Login />
             </MemoryRouter>
+            </AuthProvider>
         );
 
         // Clica no botão "Entrar"
