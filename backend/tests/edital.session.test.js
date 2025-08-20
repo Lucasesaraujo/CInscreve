@@ -17,12 +17,13 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
 // Função auxiliar para criar usuário e tokens
 async function createUserAndToken(emailPrefix, device = 'jest-session-agent') {
-    // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo' como um objeto
-    const user = await User.create({ 
+    // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo' como um objeto com 'id'
+    const user = await User.create({
         email: `${emailPrefix}@example.com`,
         name: `User ${emailPrefix}`,
         ngo: {
-            name: `NGO ${emailPrefix}`
+            name: `NGO ${emailPrefix}`,
+            id: new mongoose.Types.ObjectId()
         }
     });
 

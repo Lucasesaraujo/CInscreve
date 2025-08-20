@@ -19,10 +19,11 @@ async function createUserAndToken(emailPrefix, device = 'jest-delete-agent') {
     // 1. Cria um usuário de teste
     const user = await User.create({
         email: `${emailPrefix}@example.com`,
-        // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo' como um objeto
+        // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo' como um objeto com 'id'
         name: `Test User ${emailPrefix}`,
         ngo: {
-            name: `Test NGO ${emailPrefix}`
+            name: `Test NGO ${emailPrefix}`,
+            id: new mongoose.Types.ObjectId()
         }
     });
 

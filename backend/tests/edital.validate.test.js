@@ -18,13 +18,13 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
 // Função auxiliar para criar usuário e token
 async function createUserAndToken(emailPrefix, device = 'jest-agent') {
-    // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo'
-    const user = await User.create({ 
+    // CORREÇÃO: Adicionando o campo obrigatório 'id' ao objeto 'ngo'
+    const user = await User.create({
         email: `${emailPrefix}@example.com`,
         name: `Name ${emailPrefix}`,
-        // CORREÇÃO: Passando um objeto para 'ngo' em vez de uma string
         ngo: {
-            name: `NGO ${emailPrefix}`
+            name: `NGO ${emailPrefix}`,
+            id: new mongoose.Types.ObjectId() // Adicionando um ID de objeto válido
         }
     });
 
@@ -93,7 +93,6 @@ beforeEach(async () => {
         sugeridoPor: sugeridorUser._id, // Este usuário sugeriu o edital
         validado: false, // Inicialmente não validado
         validacoes: [], // Nenhuma validação ainda
-        // CORREÇÃO: Adicionando o campo obrigatório 'categoria'
         categoria: 'Tecnologia'
     });
 });
