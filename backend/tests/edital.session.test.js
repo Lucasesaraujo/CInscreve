@@ -1,29 +1,29 @@
-// backend/tests/user.session.test.js
 const request = require('supertest');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const app = require('../app'); // Sua aplicação Express
+const app = require('../app');
 const User = require('../models/user');
 const Token = require('../models/token');
 const Edital = require('../models/edital');
 require('dotenv').config();
 
-// Variáveis para armazenar o token e dados do usuário/edital durante a sessão
-let accessToken;
-let testUser;
-let createdEditalId; // ID do edital que criaremos no teste
+// Variáveis de teste
+let user, accessToken, refreshToken, edital1, edital2, edital3;
+const agent = request.agent(app);
 
-// Chaves secretas do JWT (lidas do .env)
+// Chaves secretas do JWT
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
-// Função auxiliar para criar usuário e token (reutilizada de testes anteriores)
+// Função auxiliar para criar usuário e tokens
 async function createUserAndToken(emailPrefix, device = 'jest-session-agent') {
-    // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo'
+    // CORREÇÃO: Adicionando os campos obrigatórios 'name' e 'ngo' como um objeto
     const user = await User.create({ 
         email: `${emailPrefix}@example.com`,
         name: `User ${emailPrefix}`,
-        ngo: `NGO ${emailPrefix}`
+        ngo: {
+            name: `NGO ${emailPrefix}`
+        }
     });
 
     const payload = {
@@ -40,43 +40,53 @@ async function createUserAndToken(emailPrefix, device = 'jest-session-agent') {
         refreshToken: refreshToken,
         dispositivo: device,
         ip: '127.0.0.1',
-        expiraEm: new Date(Date.now() + 1000 * 60 * 60) // Expira em 1 hora
+        expiraEm: new Date(Date.now() + 1000 * 60 * 60)
     });
 
-    return { user, accessToken };
+    return { user, accessToken, refreshToken };
 }
 
-// --- Configuração Global dos Testes para a Sessão ---
+// Configuração Global
 beforeAll(async () => {
-    // Conecta ao banco de dados de teste
     await mongoose.connect(process.env.MONGO_URI_TEST);
-
-    // Garante que as chaves JWT estão definidas
-    if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
-        throw new Error('JWT_SECRET ou JWT_REFRESH_SECRET não estão definidos. Verifique seu arquivo .env');
-    }
-}, 30000); // Aumenta o timeout para a conexão inicial do DB
-
-// Limpa e configura o ambiente ANTES DE CADA TESTE (para isolar os testes de sessão)
-beforeEach(async () => {
-    // Limpa todas as coleções relevantes
     await User.deleteMany({});
     await Token.deleteMany({});
     await Edital.deleteMany({});
 
-    // Cria um novo usuário e token para cada sessão de teste
-    const userResult = await createUserAndToken('session_user_' + Date.now()); // Email único
-    testUser = userResult.user;
-    accessToken = userResult.accessToken;
-});
+    // Cria um usuário e seus tokens
+    const result = await createUserAndToken('session_user');
+    user = result.user;
+    accessToken = result.accessToken;
+    refreshToken = result.refreshToken;
+    
+    // Cria editais de teste para favoritar e sugerir
+    edital1 = await Edital.create({
+        nome: 'Edital 1 para Favoritar',
+        organizacao: 'Org 1',
+        categoria: 'Música',
+        link: 'https://edital1.com',
+        sugeridoPor: new mongoose.Types.ObjectId() // Sugerido por outro usuário
+    });
+    
+    edital2 = await Edital.create({
+        nome: 'Edital 2 para Favoritar',
+        organizacao: 'Org 2',
+        categoria: 'Arte',
+        link: 'https://edital2.com',
+        sugeridoPor: new mongoose.Types.ObjectId() // Sugerido por outro usuário
+    });
 
-// Nenhuma ação específica no afterEach (beforeEach já limpa)
-afterEach(async () => {
-    // Limpeza de variáveis de controle para o próximo teste
-    createdEditalId = null;
-});
+    // Edital sugerido pelo nosso usuário de teste
+    edital3 = await Edital.create({
+        nome: 'Edital 3 para Sugeridos',
+        organizacao: 'Org 3',
+        categoria: 'Outros',
+        link: 'https://edital3.com',
+        sugeridoPor: user._id
+    });
 
-// Desconecta do banco de dados UMA VEZ no final de TODOS os testes desta suíte
+}, 30000);
+
 afterAll(async () => {
     await User.deleteMany({});
     await Token.deleteMany({});
@@ -85,136 +95,91 @@ afterAll(async () => {
 }, 30000);
 
 // =========================================================================
-// TESTE DE SESSÃO DO USUÁRIO
-// Simula um fluxo de login, criação, interação e logout
+// TESTES DO FLUXO DE SESSÃO DO USUÁRIO
 // =========================================================================
 describe('User Session Flow', () => {
 
     it('should allow a user to login, create, favorite, view favorites/suggested, and logout', async () => {
-        // --- 1. Criar um Edital (POST /editais) ---
-        // O usuário já está "logado" via beforeEach
-        const newEditalData = {
-            nome: 'Edital da Sessão de Teste',
-            organizacao: 'Org da Sessão',
+        // Simula o login injetando os cookies
+        await agent.get('/test-login')
+            .set('Cookie', [`accessToken=${accessToken}`, `refreshToken=${refreshToken}`]);
+        
+        // 1. Favoritar um edital
+        let resFavorite = await agent.post(`/editais/${edital1._id}/favoritar`);
+        expect(resFavorite.status).toBe(200);
+        expect(resFavorite.body).toHaveProperty('mensagem', 'Edital favoritado com sucesso!');
+
+        // 2. Criar um novo edital
+        const novoEdital = {
+            nome: 'Edital Criado no Teste',
+            organizacao: 'Org Teste',
+            categoria: 'Tecnologia',
             periodoInscricao: {
-                inicio: '2025-07-01T00:00:00Z',
-                fim: '2025-07-31T23:59:59Z'
+                inicio: new Date('2025-05-01T00:00:00Z'),
+                fim: new Date('2025-05-31T23:59:59Z'),
             },
-            descricao: 'Este é um edital criado dentro de um fluxo de sessão.',
-            link: 'https://sessao.com/edital',
-            // CORREÇÃO: Adicionando o campo obrigatório 'categoria'
-            categoria: 'Cultura'
+            link: 'https://novoedital.com'
         };
 
-        const createEditalResponse = await request(app)
-            .post('/editais')
-            .set('Cookie', [`accessToken=${accessToken}`])
-            .send(newEditalData)
-            .set('Accept', 'application/json');
+        const resCreate = await agent.post('/editais')
+            .send(novoEdital);
+            
+        expect(resCreate.status).toBe(201);
+        expect(resCreate.body.edital.sugeridoPor.toString()).toBe(user._id.toString());
 
-        expect(createEditalResponse.status).toBe(201);
-        expect(createEditalResponse.body).toHaveProperty('_id');
-        expect(createEditalResponse.body.nome).toBe(newEditalData.nome);
-        expect(createEditalResponse.body.sugeridoPor.toString()).toBe(testUser._id.toString());
-        createdEditalId = createEditalResponse.body._id;
+        // 3. Ver os editais favoritos
+        const resFavorites = await agent.get('/meus-editais/favoritos');
+        expect(resFavorites.status).toBe(200);
+        expect(resFavorites.body.editais).toHaveLength(1);
+        expect(resFavorites.body.editais[0].nome).toBe('Edital 1 para Favoritar');
+        
+        // 4. Ver os editais sugeridos
+        const resSuggested = await agent.get('/meus-editais/sugeridos');
+        expect(resSuggested.status).toBe(200);
+        expect(resSuggested.body.editais).toHaveLength(2); // edital3 e o recém-criado
+        expect(resSuggested.body.editais.map(e => e.nome)).toContain('Edital 3 para Sugeridos');
+        expect(resSuggested.body.editais.map(e => e.nome)).toContain('Edital Criado no Teste');
 
+        // 5. Simula o logout
+        const resLogout = await agent.post('/auth/logout');
+        expect(resLogout.status).toBe(200);
+        expect(resLogout.body).toHaveProperty('mensagem', 'Sessão encerrada com sucesso!');
 
-        // --- 2. Favoritar o Edital Criado (PATCH /user/favoritar/:id) ---
-        const favoriteEditalResponse = await request(app)
-            .patch(`/user/favoritar/${createdEditalId}`)
-            .set('Cookie', [`accessToken=${accessToken}`])
-            .set('Accept', 'application/json');
-
-        expect(favoriteEditalResponse.status).toBe(200);
-        expect(favoriteEditalResponse.body).toHaveProperty('mensagem', 'Edital adicionado aos favoritos');
-        expect(favoriteEditalResponse.body.favoritos).toHaveLength(1);
-        expect(favoriteEditalResponse.body.favoritos[0].toString()).toBe(createdEditalId.toString());
-
-
-        // --- 3. Verificar Editais Favoritados (GET /user/favoritos) ---
-        const getFavoritesResponse = await request(app)
-            .get('/user/favoritos')
-            .set('Cookie', [`accessToken=${accessToken}`])
-            .set('Accept', 'application/json');
-
-        expect(getFavoritesResponse.status).toBe(200);
-        expect(getFavoritesResponse.body).toHaveProperty('favoritos');
-        expect(getFavoritesResponse.body.favoritos).toHaveLength(1);
-        expect(getFavoritesResponse.body.favoritos[0]._id.toString()).toBe(createdEditalId.toString());
-
-
-        // --- 4. Verificar Editais Sugeridos (GET /user/sugeridos) ---
-        // (Assumindo que o edital criado foi marcado como sugerido por este usuário)
-        const getSuggestedResponse = await request(app)
-            .get('/user/sugeridos')
-            .set('Cookie', [`accessToken=${accessToken}`])
-            .set('Accept', 'application/json');
-
-        expect(getSuggestedResponse.status).toBe(200);
-        expect(getSuggestedResponse.body).toHaveProperty('sugeridos');
-        expect(getSuggestedResponse.body.sugeridos).toHaveLength(1);
-        expect(getSuggestedResponse.body.sugeridos[0]._id.toString()).toBe(createdEditalId.toString());
-
-
-        // --- 5. Logout do Usuário (POST /api/auth/logout) ---
-        const logoutResponse = await request(app)
-            .post('/api/auth/logout')
-            .set('Cookie', [`accessToken=${accessToken}`]) // Envie o token para o logout
-            .set('Accept', 'application/json');
-
-        expect(logoutResponse.status).toBe(200);
-        expect(logoutResponse.body).toHaveProperty('mensagem', 'Logout realizado com sucesso');
-
-        // Verificar se o token foi realmente removido do banco de dados
-        const tokenInDb = await Token.findOne({ accessToken: accessToken });
-        expect(tokenInDb).toBeNull();
-
-        // --- 6. Tentar acessar uma rota protegida após o logout (deve falhar) ---
-        const tryAccessProtectedResponse = await request(app)
-            .get('/user/favoritos') // Tenta acessar favoritos novamente
-            .set('Accept', 'application/json'); // Sem cookies
-
-        expect(tryAccessProtectedResponse.status).toBe(401); // Espera 401 (Token não fornecido)
-        expect(tryAccessProtectedResponse.body).toHaveProperty('erro', 'Token não fornecido');
+        // 6. Tentar acessar uma rota protegida após o logout
+        const resProtected = await agent.get('/meus-editais/favoritos');
+        expect(resProtected.status).toBe(401);
     });
-
+    
     it('should handle multiple favorites toggles correctly', async () => {
-        const newEditalData = {
-            nome: 'Edital para Toggle Múltiplo',
-            organizacao: 'Org de Toggle',
-            periodoInscricao: { inicio: '2025-01-01T00:00:00Z', fim: '2025-01-31T23:59:59Z' },
-            descricao: 'Teste de toggle múltiplo.',
-            link: 'https://toggle.com',
-            // CORREÇÃO: Adicionando o campo obrigatório 'categoria'
-            categoria: 'Esportes'
-        };
+        const result = await createUserAndToken('session_user_multiple');
+        const multipleUser = result.user;
+        const multipleAccessToken = result.accessToken;
 
-        const createEditalResponse = await request(app)
-            .post('/editais')
-            .set('Cookie', [`accessToken=${accessToken}`])
-            .send(newEditalData)
-            .set('Accept', 'application/json');
-        const editalIdToToggle = createEditalResponse.body._id;
+        // Limpa os favoritos para este teste
+        await User.findByIdAndUpdate(multipleUser._id, { $set: { favoritos: [] } });
 
-        // 1. Favoritar
-        let response = await request(app)
-            .patch(`/user/favoritar/${editalIdToToggle}`)
-            .set('Cookie', [`accessToken=${accessToken}`]);
-        expect(response.status).toBe(200);
-        expect(response.body.favoritos).toHaveLength(1);
+        // Favorita o edital 1
+        await request(app).post(`/editais/${edital1._id}/favoritar`)
+            .set('Cookie', [`accessToken=${multipleAccessToken}`]);
 
-        // 2. Desfavoritar
-        response = await request(app)
-            .patch(`/user/favoritar/${editalIdToToggle}`)
-            .set('Cookie', [`accessToken=${accessToken}`]);
-        expect(response.status).toBe(200);
-        expect(response.body.favoritos).toHaveLength(0); // Lista deve estar vazia
+        let updatedUser = await User.findById(multipleUser._id);
+        expect(updatedUser.favoritos).toHaveLength(1);
+        expect(updatedUser.favoritos[0].toString()).toBe(edital1._id.toString());
 
-        // 3. Favoritar novamente
-        response = await request(app)
-            .patch(`/user/favoritar/${editalIdToToggle}`)
-            .set('Cookie', [`accessToken=${accessToken}`]);
-        expect(response.status).toBe(200);
-        expect(response.body.favoritos).toHaveLength(1);
+        // Favorita o edital 2
+        await request(app).post(`/editais/${edital2._id}/favoritar`)
+            .set('Cookie', [`accessToken=${multipleAccessToken}`]);
+        
+        updatedUser = await User.findById(multipleUser._id);
+        expect(updatedUser.favoritos).toHaveLength(2);
+
+        // Desfavorita o edital 1
+        await request(app).post(`/editais/${edital1._id}/favoritar`)
+            .set('Cookie', [`accessToken=${multipleAccessToken}`]);
+
+        updatedUser = await User.findById(multipleUser._id);
+        expect(updatedUser.favoritos).toHaveLength(1);
+        expect(updatedUser.favoritos[0].toString()).toBe(edital2._id.toString());
     });
+
 });

@@ -22,7 +22,10 @@ async function createUserAndToken(emailPrefix, device = 'jest-agent') {
     const user = await User.create({ 
         email: `${emailPrefix}@example.com`,
         name: `Name ${emailPrefix}`,
-        ngo: `NGO ${emailPrefix}`
+        // CORREÇÃO: Passando um objeto para 'ngo' em vez de uma string
+        ngo: {
+            name: `NGO ${emailPrefix}`
+        }
     });
 
     const payload = {
