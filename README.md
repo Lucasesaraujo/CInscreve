@@ -29,29 +29,6 @@ O sistema segue uma arquitetura **cliente-servidor**:
 
 ---
 
-## 📂 Estrutura de Pastas
-
-cinscreve/
-│── backend/
-│ ├── controllers/ # Lógica de negócios
-│ ├── models/ # Schemas Mongoose
-│ ├── routes/ # Definição de rotas
-│ ├── services/ # Consumo de API externa
-│ ├── middleware/ # Autenticação, rate limiting, etc.
-│ └── tests/ # Testes Jest + Supertest
-│
-│── frontend/
-│ ├── src/
-│ │ ├── components/ # Componentes reutilizáveis
-│ │ ├── pages/ # Páginas principais (Home, Login, etc.)
-│ │ ├── services/ # Consumo da API backend
-│ │ └── App.jsx
-│ └── public/
-│
-└── README.md
-
----
-
 ## 🛠️ Tecnologias Utilizadas
 
 - **Frontend**
