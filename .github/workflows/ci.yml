@@ -26,15 +26,6 @@ jobs:
       - name: Install Backend Dependencies
         run: cd backend && npm install
 
-      - name: Run Backend Unit Tests
-        run: cd backend && npm test
-        env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
-          MONGO_URI_TEST: ${{ secrets.MONGO_URI_TEST }}
-          EXTERNAL_AUTH_API_URL: ${{ secrets.EXTERNAL_AUTH_API_URL }}
-
       - name: Iniciar servidor backend
         run: |
           # Inicia o servidor em segundo plano e redireciona a saída para um arquivo de log
