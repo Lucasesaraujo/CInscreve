@@ -38,7 +38,7 @@ export default function Login() {
       }
 
       const dados = await resposta.json();
-      login(dados.usuario.user);
+      login(dados.usuario);
       console.log('Login realizado com sucesso', dados);
       navigate("/")
 

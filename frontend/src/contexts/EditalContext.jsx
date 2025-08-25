@@ -16,16 +16,8 @@ export function EditalProvider({ children }) {
       return;
     }
 
-    async function carregarFavoritos() {
-      try {
-        const data = await getUserData(); // retorna usuário com lista de favoritos
-        setFavoritos(data.usuario.favoritos?.map(f => f._id) || []);
-      } catch (err) {
-        console.error("Erro ao carregar favoritos do usuário:", err);
-      }
-    }
+    setFavoritos(usuario.favoritos);
 
-    carregarFavoritos();
   }, [usuario]);
 
   // 2. Alterna favorito de um edital
@@ -52,7 +44,9 @@ export function EditalProvider({ children }) {
 
   // 3. Verifica se um edital está favoritado
   const isFavorito = (editalId) => {
+    if (favoritos){
     return favoritos.includes(editalId);
+    }
   };
 
   return (
