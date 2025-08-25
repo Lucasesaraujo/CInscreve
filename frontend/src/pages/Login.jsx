@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Input from '../components/Input';
 import Botao from '../components/Botao';
 import Tipografia from '../components/Tipografia';
@@ -15,8 +15,17 @@ export default function Login() {
   const [carregando, setCarregando] = useState(false);
   const [erroLogin, setErroLogin] = useState('');
   const navigate = useNavigate();
-  const {login} = useAuth();
-  
+  const { login } = useAuth();
+
+  // Quando a página monta, verifica se o email foi salvo no localStorage
+  useEffect(() => {
+    const emailSalvo = localStorage.getItem('lembrarEmail');
+    if (emailSalvo) {
+      setEmail(emailSalvo);
+      setLembrar(true);
+    }
+  }, []);
+
   const handleLogin = async () => {
     setCarregando(true);
 
@@ -31,17 +40,24 @@ export default function Login() {
           email: email,
           password: senha
         })
-      })
+      });
 
       if (!resposta.ok) {
-        throw new Error('Erro ao fazer login')
+        throw new Error('Erro ao fazer login');
       }
 
       const dados = await resposta.json();
       login(dados.usuario.user);
-      console.log('Login realizado com sucesso', dados);
-      navigate("/")
 
+      // Se lembrar estiver marcado, salva o email no localStorage
+      if (lembrar) {
+        localStorage.setItem('lembrarEmail', email);
+      } else {
+        localStorage.removeItem('lembrarEmail');
+      }
+
+      console.log('Login realizado com sucesso', dados);
+      navigate("/");
     } catch (erro) {
       console.error('Erro no login', erro);
       setErroLogin('Erro ao fazer login, verifique email e senha!');
@@ -96,17 +112,16 @@ export default function Login() {
             className="mb-2"
           />
 
-          <div className="flex items-center justify-between text-sm text-gray-500 mb-10">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={lembrar}
-                onChange={() => setLembrar(!lembrar)}
-                className="accent-[#108cf0]"
-              />
-              Lembrar se de mim
-            </label>
-            <a href="#" className="hover:underline">Esqueceu a senha</a>
+          {/* Checkbox lembrar */}
+          <div className="flex items-center mb-4">
+            <input
+              id="lembrar"
+              type="checkbox"
+              checked={lembrar}
+              onChange={(e) => setLembrar(e.target.checked)}
+              className="mr-2"
+            />
+            <label htmlFor="lembrar" className="text-gray-600">Lembre-se de mim</label>
           </div>
 
           <Botao
