@@ -47,7 +47,7 @@ export default function Login() {
       }
 
       const dados = await resposta.json();
-      login(dados.usuario.user);
+      login(dados.usuario);
 
       // Se lembrar estiver marcado, salva o email no localStorage
       if (lembrar) {
