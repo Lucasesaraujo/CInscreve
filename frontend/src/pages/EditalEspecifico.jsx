@@ -38,15 +38,21 @@ const EditalEspecifico = () => {
 
         const fetchedEdital = await getEditalById(id)
         setEdital(fetchedEdital)
+        
+        console.log("FETCHED EDITAL:")
+        console.log(fetchedEdital);
 
-        if (isAutenticado && usuario?.id) {
-          const usuarioId = usuario.id
+        console.log("USUARIO")
+        console.log(usuario)
 
-          const usuarioJaValidou = fetchedEdital.validadoPor?.some(
-            u => u._id?.toString() === usuarioId.toString()
-          ) || false
+        if (isAutenticado && usuario?._id) {
+          const usuarioId = usuario._id
+
+          const usuarioJaValidou = fetchedEdital.validadoPor?.some(u => u._id?.toString() === usuarioId.toString()) || false
           setJaValidou(usuarioJaValidou)
-
+          console.log("JÁ VALIDOU?")
+          console.log(usuarioJaValidou)
+          
           const usuarioJaDenunciou = fetchedEdital.denunciadoPor?.some(
             u => u._id?.toString() === usuarioId.toString()
           ) || false

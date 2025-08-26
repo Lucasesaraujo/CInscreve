@@ -33,7 +33,7 @@ const NgoSchema = new mongoose.Schema({
 
 // Schema do usuário
 const UsuarioSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  user: { type: Object, required: true},
   email: { type: String, required: true, unique: true },
   favoritos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Edital', default: [] }],
   sugeridos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Edital', default: [] }],
