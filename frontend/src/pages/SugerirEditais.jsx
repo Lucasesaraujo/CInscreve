@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import Input from '../components/Input';
 import Botao from '../components/Botao';
 import Tipografia from '../components/Tipografia';
+import AlertaSucesso from '../components/AlertaSucesso';
 
 const SugerirEdital = () => {
   const [nomeEdital, setNomeEdital] = useState('');
@@ -15,6 +16,8 @@ const SugerirEdital = () => {
   const [dataFim, setDataFim] = useState('');
   const [descricao, setDescricao] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [alertaSucesso, setAlertaSucesso] = useState(false);
+
 
   const navigate = useNavigate();
 
@@ -78,7 +81,7 @@ const SugerirEdital = () => {
 
       const dados = await resposta.json();
       console.log('Sugestão enviada com sucesso:', dados);
-      alert('Edital sugerido com sucesso!');
+      setAlertaSucesso(true);
 
       setNomeEdital('');
       setInstituicao('');
@@ -87,8 +90,6 @@ const SugerirEdital = () => {
       setDataInicio('');
       setDataFim('');
       setDescricao('');
-
-      navigate('/meu-perfil');
 
     } catch (erro) {
       console.error('Erro ao sugerir edital:', erro);
@@ -100,7 +101,7 @@ const SugerirEdital = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-10">
+      <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-20">
         <Tipografia tipo="titulo" className="mb-4 text-zinc-800">
           Sugerir edital
         </Tipografia>
@@ -214,6 +215,15 @@ const SugerirEdital = () => {
           </div>
         </form>
       </main>
+      {alertaSucesso && (
+        <AlertaSucesso
+          mensagem="Edital sugerido com sucesso!"
+          onClose={() => {
+            setAlertaSucesso(false);
+            navigate('/meu-perfil'); // só navega quando fechar o alerta
+          }}
+        />
+      )}
       <Footer />
     </div>
   );
