@@ -6,7 +6,7 @@ const Footer = () => {
   const navigate = useNavigate();
 
   return (
-    <footer className="w-full bg-blue-100"> {/* Azul claro usando Tailwind */}
+    <footer className="w-full bg-white"> {/* Azul claro usando Tailwind */}
       <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between gap-8">
         {/* Logo e descrição */}
         <div className="flex flex-col items-start gap-y-0">

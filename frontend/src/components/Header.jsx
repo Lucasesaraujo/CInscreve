@@ -27,7 +27,7 @@ export default function Header({ mostrarPerfil, setMostrarPerfil }) {
   };
 
   return (
-    <header className="relative w-full bg-white shadow py-2 overflow-visible">
+    <header className="w-full bg-white shadow py-2 overflow-visible fixed top-0 z-50">
       {/* Logo */}
       <div
         onClick={() => handleNavigate("/")}

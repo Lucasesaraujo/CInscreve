@@ -168,12 +168,7 @@ export default function Edital() {
   }, [termoBusca, categoriaSelecionada, cardsValidados, cardsDestaque, cardsNaoValidados]);
 
   return (
-    <section className="relative text-zinc-800 w-full min-h-screen">
-      <img
-        src={Fundo}
-        alt="fundo"
-        className="absolute top-0 left-0 w-full h-full object-cover -z-10"
-      />
+    <section className="relative text-zinc-800 w-full min-h-screen bg-[#C7E5FD]">
 
       <section className="w-full bg-[#f0f7fd] py-24 relative">
         <div className="flex flex-col md:flex-row items-center gap-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

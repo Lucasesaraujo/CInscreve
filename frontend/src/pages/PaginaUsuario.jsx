@@ -138,10 +138,10 @@ const Usuario = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ backgroundImage: `url(${Fundo})` }}>
+    <div className="flex flex-col min-h-screen">
 
       {/* Bloco de editais favoritados */}
-      <section className="relative bg-cover bg-center bg-no-repeat py-16">
+      <section className="relative bg-cover bg-center bg-no-repeat py-16 bg-[#C7E5FD]">
         <div className="w-full px-6 md:px-20 lg:px-32">
           <Tipografia tipo="titulo" className="mb-2 text-4xl text-black text-center">
             Editais favoritados por você
@@ -179,7 +179,7 @@ const Usuario = () => {
       </section>
 
       {/* Sugeridos */}
-      <section className="relative bg-cover bg-center bg-no-repeat py-16">
+      <section className="relative bg-cover bg-center bg-no-repeat py-16 bg-[#C7E5FD]">
         <div className="w-full px-6 md:px-20 lg:px-32">
           <Tipografia tipo="titulo" className="mb-2 text-4xl text-black text-center">
             Editais sugeridos por você
@@ -225,7 +225,7 @@ const Usuario = () => {
         )}
       </section>
 
-      <Footer />
+      <Footer/>
     </div>
   )
 }

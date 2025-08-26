@@ -49,7 +49,7 @@ export default function Home() {
     }
 
     return (
-        <section className="text-zinc-800" style={{ backgroundImage: `url(${Fundo})` }}>
+        <section className="text-zinc-800 bg-[#C7E5FD]">
             
             {/* Alerta de erro */}
             {mostrarErro && (
@@ -94,7 +94,6 @@ export default function Home() {
                     <Carrossel cards={cards} />
                 </div>
 
-                <hr className="border-white my-4" />
                 <Tipografia tipo="subtitulo" className="text-center text-gray-500">
                     Você conhece a realidade. Sua validação faz a diferença.
                 </Tipografia>
