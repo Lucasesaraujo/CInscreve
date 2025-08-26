@@ -129,6 +129,12 @@ const EditalEspecifico = () => {
 
   const handleInscrever = () => {
     if (!isAutenticado) return redirecionarLogin()
+
+    // se não foi validado nem pelo usuário nem por outros
+    if (!(edital.validado || jaValidou)) {
+      return setAlertaErro('Este edital precisa ser validado antes de você se inscrever.');
+    }
+
     if (edital.link) {
       window.open(edital.link, '_blank')
     } else {
@@ -173,7 +179,6 @@ const EditalEspecifico = () => {
                 variante="azul-medio"
                 className="!w-48 h-full cursor-pointer mt-4"
                 onClick={handleInscrever}
-                disabled={!(edital.link && (edital.validado || jaValidou))}
               >
                 Inscreva-se
               </Botao>
