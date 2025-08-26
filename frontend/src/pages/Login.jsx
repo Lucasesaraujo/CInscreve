@@ -56,8 +56,6 @@ export default function Login() {
         localStorage.removeItem('lembrarEmail');
       }
 
-      console.log('Login realizado com sucesso', dados);
-      navigate("/");
     } catch (erro) {
       console.error('Erro no login', erro);
       setErroLogin('Erro ao fazer login, verifique email e senha!');
