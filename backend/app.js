@@ -22,7 +22,9 @@ app.use(cors({
     'https://cinboraimpactar.cin.ufpe.br/cinscreve/',
     'https://cinboraimpactar.cin.ufpe.br',
     'https://vm-cinboraimpactar2.cin.ufpe.br',
-    'https://vm-cinboraimpactar2.cin.ufpe.br/cinscreve/'
+    'https://vm-cinboraimpactar2.cin.ufpe.br/cinscreve/',
+    'http://backend_cinscreve:3002/',
+    'http://frontend_cinscreve:5002/'
   ],
   credentials: true
 }));
