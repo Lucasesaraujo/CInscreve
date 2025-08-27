@@ -1,6 +1,6 @@
 //import { useAuth } from "../contexts/AuthContext";
 
-const URL = "http://localhost:3002";
+const URL = "http://vm-cinboraimpactar2.cin.ufpe.br/cinscreveback/";
 const BASE_URL = `${URL}/editais`;
 //const {logout} = useAuth();
 

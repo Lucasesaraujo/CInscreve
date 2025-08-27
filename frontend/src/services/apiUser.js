@@ -1,4 +1,4 @@
-const URL = "http://localhost:3002";
+const URL = "http://vm-cinboraimpactar2.cin.ufpe.br/cinscreveback/";
 const BASE_URL = `${URL}/api/auth`;
 
 // Função para buscar os dados do usuário logado

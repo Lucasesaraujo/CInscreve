@@ -1,5 +1,5 @@
 // URL base do backend
-const URL = "http://localhost:3002";
+const URL = "http://vm-cinboraimpactar2.cin.ufpe.br/cinscreveback/";
 const BASE_URL = `${URL}/api/auth`;
 
 // Permite sobrescrever a URL via variável de ambiente

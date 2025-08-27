@@ -25,7 +25,7 @@ services:
     depends_on:
       - backend
     environment:
-      - VITE_API_URL=http://backend:5002 # use o nome do serviço para acessar o backend
+      - VITE_API_URL=http://vm-cinboraimpactar2.cin.ufpe.br/cinscreveback/ # use o nome do serviço para acessar o backend
     networks:
       - boraimpactar2
 
