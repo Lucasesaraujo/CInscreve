@@ -6,6 +6,10 @@ const visitanteLimiter = rateLimit({
   message: 'Limite de requisições atingido. Tente novamente em alguns minutos.',
   standardHeaders: true,
   legacyHeaders: false,
+  // Configure how to handle requests behind a proxy
+  trustProxy: true, // Trust the first proxy
+  // Alternative: you can be more specific about which headers to trust
+  // trustProxy: ['loopback', 'linklocal', 'uniquelocal']
 });
 
 // Só aplica o rate limit se o usuário NÃO estiver logado
