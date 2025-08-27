@@ -12,7 +12,7 @@ const authRoutes = require('./routes/authRoutes');
 const app = express();
 
 // Enable trust proxy to handle X-Forwarded-* headers from reverse proxy
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 
 const allowedOrigins = [
     'http://localhost:5002', 
