@@ -1,18 +1,31 @@
-# === ESTÁGIO 1: BUILD DA APLICAÇÃO ===
-FROM node:18-alpine AS builder
+
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copia apenas arquivos de dependência para aproveitar cache
-COPY package*.json ./
-
-# Instala as dependências (npm install como você pediu)
+COPY frontend/package*.json ./
 RUN npm install
+COPY frontend/ .
+RUN npm run build
 
-# Copia o restante do código
-COPY . .
 
-# Expõe a porta usada pelo Nginx
+# ---- ESTÁGIO 2: Servidor de Produção com Node.js ----
+# (Aqui está a mágica!)
+FROM node:22-alpine
+
+# Define o diretório de trabalho
+WORKDIR /app
+
+# Instala o 'serve' globalmente. É um servidor estático super leve.
+RUN npm install -g serve
+
+# Copia APENAS o resultado final da  "oficina" (a pasta 'dist')
+# do estágio anterior para a pasta atual.
+COPY --from=builder /app/dist .
+
+
 EXPOSE 5002
 
-CMD ["npm", "start"]
+# Comando para iniciar o servidor, FORÇANDO ele a usar a porta 3007
+# É exatamente a sua sugestão!
+CMD ["serve", "-s", ".", "-l", "5002"]
