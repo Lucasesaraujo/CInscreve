@@ -11,8 +11,7 @@ async function connectDB() {
             socketTimeoutMS: 45000, // 45 segundos para operações
             connectTimeoutMS: 30000, // 30 segundos para conectar
             
-            // Configurações de buffer e pool
-            bufferMaxEntries: 0, // Desabilita buffering que causa timeout
+            // Configurações de pool
             maxPoolSize: 10, // Máximo de conexões simultâneas
             minPoolSize: 1, // Mínimo de conexões no pool
             
@@ -32,6 +31,10 @@ async function connectDB() {
         // process.exit(1);
     }
 }
+
+// Desabilitar buffering globalmente no Mongoose
+mongoose.set('bufferCommands', false);
+mongoose.set('bufferMaxEntries', 0);
 
 // Configurar eventos de conexão
 mongoose.connection.on('connected', () => {
