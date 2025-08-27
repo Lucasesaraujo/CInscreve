@@ -12,20 +12,7 @@ const authRoutes = require('./routes/authRoutes');
 const app = express();
 
 app.use(cors({
-  origin: [
-    'http://localhost:5002', 
-    'http://172.18.0.3:5002', 
-    'http://172.18.0.2:5002', 
-    'http://vm-cinboraimpactar2.cin.ufpe.br', 
-    'http://vm-cinboraimpactar2.cin.ufpe.br/cinscreve/', 
-    'http://vm-cinboraimpactar2.cin.ufpe.br:5002', 
-    'https://cinboraimpactar.cin.ufpe.br/cinscreve/',
-    'https://cinboraimpactar.cin.ufpe.br',
-    'https://vm-cinboraimpactar2.cin.ufpe.br',
-    'https://vm-cinboraimpactar2.cin.ufpe.br/cinscreve/',
-    'http://backend_cinscreve:3002/',
-    'http://frontend_cinscreve:5002/'
-  ],
+  origin: true, // Permite qualquer origem
   credentials: true
 }));
 
