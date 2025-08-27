@@ -3,11 +3,18 @@ const logger = require('../config/logger');
 const { listarEditaisService, validarEditalService, buscarEditalByIdService, criarEditalService, atualizarEditalService, listarDestaquesService, removerEditalService, denunciarEditalService } = require('../services/editalServices');
 
 // GET Controller para listar os editais
-const listarEditais = async (req, res) => {
+const listarEditais = async (req, res, next) => {
   try {
     const resultado = await listarEditaisService(req.query);
     res.json(resultado);
   } catch (error) {
+    logger.error('Erro no controller ao listar editais:', {
+      error: error.message,
+      stack: error.stack,
+      query: req.query,
+      requestUrl: req.originalUrl,
+      requestMethod: req.method
+    });
     next(error);
   }
 };
@@ -19,6 +26,12 @@ async function buscarEdital(req, res, next) {
     const edital = await buscarEditalByIdService(req.params.id, req.usuario?.id);
 
     if (!edital) {
+      logger.warn('Tentativa de buscar edital não encontrado:', {
+        editalId: req.params.id,
+        userId: req.usuario?.id,
+        requestUrl: req.originalUrl,
+        requestMethod: req.method
+      });
       const error = new Error('Edital não encontrado.');
       error.status = 404;
       return next(error);
@@ -26,6 +39,14 @@ async function buscarEdital(req, res, next) {
 
     res.json(edital); // Retorna o objeto edital já processado pelo serviço
   } catch (error) {
+    logger.error('Erro no controller ao buscar edital por ID:', {
+      error: error.message,
+      stack: error.stack,
+      editalId: req.params.id,
+      userId: req.usuario?.id,
+      requestUrl: req.originalUrl,
+      requestMethod: req.method
+    });
     next(error); // Passa o erro para o middleware global
   }
 }
@@ -34,8 +55,21 @@ async function buscarEdital(req, res, next) {
 const criarEdital = async (req, res, next) => { 
   try {
     const novoEdital = await criarEditalService(req.body, req.usuario.id);
+    logger.info('Edital criado com sucesso:', {
+      editalId: novoEdital._id,
+      userId: req.usuario.id,
+      titulo: req.body.titulo
+    });
     res.status(201).json(novoEdital);
   } catch (error) {
+    logger.error('Erro no controller ao criar edital:', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.usuario.id,
+      requestBody: req.body,
+      requestUrl: req.originalUrl,
+      requestMethod: req.method
+    });
     next(error); // Passa o erro para o middleware de tratamento de erros global
   }
 };
@@ -45,12 +79,30 @@ const atualizarEdital = async (req, res, next) => {
   try {
     const editalAtualizado = await atualizarEditalService(req.params.id, req.body);
     if (!editalAtualizado) {
+      logger.warn('Tentativa de atualizar edital não encontrado:', {
+        editalId: req.params.id,
+        requestBody: req.body,
+        requestUrl: req.originalUrl,
+        requestMethod: req.method
+      });
       const error = new Error('Edital não encontrado!');
       error.status = 404; // Define o status para o middleware de erro
       return next(error);
     }
+    logger.info('Edital atualizado com sucesso:', {
+      editalId: req.params.id,
+      titulo: editalAtualizado.titulo
+    });
     res.json(editalAtualizado);
   } catch (error) {
+    logger.error('Erro no controller ao atualizar edital:', {
+      error: error.message,
+      stack: error.stack,
+      editalId: req.params.id,
+      requestBody: req.body,
+      requestUrl: req.originalUrl,
+      requestMethod: req.method
+    });
     next(error); // Passa o erro
   }
 };
@@ -60,12 +112,28 @@ const removerEdital = async (req, res, next) => {
   try {
     const editalRemovido = await removerEditalService(req.params.id);
     if (!editalRemovido) {
+      logger.warn('Tentativa de remover edital não encontrado:', {
+        editalId: req.params.id,
+        requestUrl: req.originalUrl,
+        requestMethod: req.method
+      });
       const error = new Error('Edital não encontrado!');
       error.status = 404;
       return next(error);
     }
+    logger.info('Edital removido com sucesso:', {
+      editalId: req.params.id,
+      titulo: editalRemovido.titulo
+    });
     res.json({ mensagem: 'Edital removido com sucesso!' });
   } catch (error) {
+    logger.error('Erro no controller ao remover edital:', {
+      error: error.message,
+      stack: error.stack,
+      editalId: req.params.id,
+      requestUrl: req.originalUrl,
+      requestMethod: req.method
+    });
     next(error);
   }
 };
@@ -74,18 +142,37 @@ const removerEdital = async (req, res, next) => {
 const validarEdital = async (req, res, next) => { // Adicione 'next'
   try {
     const edital = await validarEditalService(req.params.id, req.usuario.id);
+    logger.info('Edital validado com sucesso:', {
+      editalId: req.params.id,
+      validadoPor: req.usuario.id,
+      titulo: edital.titulo
+    });
     res.json({ mensagem: 'Edital validado com sucesso!', edital });
   } catch (error) {
+    logger.error('Erro no controller ao validar edital:', {
+      error: error.message,
+      stack: error.stack,
+      editalId: req.params.id,
+      userId: req.usuario.id,
+      requestUrl: req.originalUrl,
+      requestMethod: req.method
+    });
     next(error);
   }
 };
 
-const listarNaoValidados = async (req, res) => {
+const listarNaoValidados = async (req, res, next) => {
   try {
     const editais = await Edital.find({ validado: false });
     res.json(editais);
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao listar editais não validados' });
+    logger.error('Erro no controller ao listar editais não validados:', {
+      error: error.message,
+      stack: error.stack,
+      requestUrl: req.originalUrl,
+      requestMethod: req.method
+    });
+    next(error);
   }
 };
 
@@ -108,8 +195,21 @@ async function denunciarEdital(req, res, next) {
 
   try {
       const resultado = await denunciarEditalService(editalId, userId);
+      logger.info('Edital denunciado com sucesso:', {
+        editalId,
+        denunciadoPor: userId,
+        numeroDenuncias: resultado.edital.denuncias.length
+      });
       res.status(200).json(resultado);
   } catch (error) {
+      logger.error('Erro no controller ao denunciar edital:', {
+        error: error.message,
+        stack: error.stack,
+        editalId,
+        userId,
+        requestUrl: req.originalUrl,
+        requestMethod: req.method
+      });
       // O middleware de erro global (`app.js`) tratará o status do erro (404, 409, 500)
       next(error);
   }
