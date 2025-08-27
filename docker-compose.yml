@@ -13,7 +13,7 @@ services:
       - ./backend:/app
       - /app/node_modules
     networks:
-      - cinscreve-network
+      - boraimpactar2
     command: npm run start
 
   frontend:
@@ -27,8 +27,8 @@ services:
     environment:
       - VITE_API_URL=http://backend:5002 # use o nome do serviço para acessar o backend
     networks:
-      - cinscreve-network
+      - boraimpactar2
 
 networks:
-  cinscreve-network:
-    driver: bridge
+  boraimpactar2:
+    external: true
