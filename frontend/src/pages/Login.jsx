@@ -30,7 +30,7 @@ export default function Login() {
     setCarregando(true);
 
     try {
-      const resposta = await fetch('http://localhost:3002/api/auth/login', {
+      const resposta = await fetch('http://vm-cinboraimpactar2.cin.ufpe.br/cinscreveback/api/auth/login', {
         method: 'POST',
         credentials: 'include',
         headers: {
