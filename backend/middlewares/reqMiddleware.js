@@ -7,9 +7,6 @@ const visitanteLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   // CORREÇÃO: Remover trustProxy daqui ou ser mais específico
-  // Opção 1: Remover completamente (recomendado)
-  // trustProxy: true, // <- REMOVER ESTA LINHA
-
   // Opção 2: Ou configurar para ignorar a validação
   validate: {
     trustProxy: false,
