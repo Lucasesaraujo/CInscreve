@@ -147,7 +147,7 @@ const EditalEspecifico = () => {
   if (!edital) return <div className="flex justify-center items-center min-h-screen text-gray-600">Edital não encontrado.</div>
 
   const imagemDoEdital = edital.imagem && edital.imagem.length > 0
-    ? edital.imagem[0].startsWith('http') ? edital.imagem[0] : `http://localhost:3002${edital.imagem[0]}`
+    ? edital.imagem[0].startsWith('http') ? edital.imagem[0] : `http://http://vm-cinboraimpactar2.cin.ufpe.br/cinscreveback${edital.imagem[0]}`
     : 'https://via.placeholder.com/1152x250?text=Imagem+Padrao+do+Edital'
 
   return (

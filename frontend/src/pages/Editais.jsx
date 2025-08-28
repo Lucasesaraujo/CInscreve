@@ -36,7 +36,7 @@ export default function Edital() {
     if (termoBusca) params.append('nome', termoBusca);
     if (categoriaSelecionada) params.append('area', categoriaSelecionada);
 
-    const url = `http://localhost:3002/editais?${params.toString()}`;
+    const url = `http://vm-cinboraimpactar2.cin.ufpe.br/cinscreveback/editais?${params.toString()}`;
 
     try {
       setQuantidadeRenderizada(9);
