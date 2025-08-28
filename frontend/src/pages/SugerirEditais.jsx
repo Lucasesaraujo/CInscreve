@@ -59,7 +59,7 @@ const SugerirEdital = () => {
     console.log('Cookies do navegador:', document.cookie);
 
     try {
-      const resposta = await fetch('http://localhost:3002/editais', {
+      const resposta = await fetch('http://vm-cinboraimpactar2.cin.ufpe.br/editais', {
         method: 'POST',
         credentials: 'include',
         headers: {
