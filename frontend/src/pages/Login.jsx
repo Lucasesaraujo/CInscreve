@@ -7,6 +7,7 @@ import imagemLogin from '../assets/login.png';
 import AlertaErro from '../components/AlertaErro';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import imagemCapa from "../assets/capa.png";
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -71,7 +72,7 @@ export default function Login() {
   return (
     <div
       className="min-h-screen w-full bg-cover bg-center flex items-center justify-center"
-      style={{ backgroundImage: "url('assets/capa.png')" }}
+      style={{ backgroundImage: `url(${imagemCapa})` }}
     >
       {/* Alerta de erro */}
       {erroLogin && (
