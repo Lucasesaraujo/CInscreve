@@ -68,11 +68,10 @@ export default function Login() {
       setCarregando(false);
     }
   };
-
   return (
     <div
       className="min-h-screen w-full bg-cover bg-center flex items-center justify-center"
-      style={{ backgroundImage: imagemCapa }}
+      style={{ backgroundImage: `url(${imagemCapa})` }}
     >
       {/* Alerta de erro */}
       {erroLogin && (
