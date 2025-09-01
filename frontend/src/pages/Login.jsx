@@ -71,7 +71,7 @@ export default function Login() {
   return (
     <div
       className="min-h-screen w-full bg-cover bg-center flex items-center justify-center"
-      style={{ backgroundImage: "url('src/assets/capa.png')" }}
+      style={{ backgroundImage: "url('assets/capa.png')" }}
     >
       {/* Alerta de erro */}
       {erroLogin && (
