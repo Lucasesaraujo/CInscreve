@@ -72,7 +72,7 @@ export default function Login() {
   return (
     <div
       className="min-h-screen w-full bg-cover bg-center flex items-center justify-center"
-      style={{ backgroundImage: `url(${imagemCapa})` }}
+      style={{ backgroundImage: imagemCapa }}
     >
       {/* Alerta de erro */}
       {erroLogin && (
